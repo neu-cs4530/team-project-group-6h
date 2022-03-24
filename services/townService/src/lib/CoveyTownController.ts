@@ -265,8 +265,8 @@ export default class CoveyTownController {
     // remove the correct mafia player
     const deletedPlayer = mafiaGame.players.splice(mafiaGame.players.findIndex((p) => p.id === player.id), 1)[0];
 
-    // destroy the mafia game if there are no players left or the host has left
-    if (mafiaGame.players.length === 0 || deletedPlayer.isHost) {
+    // destroy the mafia game if there are no players left or the host has left during lobby phase
+    if (mafiaGame.players.length === 0 || (deletedPlayer.isHost && mafiaGame.phase === phase.lobby)) {
       deletedPlayer.activeMafiaGame = undefined;
       this._listeners.forEach(listener => listener.onConversationAreaUpdated(deletedPlayer.activeRecreationArea));
     } else {
