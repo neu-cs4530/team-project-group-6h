@@ -1,3 +1,5 @@
+import { create } from 'domain';
+import { ReasonPhrases } from 'http-status-codes';
 import { customAlphabet, nanoid } from 'nanoid';
 import { BoundingBox, ServerConversationArea } from '../client/TownsServiceClient';
 import { ChatMessage, UserLocation } from '../CoveyTypes';
@@ -5,6 +7,9 @@ import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 import PlayerSession from '../types/PlayerSession';
 import IVideoClient from './IVideoClient';
+import { MafiaGame, phase } from './mafia_lib/MafiaGame';
+import { RecreationArea } from './mafia_lib/RecreationArea';
+import { RecreationPlayer } from './mafia_lib/RecreationPlayer';
 import TwilioVideo from './TwilioVideo';
 
 const friendlyNanoID = customAlphabet('1234567890ABCDEF', 8);
@@ -209,6 +214,67 @@ export default class CoveyTownController {
     return true;
   }
 
+  /**
+   * Creates a new MafiaGame in a recreation area if there is not currently an active mafia game in this recreation room.
+   * 
+   * Notifies any CoveyTownListeners that the conversation has been updated
+   * 
+   * @param _recreationArea Contains information describing the game to create. There should be only one player in the given mafia game that will be designated as the host. 
+   * 
+   * @returns true if the game is successfully created, or false if not
+   */
+  createMafiaGame(_recreationArea: RecreationArea): boolean {
+    let existingGame = _recreationArea.mafiaGame;
+
+    if (!existingGame) { // if no mafia game exists in the given recreation area, then initiate a mafia game and update the recreation area
+
+      // find the host (the person who initiated the mafia game)
+      const gameHost = _recreationArea.players.filter((p) => {p.isHost === true})[0];
+      
+      // if a game host exists, then initiate a mafia game
+      if (gameHost) {
+        const createdGame: MafiaGame = {
+          players: [gameHost],
+          phase: phase.lobby,
+          isGameOver: false,
+        }
+
+        _recreationArea.mafiaGame = createdGame;
+
+        // let listeners know the recreation area has been updated
+        this._listeners.forEach(listener => listener.onConversationAreaUpdated(_recreationArea));
+
+        return true;
+      }
+
+    }
+
+    return false;
+
+
+  }
+
+  /**
+   * Removes a player from a mafia game, updating the mafia game's player list,
+   * and emitting the appropriate message.
+   * 
+   * @param player The player to remove from the mafia game
+   * @param mafiaGame The game to modify number of players
+   */
+  removePlayerFromMafiaGame(player: RecreationPlayer, mafiaGame: MafiaGame) {
+    // remove the correct mafia player
+    const deletedPlayer = mafiaGame.players.splice(mafiaGame.players.findIndex((p) => p.id === player.id), 1)[0];
+
+    // destroy the mafia game if there are no players left or the host has left during lobby phase
+    if (mafiaGame.players.length === 0 || (deletedPlayer.isHost && mafiaGame.phase === phase.lobby)) {
+      deletedPlayer.activeMafiaGame = undefined;
+      this._listeners.forEach(listener => listener.onConversationAreaUpdated(deletedPlayer.activeRecreationArea));
+    } else {
+      // else just update the recreation area
+      this._listeners.forEach(listener => listener.onConversationAreaUpdated(deletedPlayer.activeRecreationArea));
+    }
+    
+  }
   /**
    * Detects whether two bounding boxes overlap and share any points
    * 
