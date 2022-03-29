@@ -1,5 +1,3 @@
-import RecreationArea from "./RecreationArea";
-import MafiaGame from "./MafiaGame";
 import TownMember from "./TownMember";
 
 /**
@@ -7,13 +5,9 @@ import TownMember from "./TownMember";
  * TODO: ADD
  */
 export default class Detective extends TownMember { 
-  /**
-   * TODO: Constructors for role assignment
-   */
+  _roleInfo = 'Detective: Able to investigate the role of one (1) player during the night.';
+
   
-  constructor(townMember: TownMember) {
-    super(townMember);
-  }
 
 } 
 

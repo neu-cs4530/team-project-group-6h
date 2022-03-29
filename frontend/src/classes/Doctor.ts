@@ -1,5 +1,3 @@
-import RecreationArea from "./RecreationArea";
-import MafiaGame from "./MafiaGame";
 import TownMember from "./TownMember";
 
 /**
@@ -7,13 +5,7 @@ import TownMember from "./TownMember";
  * TODO: ADD
  */
 export default class Doctor extends TownMember { 
-  /**
-   * TODO: Constructors for role assignment
-   */
-
-  constructor(townMember: TownMember) {
-    super(townMember);
-  }
+  _roleInfo = 'Doctor: Can resurrect one (1) player during the night.';
   
 
 };

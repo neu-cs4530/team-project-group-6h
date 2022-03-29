@@ -1,18 +1,10 @@
-import RecreationArea from "./RecreationArea";
-import MafiaGame from "./MafiaGame";
 import MafiaMember from "./MafiaMember";
 
 /**
- * Extends the MaifiaMember type, adding abilities specific to Godfather role, such as:
- * TODO: ADD
+ * Extends the MaiaMember class to add role information for the Godfather.
  */
 export default class Godfather extends MafiaMember { 
-  /**
-   * TODO: Constructors for role assignment
-   */
-  constructor(mafiaMember: MafiaMember) {
-    super(mafiaMember);
-  }
+  _roleInfo = 'Godfather: Can override the a mafia decision to eliminate a town mber in favor of their own.'
 
 }
 

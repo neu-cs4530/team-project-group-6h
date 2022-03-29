@@ -1,6 +1,4 @@
-import RecreationArea from "./RecreationArea";
-import MafiaGame from "./MafiaGame";
-import GamePlayer from "./GamePlayer";
+import GamePlayer, { Team } from "./GamePlayer";
 
 /**
  * Extends the GamePlayer type, adding general role functionality common to all Mafia roles, such as:
@@ -8,11 +6,11 @@ import GamePlayer from "./GamePlayer";
  */
 export default class MafiaMember extends GamePlayer { 
 
-  /**
-   * TODO: Constructors for role assignment
-   */
+  _roleInfo = 'Mafia: Can eliminate one Town member during the night.';
+
    constructor(gamePlayer: GamePlayer) {
     super(gamePlayer);
+    this.team = Team.Mafia;
   }
   
 }
