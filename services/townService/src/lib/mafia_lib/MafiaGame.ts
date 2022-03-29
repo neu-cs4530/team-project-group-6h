@@ -18,4 +18,6 @@ import { RecreationPlayer } from "./RecreationPlayer";
     players: RecreationPlayer[], // players in the game
     phase: phase, 
     isGameOver: boolean,
+
+
 }
