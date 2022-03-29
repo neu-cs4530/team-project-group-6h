@@ -8,7 +8,7 @@ import Player from '../types/Player';
 import PlayerSession from '../types/PlayerSession';
 import IVideoClient from './IVideoClient';
 import { MafiaGame, phase } from './mafia_lib/MafiaGame';
-import { RecreationArea } from './mafia_lib/RecreationArea';
+import { RecreationArea } from '../../../../frontend/src/classes/mafia_lib/RecreationArea';
 import { RecreationPlayer } from './mafia_lib/RecreationPlayer';
 import TwilioVideo from './TwilioVideo';
 

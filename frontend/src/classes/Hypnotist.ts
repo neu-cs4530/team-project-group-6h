@@ -1,4 +1,4 @@
-import RecreationArea from "../../../../../frontend/src/classes/mafia_lib/RecreationArea";
+import RecreationArea from "./RecreationArea";
 import MafiaGame from "./MafiaGame";
 import TownMember from "./TownMember";
 
