@@ -34,7 +34,7 @@ export default class GamePlayer extends RecreationPlayer {
  _target: string;
 
   constructor(recPlayer: RecreationPlayer) {
-    super(recPlayer);
+    super(recPlayer.userName);
     this._isAlive = true;
     this._hasVoted = false;
     this._roleInfo = '';
@@ -74,6 +74,10 @@ export default class GamePlayer extends RecreationPlayer {
 
   set target(target: string) {
     this._target = target;
+  }
+
+  get isAlive() {
+    return this._isAlive;
   }
 
 }

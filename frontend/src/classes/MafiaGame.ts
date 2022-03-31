@@ -16,15 +16,35 @@ import RecreationPlayer from "./RecreationPlayer";
  * Represents type of MafiaGame that can be instantiated by players in a Recreation Room.
  */
 export default class MafiaGame {
+
   _players: RecreationPlayer[]; // players in the game
+
+  _mafiaPlayers: GamePlayer[] | undefined; // array of mafia members in the game
+
+  _townPlayers: GamePlayer[] | undefined; // array of town members in the game 
 
   _phase = Phase.lobby;
 
-  _isGameOver = false;
+  // _isGameOver = false; 
 
   constructor(players: RecreationPlayer[]) {
     this._players = players;
+    this._mafiaPlayers = undefined;
+    this._townPlayers = undefined;
+  }
 
+  /**
+   * Determines if the game is over if there are no players remaining in either the Mafia or the town team.
+   * @returns False if the game is not over, true if it is over
+   */
+  private isGameOver(): boolean {
+    if (this._mafiaPlayers && this._townPlayers) {
+      if (this._mafiaPlayers.every((player) => !player.isAlive) || this._townPlayers.every((player) => !player.isAlive)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -55,6 +75,19 @@ export default class MafiaGame {
     this.shuffle();
     
     // TODO: Implement role assignment logic.
+
+
+  }
+
+  /**
+   * The main function of the game.
+   */
+  public play(): void {
+    // LOBBY LOGIC
+
+    while (!this.isGameOver()) {
+      // DO STUFF
+    }
   }
 
 
