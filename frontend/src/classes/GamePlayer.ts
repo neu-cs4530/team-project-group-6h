@@ -9,6 +9,14 @@ import RecreationPlayer from "./RecreationPlayer";
   'Unassigned'
 };
 
+export enum Role {
+  'Unassigned',
+  'Detective',
+  'Doctor',
+  'Hypnotist',
+  'Godfather'
+};
+
 /**
  * Extends the RecreationPlayer type, adding general functionality that a player within the Mafia Game will need. 
  */
@@ -18,6 +26,8 @@ export default class GamePlayer extends RecreationPlayer {
   _hasVoted: boolean; // Has the player voted yet during the voting cycle?
   
   _team = Team.Unassigned; // The team that the GamePlayer is on
+
+  _role = Role.Unassigned; // The currently assigned role that the player has
   
  _roleInfo: string; // Information about the player's given role
 
@@ -33,6 +43,11 @@ export default class GamePlayer extends RecreationPlayer {
 
   set team(team: Team) {
     this._team = team;
+  }
+
+
+  set role(role: Role) {
+    this._role = role;
   }
 
   set target(target: string) {
