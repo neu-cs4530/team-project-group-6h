@@ -5,20 +5,20 @@ import Player from '../../types/Player';
  */
 export default class RecreationPlayer extends Player {
   _isHost = false; // whether they are the host of the mafia game
-
+  
   _isSpectator = false; // Whether they are currently a spectator
 
   /**
    * Toggles spectator.
    */
-  updateSpectator() {
+  updateSpectator(): void {
     this._isSpectator = true;
   }
 
   /**
    * Toggles the Host property.
    */
-  updateHost() {
+  updateHost(): void {
     this._isHost = true;
   }
 }

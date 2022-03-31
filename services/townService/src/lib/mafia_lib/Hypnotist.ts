@@ -1,5 +1,4 @@
-
-import TownMember from "./TownMember";
+import TownMember from './TownMember';
 
 /**
  * Extends the GamePlayer type, adding role functionality for Hypnotists, including:
