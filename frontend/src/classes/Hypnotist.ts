@@ -6,8 +6,8 @@ import TownMember from "./TownMember";
  * TODO: ADD
  */
 export default class Hypnotist extends TownMember { 
-  _roleInfo = 'Hypnotist: Able to prevent one (1) player from using their ability during the night.'
-  
+  _roleInfo = 'Hypnotist: Able to prevent one (1) player from using their ability during the night.';
+
 }
 
   

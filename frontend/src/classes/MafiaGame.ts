@@ -1,4 +1,4 @@
-import GamePlayer from "./GamePlayer";
+import GamePlayer, {Team, Role} from "./GamePlayer";
 import RecreationPlayer from "./RecreationPlayer";
 
 /**
