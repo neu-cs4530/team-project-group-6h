@@ -19,18 +19,19 @@ export default class MafiaGame {
 
   _players: RecreationPlayer[]; // players in the game
 
-  _mafiaPlayers: GamePlayer[] | undefined; // array of mafia members in the game
+  _mafiaPlayers: GamePlayer[]; // array of mafia members in the game
 
-  _townPlayers: GamePlayer[] | undefined; // array of town members in the game 
+  _townPlayers: GamePlayer[]; // array of town members in the game
+  
+  _deadPlayers: GamePlayer[]; // array of eliminated players in the game
 
   _phase = Phase.lobby;
 
-  // _isGameOver = false; 
-
   constructor(players: RecreationPlayer[]) {
     this._players = players;
-    this._mafiaPlayers = undefined;
-    this._townPlayers = undefined;
+    this._mafiaPlayers = [];
+    this._townPlayers = [];
+    this._deadPlayers = [];
   }
 
   /**
@@ -45,6 +46,10 @@ export default class MafiaGame {
     }
 
     return false;
+  }
+
+  updateDeadPlayers(player: GamePlayer) {
+    this._deadPlayers.push(player);
   }
 
   /**
