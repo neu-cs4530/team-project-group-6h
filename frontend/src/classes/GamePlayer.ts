@@ -62,7 +62,7 @@ export default class GamePlayer extends RecreationPlayer {
         this._roleInfo = 'Hypnotist: Able to prevent one (1) player from using their ability during the night.';
         break;
       case Role.Godfather:
-        this._roleInfo = 'Godfather: Can override the a mafia decision to eliminate a town mber in favor of their own.';
+        this._roleInfo = 'Godfather: Can override the a mafia decision to eliminate a town member in favor of their own.';
         break;
       default:
         if (this._team === Team.Mafia) {
