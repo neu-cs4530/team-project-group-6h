@@ -10,6 +10,7 @@ import RecreationPlayer from "./RecreationPlayer";
     'voting',
     'day',
     'night',
+    'win'
   };
 
 /**
@@ -27,6 +28,8 @@ export default class MafiaGame {
 
   _phase = Phase.lobby;
 
+  _winner = Team.Unassigned; 
+
   constructor(players: RecreationPlayer[]) {
     this._players = players;
     this._mafiaPlayers = [];
@@ -34,13 +37,29 @@ export default class MafiaGame {
     this._deadPlayers = [];
   }
 
+  get phase() {
+    return this._phase;
+  }
+
+  get winner() {
+    return this._winner;
+  }
+
+  
   /**
    * Determines if the game is over if there are no players remaining in either the Mafia or the town team.
    * @returns False if the game is not over, true if it is over
    */
   private isGameOver(): boolean {
     if (this._mafiaPlayers && this._townPlayers) {
-      if (this._mafiaPlayers.every((player) => !player.isAlive) || this._townPlayers.every((player) => !player.isAlive)) {
+      if (this._mafiaPlayers.every((player) => !player.isAlive) && !this._townPlayers.every((player) => !player.isAlive)) {
+        this._winner = Team.Town;
+        this._phase = Phase.win;
+        return true;
+      }
+      if (!this._mafiaPlayers.every((player) => !player.isAlive) && this._townPlayers.every((player) => !player.isAlive)) {
+        this._winner = Team.Mafia;
+        this._phase = Phase.win;
         return true;
       }
     }
