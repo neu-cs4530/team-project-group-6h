@@ -1,5 +1,4 @@
-import RecreationArea from "../../../../../frontend/src/classes/mafia_lib/RecreationArea";
-import MafiaGame from "./MafiaGame";
+
 import TownMember from "./TownMember";
 
 /**
@@ -7,13 +6,7 @@ import TownMember from "./TownMember";
  * TODO: ADD
  */
 export default class Hypnotist extends TownMember { 
-  /**
-   * TODO: Constructors for role assignment
-   */
-
-  constructor(townMember: TownMember) {
-    super(townMember);
-  }
+  _roleInfo = 'Hypnotist: Able to prevent one (1) player from using their ability during the night.';
 
 }
 
