@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import BoundingBox from '../../classes/BoundingBox';
 import ConversationArea from '../../classes/ConversationArea';
 import Player, { ServerPlayer, UserLocation } from '../../classes/Player';
+import SocialSidebar from '../SocialSidebar/SocialSidebar';
 import Video from '../../classes/Video/Video';
 import useConversationAreas from '../../hooks/useConversationAreas';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
@@ -737,9 +738,12 @@ export default function WorldMap(): JSX.Element {
   }, [video, newConversation, setNewConversation]);
 
   return (
-    <>
+    <div id='app-container'>
       {newConversationModal}
       <div id='map-container' />
-    </>
+      <div id='social-container'>
+        <SocialSidebar />
+      </div>
+    </div>
   );
 }

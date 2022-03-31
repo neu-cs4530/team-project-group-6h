@@ -7,6 +7,8 @@ export type ServerConversationArea = {
   boundingBox: BoundingBox;
 };
 
+export const NO_TOPIC_STRING = '(No topic)';
+
 export type ConversationAreaListener = {
   onTopicChange?: (newTopic: string | undefined) => void;
   onOccupantsChange?: (newOccupants: string[]) => void;
@@ -83,6 +85,13 @@ export default class ConversationArea {
   static fromServerConversationArea(serverArea: ServerConversationArea): ConversationArea {
     const ret = new ConversationArea(serverArea.label, serverArea.boundingBox, serverArea.topic);
     ret.occupants = serverArea.occupantsByID;
+    return ret;
+  }
+
+  copy() : ConversationArea{
+    const ret = new ConversationArea(this.label,this._boundingBox,this.topic);
+    ret.occupants = this.occupants.concat([]);
+    this._listeners.forEach(listener => ret.addListener(listener));
     return ret;
   }
 }

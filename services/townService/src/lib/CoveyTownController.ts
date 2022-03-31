@@ -7,9 +7,7 @@ import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 import PlayerSession from '../types/PlayerSession';
 import IVideoClient from './IVideoClient';
-import { MafiaGame, phase } from './mafia_lib/MafiaGame';
-import { RecreationArea } from './mafia_lib/RecreationArea';
-import { RecreationPlayer } from './mafia_lib/RecreationPlayer';
+import { MafiaGame, Phase, RecreationArea, RecreationPlayer } from './mafia_lib/MafiaGame';
 import TwilioVideo from './TwilioVideo';
 
 const friendlyNanoID = customAlphabet('1234567890ABCDEF', 8);
@@ -224,20 +222,20 @@ export default class CoveyTownController {
    * @returns true if the game is successfully created, or false if not
    */
   createMafiaGame(_recreationArea: RecreationArea): boolean {
-    let existingGame = _recreationArea.mafiaGame;
+    const existingGame = _recreationArea.mafiaGame;
 
     if (!existingGame) { // if no mafia game exists in the given recreation area, then initiate a mafia game and update the recreation area
 
       // find the host (the person who initiated the mafia game)
-      const gameHost = _recreationArea.players.filter((p) => {p.isHost === true})[0];
+      const gameHost = _recreationArea.players.filter((p) => (p.isHost === true))[0];
       
       // if a game host exists, then initiate a mafia game
       if (gameHost) {
         const createdGame: MafiaGame = {
           players: [gameHost],
-          phase: phase.lobby,
+          phase: Phase.lobby,
           isGameOver: false,
-        }
+        };
 
         _recreationArea.mafiaGame = createdGame;
 
@@ -261,12 +259,12 @@ export default class CoveyTownController {
    * @param player The player to remove from the mafia game
    * @param mafiaGame The game to modify number of players
    */
-  removePlayerFromMafiaGame(player: RecreationPlayer, mafiaGame: MafiaGame) {
+  removePlayerFromMafiaGame(player: RecreationPlayer, mafiaGame: MafiaGame): void {
     // remove the correct mafia player
     const deletedPlayer = mafiaGame.players.splice(mafiaGame.players.findIndex((p) => p.id === player.id), 1)[0];
 
     // destroy the mafia game if there are no players left or the host has left during lobby phase
-    if (mafiaGame.players.length === 0 || (deletedPlayer.isHost && mafiaGame.phase === phase.lobby)) {
+    if (mafiaGame.players.length === 0 || (deletedPlayer.isHost && mafiaGame.phase === Phase.lobby)) {
       deletedPlayer.activeMafiaGame = undefined;
       this._listeners.forEach(listener => listener.onConversationAreaUpdated(deletedPlayer.activeRecreationArea));
     } else {
@@ -275,6 +273,7 @@ export default class CoveyTownController {
     }
     
   }
+
   /**
    * Detects whether two bounding boxes overlap and share any points
    * 
@@ -282,13 +281,14 @@ export default class CoveyTownController {
    * @param box2 
    * @returns true if the boxes overlap, otherwise false
    */
-  static boxesOverlap(box1: BoundingBox, box2: BoundingBox):boolean{
+  static boxesOverlap(box1: BoundingBox, box2: BoundingBox): boolean {
     // Helper function to extract the top left (x1,y1) and bottom right corner (x2,y2) of each bounding box
     const toRectPoints = (box: BoundingBox) => ({ x1: box.x - box.width / 2, x2: box.x + box.width / 2, y1: box.y - box.height / 2, y2: box.y + box.height / 2 });
     const rect1 = toRectPoints(box1);
     const rect2 = toRectPoints(box2);
     const noOverlap = rect1.x1 >= rect2.x2 || rect2.x1 >= rect1.x2 || rect1.y1 >= rect2.y2 || rect2.y1 >= rect1.y2;
     return !noOverlap;
+
   }
 
   /**
