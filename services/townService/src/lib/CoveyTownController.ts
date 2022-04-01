@@ -72,6 +72,10 @@ export default class CoveyTownController {
   /** The list of currently active ConversationAreas in this town */
   private _conversationAreas: ServerConversationArea[] = [];
 
+  /** The list of currently active RecreationAreas in this 
+   town */
+  private _recreationAreas: RecreationArea[] = []; 
+
   private readonly _coveyTownID: string;
 
   private _friendlyName: string;
@@ -196,13 +200,17 @@ export default class CoveyTownController {
    *
    * @param _conversationArea Information describing the conversation area to create. Ignores any
    *  occupantsById that are set on the conversation area that is passed to this method.
+   * @param _isRecreationArea Indicates whether or not the area being added is also a recreation area 
    *
    * @returns true if the conversation is successfully created, or false if not
    */
-  addConversationArea(_conversationArea: ServerConversationArea): boolean {
+  addConversationArea(_conversationArea: ServerConversationArea, _isRecreationArea: boolean): boolean {
+    // Cannot have any conversation areas or recreation areas with the same label 
     if (
       this._conversationAreas.find(
         eachExistingConversation => eachExistingConversation.label === _conversationArea.label,
+      ) || this._recreationAreas.find(
+        eachExistingRecreation => eachExistingRecreation.label === _conversationArea.label
       )
     )
       return false;
@@ -210,7 +218,7 @@ export default class CoveyTownController {
       return false;
     }
     if (
-      this._conversationAreas.find(eachExistingConversation =>
+      this._conversationAreas.concat(...this._recreationAreas).find(eachExistingConversation =>
         CoveyTownController.boxesOverlap(
           eachExistingConversation.boundingBox,
           _conversationArea.boundingBox,
@@ -219,14 +227,37 @@ export default class CoveyTownController {
     ) {
       return false;
     }
+
+    
     const newArea: ServerConversationArea = Object.assign(_conversationArea);
-    this._conversationAreas.push(newArea);
+    _isRecreationArea ? this._recreationAreas.push(newArea as RecreationArea) : this._conversationAreas.push(newArea);
+    
+
     const playersInThisConversation = this.players.filter(player => player.isWithin(newArea));
+    
+
     playersInThisConversation.forEach(player => {
-      player.activeConversationArea = newArea;
+      player.activeConversationArea = undefined;
     });
+
+    /*
+    if (_isRecreationArea) {
+      playersInThisConversation.forEach(player => {
+        player.activeRecreationArea = newArea;
+        player.activeConversationArea = undefined;
+      });
+    }
+    else {
+      playersInThisConversation.forEach(player => {
+        player.activeConversationArea = newArea;
+        player.activeRecreationArea = undefined;
+      });
+    }
+    */
+
+
     newArea.occupantsByID = playersInThisConversation.map(player => player.id);
-    this._listeners.forEach(listener => listener.onConversationAreaUpdated(newArea));
+    _isRecreationArea ? this._listeners.forEach(listener => listener.onRecreationAreaUpdated(newArea as RecreationArea)) : this._listeners.forEach(listener => listener.onConversationAreaUpdated(newArea));
     return true;
   }
 
@@ -304,6 +335,8 @@ export default class CoveyTownController {
   onChatMessage(message: ChatMessage): void {
     this._listeners.forEach(listener => listener.onChatMessage(message));
   }
+
+
 
   /**
    * Fetch a player's session based on the provided session token. Returns undefined if the

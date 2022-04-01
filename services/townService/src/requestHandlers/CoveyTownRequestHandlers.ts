@@ -5,6 +5,7 @@ import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
 import { ConversationAreaCreateRequest, ServerConversationArea } from '../client/TownsServiceClient';
+import { RecreationArea } from '../lib/mafia_lib/RecreationArea';
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -181,22 +182,27 @@ export function townUpdateHandler(requestData: TownUpdateRequest): ResponseEnvel
  * * Ask the TownController to create the conversation area
  * @param _requestData Conversation area create request
  */
-export function conversationAreaCreateHandler(_requestData: ConversationAreaCreateRequest) : ResponseEnvelope<Record<string, null>> {
+export function conversationAreaCreateHandler(_requestData: ConversationAreaCreateRequest, _isRecreationArea: boolean) : ResponseEnvelope<Record<string, null>> {
+  const typeString = _isRecreationArea ? 'recreation area' : 'conversation area'
+
   const townsStore = CoveyTownsStore.getInstance();
   const townController = townsStore.getControllerForTown(_requestData.coveyTownID);
   if (!townController?.getSessionByToken(_requestData.sessionToken)){
     return {
-      isOK: false, response: {}, message: `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
+      isOK: false, response: {}, message: `Unable to create ${typeString} ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
     };
   }
-  const success = townController.addConversationArea(_requestData.conversationArea);
+
+  const success = _isRecreationArea ? townController.addConversationArea(_requestData.conversationArea, true) : townController.addConversationArea(_requestData.conversationArea, false);
 
   return {
     isOK: success,
     response: {},
-    message: !success ? `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}` : undefined,
+    message: !success ? `Unable to ${typeString} area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}` : undefined,
   };
 }
+
+
 
 /**
  * An adapter between CoveyTownController's event interface (CoveyTownListener)
@@ -224,6 +230,9 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     },
     onConversationAreaUpdated(conversation: ServerConversationArea){
       socket.emit('conversationUpdated', conversation);
+    },
+    onRecreationAreaUpdated(recreation: RecreationArea){
+      socket.emit('recreationUpdated', recreation);
     },
     onChatMessage(message: ChatMessage){
       socket.emit('chatMessage', message);
@@ -272,4 +281,8 @@ export function townSubscriptionHandler(socket: Socket): void {
   socket.on('playerMovement', (movementData: UserLocation) => {
     townController.updatePlayerLocation(s.player, movementData);
   });
+
+  // Register an event listener for the client socket: if the client creates a new mafia game,
+  // inform the CoveyTownController
+  //socket.on('createMafiaGame', (recLabel: string, host: Player) => { townController.onCreateMafiaGame(recLabel, host)})
 }
