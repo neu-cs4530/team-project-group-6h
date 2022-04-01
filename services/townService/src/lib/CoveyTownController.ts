@@ -6,8 +6,8 @@ import Player from '../types/Player';
 import PlayerSession from '../types/PlayerSession';
 import IVideoClient from './IVideoClient';
 import MafiaGame from './mafia_lib/MafiaGame';
-import { RecreationArea } from './mafia_lib/RecreationArea';
 import RecreationPlayer from './mafia_lib/RecreationPlayer';
+import { RecreationArea } from './mafia_lib/RecreationArea';
 import TwilioVideo from './TwilioVideo';
 
 const friendlyNanoID = customAlphabet('1234567890ABCDEF', 8);
@@ -230,6 +230,7 @@ export default class CoveyTownController {
     return true;
   }
 
+
   /**
    * Creates a new MafiaGame in a recreation area if there is not currently an active mafia game in this recreation room.
    *
@@ -240,14 +241,14 @@ export default class CoveyTownController {
    * @returns true if the game is successfully created, or false if not
    */
   createMafiaGame(gameHost: RecreationPlayer, _recreationArea: RecreationArea): boolean {
-    const existingGame = _recreationArea.mafiaGame;
+    const existingGame = _recreationArea._mafiaGame;
 
     if (!existingGame) {
       // if no mafia game exists in the given recreation area, then initiate a mafia game and update the recreation area
 
       // creates a mafia game with only the host in the list of players
       const createdGame = new MafiaGame([gameHost]);
-      _recreationArea.mafiaGame = createdGame;
+      _recreationArea._mafiaGame = createdGame;
 
       // let listeners know the recreation area has been updated
       this._listeners.forEach(listener => listener.onConversationAreaUpdated(_recreationArea));

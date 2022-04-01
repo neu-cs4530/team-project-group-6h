@@ -1,9 +1,9 @@
-import GamePlayer, { Team } from './GamePlayer';
 import RecreationPlayer from './RecreationPlayer';
+import GamePlayer, { Team } from './GamePlayer';
 
 /**
- * Represents all the possible phases of a Mafia game.
- */
+* Represents all the possible phases of a Mafia game.
+*/
 export enum Phase {
   'lobby',
   'day_discussion',
