@@ -128,6 +128,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       })
       await handleJoin(newTownInfo.coveyTownID);
     } catch (err) {
+      console.log(err);
       toast({
         title: 'Unable to connect to Towns Service',
         description: err.toString(),

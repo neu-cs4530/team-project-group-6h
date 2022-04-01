@@ -1,6 +1,6 @@
 import { ServerConversationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
-import { RecreationArea } from '../lib/mafia_lib/RecreationArea';
+import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 import Player from './Player';
 
 /**
@@ -40,7 +40,7 @@ export default interface CoveyTownListener {
    * Called when a recreation area is created or updated
    * @param recreationArea the recreation area that is created or updated
    */
-  onRecreationAreaUpdated(recreationArea: RecreationArea) : void; 
+  onRecreationAreaUpdated(recreationArea: ServerRecreationArea) : void; 
 
   /**
    * Called when a conversation area is destroyed

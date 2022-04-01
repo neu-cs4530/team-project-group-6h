@@ -5,7 +5,7 @@ import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
 import { ConversationAreaCreateRequest, ServerConversationArea } from '../client/TownsServiceClient';
-import { RecreationArea } from '../lib/mafia_lib/RecreationArea';
+import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -38,6 +38,8 @@ export interface TownJoinResponse {
   isPubliclyListed: boolean;
   /** Conversation areas currently active in this town */
   conversationAreas: ServerConversationArea[];
+  /** Recreation areas currently active in this town */
+  recreationAreas: ServerRecreationArea[];
 }
 
 /**
@@ -123,6 +125,7 @@ export async function townJoinHandler(requestData: TownJoinRequest): Promise<Res
       friendlyName: coveyTownController.friendlyName,
       isPubliclyListed: coveyTownController.isPubliclyListed,
       conversationAreas: coveyTownController.conversationAreas,
+      recreationAreas: coveyTownController.recreationAreas,
     },
   };
 }
@@ -231,7 +234,7 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onConversationAreaUpdated(conversation: ServerConversationArea){
       socket.emit('conversationUpdated', conversation);
     },
-    onRecreationAreaUpdated(recreation: RecreationArea){
+    onRecreationAreaUpdated(recreation: ServerRecreationArea){
       socket.emit('recreationUpdated', recreation);
     },
     onChatMessage(message: ChatMessage){
