@@ -11,6 +11,7 @@ export type ConversationAreaListener = {
   onTopicChange?: (newTopic: string | undefined) => void;
   onOccupantsChange?: (newOccupants: string[]) => void;
 };
+
 export default class ConversationArea {
   private _occupants: string[] = [];
 
