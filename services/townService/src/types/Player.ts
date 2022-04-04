@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
 import { ServerConversationArea } from '../client/TownsServiceClient';
 import { UserLocation } from '../CoveyTypes';
+import { RecreationArea } from '../lib/mafia_lib/RecreationArea';
 
 /**
  * Each user who is connected to a town is represented by a Player object
@@ -16,7 +17,8 @@ export default class Player {
   private readonly _userName: string;
 
   /** The current ConversationArea that the player is in, or undefined if they are not located within one */
-  private _activeConversationArea?: ServerConversationArea;
+  private _activeConversationArea?: ServerConversationArea | RecreationArea;
+
 
   constructor(userName: string) {
     this.location = {

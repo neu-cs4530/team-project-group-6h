@@ -85,6 +85,14 @@ export interface ConversationCreateRequest {
   conversationArea: ServerConversationArea;
 }
 
+/*
+export interface RecreationCreateRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  recreationArea: ServerRecreationArea; 
+}
+*/
+
 /**
  * Envelope that wraps any response from the server
  */
@@ -153,6 +161,11 @@ export default class TownsServiceClient {
   
   async createConversation(requestData: ConversationCreateRequest) : Promise<void>{
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/conversationAreas`, requestData);
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
+  async createRecreation(requestData: ConversationCreateRequest) : Promise<void> {
+    const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/recreationAreas`, requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 
