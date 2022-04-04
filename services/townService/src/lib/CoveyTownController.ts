@@ -5,13 +5,9 @@ import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 import PlayerSession from '../types/PlayerSession';
 import IVideoClient from './IVideoClient';
-<<<<<<< HEAD
-import { MafiaGame, Phase, RecreationArea, RecreationPlayer } from './mafia_lib/MafiaGame';
-=======
 import MafiaGame from './mafia_lib/MafiaGame';
 import RecreationPlayer from './mafia_lib/RecreationPlayer';
 import { RecreationArea } from './mafia_lib/RecreationArea';
->>>>>>> main
 import TwilioVideo from './TwilioVideo';
 
 const friendlyNanoID = customAlphabet('1234567890ABCDEF', 8);
@@ -275,33 +271,15 @@ export default class CoveyTownController {
    *
    * @returns true if the game is successfully created, or false if not
    */
-<<<<<<< HEAD
-  createMafiaGame(_recreationArea: RecreationArea): boolean {
-    const existingGame = _recreationArea.mafiaGame;
-=======
   createMafiaGame(gameHost: RecreationPlayer, _recreationArea: RecreationArea): boolean {
     const existingGame = _recreationArea._mafiaGame;
->>>>>>> main
 
     if (!existingGame) {
       // if no mafia game exists in the given recreation area, then initiate a mafia game and update the recreation area
 
-<<<<<<< HEAD
-      // find the host (the person who initiated the mafia game)
-      const gameHost = _recreationArea.players.filter((p) => (p.isHost === true))[0];
-      
-      // if a game host exists, then initiate a mafia game
-      if (gameHost) {
-        const createdGame: MafiaGame = {
-          players: [gameHost],
-          phase: Phase.lobby,
-          isGameOver: false,
-        };
-=======
       // creates a mafia game with only the host in the list of players
       const createdGame = new MafiaGame([gameHost]);
       _recreationArea._mafiaGame = createdGame;
->>>>>>> main
 
       // let listeners know the recreation area has been updated
       this._listeners.forEach(listener => listener.onConversationAreaUpdated(_recreationArea));
@@ -313,31 +291,6 @@ export default class CoveyTownController {
   }
 
   /**
-<<<<<<< HEAD
-   * Removes a player from a mafia game, updating the mafia game's player list,
-   * and emitting the appropriate message.
-   * 
-   * @param player The player to remove from the mafia game
-   * @param mafiaGame The game to modify number of players
-   */
-  removePlayerFromMafiaGame(player: RecreationPlayer, mafiaGame: MafiaGame): void {
-    // remove the correct mafia player
-    const deletedPlayer = mafiaGame.players.splice(mafiaGame.players.findIndex((p) => p.id === player.id), 1)[0];
-
-    // destroy the mafia game if there are no players left or the host has left during lobby phase
-    if (mafiaGame.players.length === 0 || (deletedPlayer.isHost && mafiaGame.phase === Phase.lobby)) {
-      deletedPlayer.activeMafiaGame = undefined;
-      this._listeners.forEach(listener => listener.onConversationAreaUpdated(deletedPlayer.activeRecreationArea));
-    } else {
-      // else just update the recreation area
-      this._listeners.forEach(listener => listener.onConversationAreaUpdated(deletedPlayer.activeRecreationArea));
-    }
-    
-  }
-
-  /**
-=======
->>>>>>> main
    * Detects whether two bounding boxes overlap and share any points
    *
    * @param box1
