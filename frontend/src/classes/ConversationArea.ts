@@ -23,7 +23,7 @@ export default class ConversationArea {
 
   private _boundingBox: BoundingBox;
 
-  private _listeners: ConversationAreaListener[] = [];
+  protected _listeners: ConversationAreaListener[] = [];
 
   constructor(label: string, boundingBox: BoundingBox, topic?: string) {
     this._boundingBox = boundingBox;

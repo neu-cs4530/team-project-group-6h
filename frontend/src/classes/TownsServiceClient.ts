@@ -2,6 +2,7 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
 import { ServerPlayer } from './Player';
 import { ServerConversationArea } from './ConversationArea';
+import { ServerRecreationArea } from './RecreationArea'; 
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -34,6 +35,8 @@ export interface TownJoinResponse {
   isPubliclyListed: boolean;
   /** Names and occupants of any existing ConversationAreas */
   conversationAreas: ServerConversationArea[];
+  /** Names and occupants of any existing RecreationAreas */
+  recreationAreas: ServerRecreationArea[]; 
 }
 
 /**

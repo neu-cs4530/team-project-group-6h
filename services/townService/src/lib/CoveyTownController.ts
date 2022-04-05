@@ -7,7 +7,7 @@ import PlayerSession from '../types/PlayerSession';
 import IVideoClient from './IVideoClient';
 import MafiaGame from './mafia_lib/MafiaGame';
 import RecreationPlayer from './mafia_lib/RecreationPlayer';
-import { RecreationArea } from './mafia_lib/RecreationArea';
+import { ServerRecreationArea } from './mafia_lib/ServerRecreationArea';
 import TwilioVideo from './TwilioVideo';
 
 const friendlyNanoID = customAlphabet('1234567890ABCDEF', 8);
@@ -57,6 +57,10 @@ export default class CoveyTownController {
     return this._conversationAreas;
   }
 
+  get recreationAreas(): ServerRecreationArea[] {
+    return this._recreationAreas;
+  }
+
   /** The list of players currently in the town * */
   private _players: Player[] = [];
 
@@ -72,9 +76,9 @@ export default class CoveyTownController {
   /** The list of currently active ConversationAreas in this town */
   private _conversationAreas: ServerConversationArea[] = [];
 
-  /** The list of currently active RecreationAreas in this 
+  /** The list of currently active ServerServerRecreationAreas in this 
    town */
-  private _recreationAreas: RecreationArea[] = []; 
+  private _recreationAreas: ServerRecreationArea[] = []; 
 
   private readonly _coveyTownID: string;
 
@@ -200,7 +204,7 @@ export default class CoveyTownController {
    *
    * @param _conversationArea Information describing the conversation area to create. Ignores any
    *  occupantsById that are set on the conversation area that is passed to this method.
-   * @param _isRecreationArea Indicates whether or not the area being added is also a recreation area 
+   * @param _isServerRecreationArea Indicates whether or not the area being added is also a recreation area 
    *
    * @returns true if the conversation is successfully created, or false if not
    */
@@ -210,7 +214,7 @@ export default class CoveyTownController {
       this._conversationAreas.find(
         eachExistingConversation => eachExistingConversation.label === _conversationArea.label,
       ) || this._recreationAreas.find(
-        eachExistingRecreation => eachExistingRecreation.label === _conversationArea.label
+        eachExistingRecreation => eachExistingRecreation.label === _conversationArea.label,
       )
     )
       return false;
@@ -230,7 +234,7 @@ export default class CoveyTownController {
 
     
     const newArea: ServerConversationArea = Object.assign(_conversationArea);
-    _isRecreationArea ? this._recreationAreas.push(newArea as RecreationArea) : this._conversationAreas.push(newArea);
+    _isRecreationArea ? this._recreationAreas.push(newArea as ServerRecreationArea) : this._conversationAreas.push(newArea);
     
 
     const playersInThisConversation = this.players.filter(player => player.isWithin(newArea));
@@ -241,23 +245,23 @@ export default class CoveyTownController {
     });
 
     /*
-    if (_isRecreationArea) {
+    if (_isServerRecreationArea) {
       playersInThisConversation.forEach(player => {
-        player.activeRecreationArea = newArea;
+        player.activeServerRecreationArea = newArea;
         player.activeConversationArea = undefined;
       });
     }
     else {
       playersInThisConversation.forEach(player => {
         player.activeConversationArea = newArea;
-        player.activeRecreationArea = undefined;
+        player.activeServerRecreationArea = undefined;
       });
     }
     */
 
 
     newArea.occupantsByID = playersInThisConversation.map(player => player.id);
-    _isRecreationArea ? this._listeners.forEach(listener => listener.onRecreationAreaUpdated(newArea as RecreationArea)) : this._listeners.forEach(listener => listener.onConversationAreaUpdated(newArea));
+    _isRecreationArea ? this._listeners.forEach(listener => listener.onRecreationAreaUpdated(newArea as ServerRecreationArea)) : this._listeners.forEach(listener => listener.onConversationAreaUpdated(newArea));
     return true;
   }
 
@@ -267,22 +271,22 @@ export default class CoveyTownController {
    *
    * Notifies any CoveyTownListeners that the conversation has been updated
    *
-   * @param _recreationArea Contains information describing the game to create. There should be only one player in the given mafia game that will be designated as the host.
+   * @param _ServerRecreationArea Contains information describing the game to create. There should be only one player in the given mafia game that will be designated as the host.
    *
    * @returns true if the game is successfully created, or false if not
    */
-  createMafiaGame(gameHost: RecreationPlayer, _recreationArea: RecreationArea): boolean {
-    const existingGame = _recreationArea._mafiaGame;
+  createMafiaGame(gameHost: RecreationPlayer, _ServerRecreationArea: ServerRecreationArea): boolean {
+    const existingGame = _ServerRecreationArea._mafiaGame;
 
     if (!existingGame) {
       // if no mafia game exists in the given recreation area, then initiate a mafia game and update the recreation area
 
       // creates a mafia game with only the host in the list of players
       const createdGame = new MafiaGame([gameHost]);
-      _recreationArea._mafiaGame = createdGame;
+      _ServerRecreationArea._mafiaGame = createdGame;
 
       // let listeners know the recreation area has been updated
-      this._listeners.forEach(listener => listener.onConversationAreaUpdated(_recreationArea));
+      this._listeners.forEach(listener => listener.onConversationAreaUpdated(_ServerRecreationArea));
 
       return true;
     }

@@ -35,6 +35,7 @@ import PlayerMovementContext, { PlayerMovementCallback } from './contexts/Player
 import PlayersInTownContext from './contexts/PlayersInTownContext';
 import VideoContext from './contexts/VideoContext';
 import { CoveyAppState } from './CoveyTypes';
+import RecreationArea, { ServerRecreationArea } from './classes/RecreationArea'
 
 export const MOVEMENT_UPDATE_DELAY_MS = 0;
 export const CALCULATE_NEARBY_PLAYERS_MOVING_DELAY_MS = 300;
@@ -154,6 +155,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       let localConversationAreas = initData.conversationAreas.map(sa =>
         ConversationArea.fromServerConversationArea(sa),
       );
+      const localRecreationAreas = initData.recreationAreas.map(sa => RecreationArea.fromServerRecreationArea(sa))
       let localNearbyPlayers: Player[] = [];
       setPlayersInTown(localPlayers);
       setConversationAreas(localConversationAreas);
@@ -225,6 +227,13 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setConversationAreas(localConversationAreas);
         recalculateNearbyPlayers();
       });
+      socket.on('recreationUpdated', (_recreationArea: ServerRecreationArea) => {
+        const updatedRecreationArea = localRecreationAreas.find(
+          c => c.label === _recreationArea.label,
+        );
+
+
+      })
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);
         if(existingArea){

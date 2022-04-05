@@ -1,5 +1,6 @@
 import {
 Button,
+  Checkbox,
 FormControl,
 FormLabel,
 Input,
@@ -10,6 +11,8 @@ ModalContent,
 ModalFooter,
 ModalHeader,
 ModalOverlay,
+
+Switch,
 
 useToast
 } from '@chakra-ui/react';
@@ -31,31 +34,49 @@ export default function NewConversationModal( {isOpen, closeModal, newConversati
     const toast = useToast()
     const video = useMaybeVideo()
 
+    const [isRecreationArea, setIsRecreationArea] = useState(false);
+    const toggleIsRecreationArea = () => {
+      setIsRecreationArea(!isRecreationArea); 
+    }
+
     const createConversation = useCallback(async () => {
+      const areaType = isRecreationArea ? 'Recreation' : 'Conversation'; 
       if (topic) {
           const conversationToCreate = newConversation;
           conversationToCreate.topic = topic;
         try {
-          await apiClient.createConversation({
-            sessionToken,
-            coveyTownID: currentTownID,
-            conversationArea: conversationToCreate.toServerConversationArea(),
-          });
+          if (isRecreationArea) {
+            console.log('create recreation');
+            await apiClient.createRecreation({
+              sessionToken,
+              coveyTownID: currentTownID,
+              conversationArea: conversationToCreate.toServerConversationArea(),
+            });
+          }
+          else {
+            await apiClient.createConversation({
+              sessionToken,
+              coveyTownID: currentTownID,
+              conversationArea: conversationToCreate.toServerConversationArea(),
+            });
+          }
           toast({
-            title: 'Conversation Created!',
+            title: `${areaType} Created!`,
             status: 'success',
           });
           video?.unPauseGame();
           closeModal();
         } catch (err) {
           toast({
-            title: 'Unable to create conversation',
+            title: `Unable to create ${areaType}`,
             description: err.toString(),
             status: 'error',
           });
         }
       }
     }, [topic, apiClient, newConversation, closeModal, currentTownID, sessionToken, toast, video]);
+
+
     return (
       <Modal isOpen={isOpen} onClose={()=>{closeModal(); video?.unPauseGame()}}>
         <ModalOverlay />
@@ -77,6 +98,12 @@ export default function NewConversationModal( {isOpen, closeModal, newConversati
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
                 />
+                <FormControl display='flex' alignItems='center'>
+                  <FormLabel htmlFor='toggle-rec-area' mb='0'>
+                    Make Recreation Area?
+                  </FormLabel>
+                  <Switch id='toggle-rec-area' onChange={toggleIsRecreationArea}/>
+                </FormControl>
               </FormControl>
             </ModalBody>
             <ModalFooter>

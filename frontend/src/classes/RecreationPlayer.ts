@@ -24,4 +24,3 @@ export default class RecreationPlayer extends Player {
     this._isHost = isHost;
   }
 } 
-  
