@@ -240,7 +240,7 @@ describe('CoveyTownController', () => {
     });
     it('should add the conversation area to the list of conversation areas', ()=>{
       const newConversationArea = TestUtils.createConversationForTesting();
-      const result = testingTown.addConversationArea(newConversationArea);
+      const result = testingTown.addConversationArea(newConversationArea, false);
       expect(result).toBe(true);
       const areas = testingTown.conversationAreas;
       expect(areas.length).toEqual(1);
@@ -257,7 +257,7 @@ describe('CoveyTownController', () => {
     });
     it('should respect the conversation area reported by the player userLocation.conversationLabel, and not override it based on the player\'s x,y location', async ()=>{
       const newConversationArea = TestUtils.createConversationForTesting({ boundingBox: { x: 10, y: 10, height: 5, width: 5 } });
-      const result = testingTown.addConversationArea(newConversationArea);
+      const result = testingTown.addConversationArea(newConversationArea, false);
       expect(result).toBe(true);
       const player = new Player(nanoid());
       await testingTown.addPlayer(player);
@@ -276,7 +276,7 @@ describe('CoveyTownController', () => {
     it('should emit an onConversationUpdated event when a conversation area gets a new occupant', async () =>{
 
       const newConversationArea = TestUtils.createConversationForTesting({ boundingBox: { x: 10, y: 10, height: 5, width: 5 } });
-      const result = testingTown.addConversationArea(newConversationArea);
+      const result = testingTown.addConversationArea(newConversationArea, false);
       expect(result).toBe(true);
 
       const mockListener = mock<CoveyTownListener>();
