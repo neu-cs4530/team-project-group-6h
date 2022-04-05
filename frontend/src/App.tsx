@@ -131,6 +131,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
   const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   // const [currentLocation, setCurrentLocation] = useState<UserLocation>({moving: false, rotation: 'front', x: 0, y: 0});
   const [conversationAreas, setConversationAreas] = useState<ConversationArea[]>([]);
+  const [recreationAreas, setRecreationAreas] = useState<RecreationArea[]>([]);
 
   const setupGameController = useCallback(
     async (initData: TownJoinResponse) => {
@@ -155,7 +156,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       let localConversationAreas = initData.conversationAreas.map(sa =>
         ConversationArea.fromServerConversationArea(sa),
       );
-      const localRecreationAreas = initData.recreationAreas.map(sa => RecreationArea.fromServerRecreationArea(sa))
+      let localRecreationAreas = initData.recreationAreas.map(sa => RecreationArea.fromServerRecreationArea(sa))
       let localNearbyPlayers: Player[] = [];
       setPlayersInTown(localPlayers);
       setConversationAreas(localConversationAreas);
@@ -231,9 +232,18 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         const updatedRecreationArea = localRecreationAreas.find(
           c => c.label === _recreationArea.label,
         );
+        if (updatedRecreationArea) {
+          updatedRecreationArea.topic = _recreationArea.topic;
+          updatedRecreationArea.occupants = _recreationArea.occupantsByID;
+        } else {
+          localRecreationAreas = localRecreationAreas.concat([
+            RecreationArea.fromServerRecreationArea(_recreationArea),
+          ]);
+        }
+        setRecreationAreas(localRecreationAreas);
+        recalculateNearbyPlayers();
 
-
-      })
+      });
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);
         if(existingArea){
