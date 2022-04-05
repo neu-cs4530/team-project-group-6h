@@ -1,5 +1,5 @@
 import RecreationPlayer from './RecreationPlayer';
-import GamePlayer, { Team } from './GamePlayer';
+import GamePlayer, { Role, Team } from './GamePlayer';
 
 /**
 * Represents all the possible phases of a Mafia game.
@@ -28,6 +28,10 @@ export default class MafiaGame {
 
   _winner = Team.Unassigned;
 
+  // Equal to the number of roles we currently have.
+  // Currently, should be 4 (minus the Unassigned Role)
+  MIN_PLAYERS = Object(Role).keys.length - 1;
+
   constructor(players: RecreationPlayer[]) {
     this._players = players;
     this._mafiaPlayers = [];
@@ -41,6 +45,46 @@ export default class MafiaGame {
 
   get winner(): Team {
     return this._winner;
+  }
+
+  /**
+   * Return the number of players currently in the game (for lobby logic).
+   */
+  get numPlayers(): number {
+    return this._players.length;
+  }
+
+  get deadPlayers(): GamePlayer[] {
+    return this._deadPlayers;
+  }
+
+  get mafiaPlayers(): GamePlayer[] {
+    return this._mafiaPlayers;
+  }
+
+  get townPlayers(): GamePlayer[] {
+    return this._townPlayers;
+  }
+
+  /**
+   * Cycles through the phases of the game after the game has started.
+   * @throws Error if the game is either in the 'lobby' or 'win' state.
+   */
+  updatePhase(): void {
+    switch (this._phase) {
+      case Phase.day_discussion:
+        this._phase = Phase.day_voting;
+        break;
+      case Phase.day_voting:
+        this._phase = Phase.night;
+        break;
+      case Phase.night:
+        this._phase = Phase.day_discussion;
+        break;
+      default:
+        throw `Game is currently in phase: ${this._phase}`;
+    }
+
   }
 
   /**
@@ -97,24 +141,50 @@ export default class MafiaGame {
   }
 
   /**
-   * Randomly assigns the Teams and Roles to the players within the array.
+   * Partitions the player array into MIN_PLAYERS number of roughly equal arrays 
+   * @param playerList The list of players to partition
+   * @returns An array of GamePlayer arrays (from partitioned players list)
+   * Modified form of https://stackoverflow.com/questions/8188548/splitting-a-js-array-into-n-arrays 
    */
-  private assignRoles(): void {
-    // const {length} = this._players;
-    this.shuffle();
+  private partition(playerList: GamePlayer[]): GamePlayer[][] {
 
-    // TODO: Implement role assignment logic.
+    const result: GamePlayer[][] = [];
+
+    // Get 1/MIN_PLAYERS of the list, then 1/(MIN_PLAYERS - 1) of the list...
+    // o | o | o | o 
+
+    for (let i = this.MIN_PLAYERS; i > 0; i--) {
+      result.push(playerList.splice(0, Math.ceil(playerList.length / i)));
+    }
+
+    return result;
+
   }
 
   /**
-   * The main function of the game.
+   * Randomly assigns the Teams and Roles to the players within the array.
    */
-  public play(): void {
-    // LOBBY LOGIC
+  private assignRoles(): void {
+    this.shuffle();
 
-    while (!this.isGameOver()) {
-      // DO STUFF
-    }
+    const gamePlayers = this._players.map((player) => new GamePlayer(player));
+
+    /** CURRENT LOGIC: 
+     * 1. Partition player array into MIN_PLAYERS number of roughly equal parts
+     * 2. Assign first array to Mafia, the rest to town.
+     * 3. Assign one first person in Mafia array to [GODFATHER]
+     * 4. Add players of first array to mafiaPlayers.
+     * 5. Assign one first person in each of the following arrays to DOCTOR, HYPNOTIST, DETECTIVE
+     * 6. Add players of the remaining arrays to townPlayers.
+     * MIN CASE: No players w/ unassigned roles (Every role is filled). 
+     * Any number > min case will have unassigned, "vanilla" Mafia/Town players.
+     */ 
+    let [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] = this.partition(gamePlayers);
+
+    // expression is not callable?
+    // godfatherList[0].role(Role.Godfather);
+
+
   }
 
   /**
@@ -123,8 +193,19 @@ export default class MafiaGame {
   gameStart(): void {
     this._phase = Phase.day_discussion;
 
-    // assigns roles for all the players in the game
-    this.assignRoles();
+    // Current Assumption: Min # of Players = Num of Players that can fill all the following roles at least once:
+    /** MAFIA SIDE:
+     * Godfather
+     * 
+     * TOWN SIDE:
+     * Detective
+     * Doctor
+     * Hypnotist
+     * MIN_PLAYERS = 4
+    */
+    if (this._players.length >= this.MIN_PLAYERS) {
+      this.assignRoles();
+    } 
   }
 
   /**
