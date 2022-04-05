@@ -33,9 +33,12 @@ export default class GamePlayer extends RecreationPlayer {
 
   _target: string;
 
-  constructor(recPlayer: RecreationPlayer) {
+  /**
+  * Default constructor; input isAlive = false to create as spectator
+  */
+  constructor(recPlayer: RecreationPlayer, isAlive = true) {
     super(recPlayer.userName);
-    this._isAlive = true;
+    this._isAlive = isAlive;
     this._hasVoted = false;
     this._roleInfo = '';
     this._target = '';

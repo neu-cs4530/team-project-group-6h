@@ -314,6 +314,7 @@ export default class CoveyTownController {
     const noOverlap =
       rect1.x1 >= rect2.x2 || rect2.x1 >= rect1.x2 || rect1.y1 >= rect2.y2 || rect2.y1 >= rect1.y2;
     return !noOverlap;
+
   }
 
   /**
