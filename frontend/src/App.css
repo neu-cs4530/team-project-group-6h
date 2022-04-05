@@ -28,9 +28,49 @@
   color: #61dafb;
 }
 
+.ui-container-day .ui-container {
+  border-color: black;
+  border-width: 3px;
+  border-radius: 30px;
+  background-color: #fafafa;
+  padding: 15px;
+}
+
+.ui-container-night .ui-container {
+  border-color: black;
+  border-width: 3px;
+  border-radius: 30px;
+  background-color: #ababab;
+  padding: 15px;
+}
+
+.game-lobby-divider {
+  border-color: gray;
+  border-width: 1px;
+  height: 500px;
+}
+
+#map-and-social-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  z-index: 1;
+}
+
 #app-container {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+#testoverlay-container {
+  width: 1200px;
+  height: 700px;
+  margin: 0 auto;
+  position: absolute;
+  z-index: 2;
 }
 
 #social-container li {

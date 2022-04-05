@@ -12,6 +12,8 @@ import usePlayersInTown from '../../hooks/usePlayersInTown';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import NewConversationModal from './NewCoversationModal';
 
+import GameUI from '../MafiaOverlay/GameUI';
+
 // Original inspiration and code from:
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
 
@@ -664,10 +666,10 @@ export default function WorldMap(): JSX.Element {
       parent: 'map-container',
       pixelArt: true,
       autoRound: 10,
-      minWidth: 800,
+      minWidth: '80%',
       fps: { target: 30 },
       powerPreference: 'high-performance',
-      minHeight: 600,
+      minHeight: '80%',
       physics: {
         default: 'arcade',
         arcade: {
@@ -739,10 +741,15 @@ export default function WorldMap(): JSX.Element {
 
   return (
     <div id='app-container'>
+      <div id='testoverlay-container'>
+        <GameUI />
+      </div>
       {newConversationModal}
-      <div id='map-container' />
-      <div id='social-container'>
-        <SocialSidebar />
+      <div id='map-and-social-container'>
+        <div id='map-container' />
+        <div id='social-container'>
+          <SocialSidebar />
+        </div>
       </div>
     </div>
   );
