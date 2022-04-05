@@ -9,7 +9,6 @@ export default function SocialSidebar(): JSX.Element {
         spacing={2}
         border='2px'
         padding={2}
-        marginLeft={2}
         borderColor='gray.500'
         height='100%'
         divider={<StackDivider borderColor='gray.200' />}
