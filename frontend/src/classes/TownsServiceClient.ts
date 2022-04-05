@@ -39,6 +39,20 @@ export interface TownJoinResponse {
   recreationAreas: ServerRecreationArea[]; 
 }
 
+export interface MafiaGameDataRequest {
+  coveyTownID: string;
+  parentRecArea: string;
+}
+
+export interface MafiaGameDataResponse {
+  gamePhase: string;
+  playerRoles: string;
+  deadPlayers: string[];
+  alivePlayers: string[];
+  parentRecArea: string;
+  votesCast: string[];
+}
+
 /**
  * Payload sent by client to create a Town in Covey.Town
  */
@@ -170,6 +184,27 @@ export default class TownsServiceClient {
   async createRecreation(requestData: ConversationCreateRequest) : Promise<void> {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/recreationAreas`, requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
+  async getMafiaGameData(requestData: MafiaGameDataRequest) : Promise<MafiaGameDataResponse> {
+
+    const mockResponse : MafiaGameDataResponse = {
+      gamePhase: 'day',
+      playerRoles: 'roles',
+      deadPlayers: ['p1', 'p2', 'p3'],
+      alivePlayers: ['p4', 'p5', 'p6'],
+      parentRecArea: 'sample rec',
+      votesCast: ['yes', 'no'],
+    }
+    // this line is unnecessary
+    const a = this._axios;
+    
+    return mockResponse;
+
+    /*
+    const responseWrapper = await this._axios.get<ResponseEnvelope<MafiaGameDataResponse>>(`/towns/${requestData.coveyTownID}/recreationAreas/${requestData.parentRecArea}/gameData`);
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+    */
   }
 
 }
