@@ -48,10 +48,18 @@ export default class GamePlayer extends RecreationPlayer {
     this._team = team;
   }
 
+  set target(target: string) {
+    this._target = target;
+  }
+
+  get isAlive(): boolean {
+    return this._isAlive;
+  }
+
   /**
    * Sets both the role of a GamePlayer and the role information of the GamePlayer.
    */
-  set role(role: Role) {
+   role(role: Role) {
     this._role = role;
 
     switch (role) {
@@ -76,13 +84,5 @@ export default class GamePlayer extends RecreationPlayer {
         }
         this._roleInfo = 'Able to vote to eliminate (1) player during the day.';
     }
-  }
-
-  set target(target: string) {
-    this._target = target;
-  }
-
-  get isAlive(): boolean {
-    return this._isAlive;
   }
 }

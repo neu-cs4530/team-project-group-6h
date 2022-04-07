@@ -162,7 +162,7 @@ export default class MafiaGame {
   }
 
   /**
-   * Randomly assigns the Teams and Roles to the players within the array.
+   * Randomly assigns the Teams and Roles to the players within the array and adds the players to the mafiaPlayers/townPlayers fields.
    */
   private assignRoles(): void {
     this.shuffle();
@@ -170,6 +170,7 @@ export default class MafiaGame {
     const gamePlayers = this._players.map((player) => new GamePlayer(player));
 
     /** CURRENT LOGIC: 
+     * 0. Shuffle array (to prevent first-come = mafia)
      * 1. Partition player array into MIN_PLAYERS number of roughly equal parts
      * 2. Assign first array to Mafia, the rest to town.
      * 3. Assign one first person in Mafia array to [GODFATHER]
@@ -181,9 +182,15 @@ export default class MafiaGame {
      */ 
     let [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] = this.partition(gamePlayers);
 
-    // expression is not callable?
-    // godfatherList[0].role(Role.Godfather);
+    // expression is not callable?: Solved by removing the "set" in front of role setter in GamePlayer.ts, I'm assuming setting two fields using a set is illegal?
+    godfatherList[0].role(Role.Godfather);
+    this._mafiaPlayers = godfatherList;
 
+    doctorList[0].role(Role.Doctor);
+    hypnotistList[0].role(Role.Hypnotist);
+    detectiveList[0].role(Role.Detective);
+
+    this._townPlayers = [...doctorList, ...hypnotistList, ...detectiveList];
 
   }
 
