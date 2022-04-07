@@ -59,7 +59,7 @@ export default class GamePlayer extends RecreationPlayer {
   /**
    * Sets both the role of a GamePlayer and the role information of the GamePlayer.
    */
-   role(role: Role) {
+   set role(role: Role) {
     this._role = role;
 
     switch (role) {

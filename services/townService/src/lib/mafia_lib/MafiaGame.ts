@@ -183,12 +183,30 @@ export default class MafiaGame {
     let [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] = this.partition(gamePlayers);
 
     // expression is not callable?: Solved by removing the "set" in front of role setter in GamePlayer.ts, I'm assuming setting two fields using a set is illegal?
-    godfatherList[0].role(Role.Godfather);
+    godfatherList.forEach((mafia) => {
+      mafia.team = Team.Mafia;
+      mafia.role = Role.Unassigned;
+    });
+    godfatherList[0].role = Role.Godfather;
     this._mafiaPlayers = godfatherList;
 
-    doctorList[0].role(Role.Doctor);
-    hypnotistList[0].role(Role.Hypnotist);
-    detectiveList[0].role(Role.Detective);
+    doctorList.forEach((town) => {
+      town.team = Team.Town;
+      town.role = Role.Unassigned;
+    });
+    doctorList[0].role = Role.Doctor;
+
+    hypnotistList.forEach((town) => {
+      town.team = Team.Mafia
+      town.role = Role.Unassigned;
+    });
+    hypnotistList[0].role = Role.Hypnotist;
+
+    detectiveList.forEach((town) => {
+      town.team = Team.Town;
+      town.role = Role.Unassigned;
+    });
+    detectiveList[0].role = Role.Detective;
 
     this._townPlayers = [...doctorList, ...hypnotistList, ...detectiveList];
 
