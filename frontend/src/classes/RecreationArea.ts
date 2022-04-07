@@ -22,6 +22,8 @@ export default class RecreationArea extends ConversationArea {
 
     private _players: RecreationPlayer[]; 
 
+    public isRecreationArea = true; 
+
     constructor(label: string, boundingBox: BoundingBox,  players: RecreationPlayer[], mafiaGame?: MafiaGame, topic?: string) {
         super(label, boundingBox, topic); 
         this._players = players;
@@ -51,6 +53,10 @@ export default class RecreationArea extends ConversationArea {
         const ret = new RecreationArea(serverArea.label, serverArea.boundingBox, serverArea.players, serverArea.mafiaGame, serverArea.topic);
         ret.occupants = serverArea.occupantsByID;
         return ret;  
+    }
+
+    static isRecreationArea(): boolean {
+        return true; 
     }
 
 }

@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
 import { UserLocation } from '../CoveyTypes';
+import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 
 
 export type ServerPlayer = { _id: string, _userName: string, location: UserLocation };
@@ -15,12 +16,16 @@ export type BoundingBox = {
   width: number,
   height: number
 };
+
+
 export type ServerConversationArea = {
   label: string;
   topic: string;
   occupantsByID: string[];
   boundingBox: BoundingBox;
 };
+
+export type ServerArea = ServerConversationArea | ServerRecreationArea; 
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware

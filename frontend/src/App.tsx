@@ -131,7 +131,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
   const [nearbyPlayers, setNearbyPlayers] = useState<Player[]>([]);
   // const [currentLocation, setCurrentLocation] = useState<UserLocation>({moving: false, rotation: 'front', x: 0, y: 0});
   const [conversationAreas, setConversationAreas] = useState<ConversationArea[]>([]);
-  const [recreationAreas, setRecreationAreas] = useState<RecreationArea[]>([]);
+  // const [recreationAreas, setRecreationAreas] = useState<RecreationArea[]>([]);
 
   const setupGameController = useCallback(
     async (initData: TownJoinResponse) => {
@@ -156,7 +156,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       let localConversationAreas = initData.conversationAreas.map(sa =>
         ConversationArea.fromServerConversationArea(sa),
       );
-      let localRecreationAreas = initData.recreationAreas.map(sa => RecreationArea.fromServerRecreationArea(sa))
+      // let localRecreationAreas = initData.recreationAreas.map(sa => RecreationArea.fromServerRecreationArea(sa))
       let localNearbyPlayers: Player[] = [];
       setPlayersInTown(localPlayers);
       setConversationAreas(localConversationAreas);
@@ -229,6 +229,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         recalculateNearbyPlayers();
       });
       socket.on('recreationUpdated', (_recreationArea: ServerRecreationArea) => {
+        /*
         const updatedRecreationArea = localRecreationAreas.find(
           c => c.label === _recreationArea.label,
         );
@@ -242,7 +243,21 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         }
         setRecreationAreas(localRecreationAreas);
         recalculateNearbyPlayers();
-
+        */
+        const updatedRecreationArea = localConversationAreas.find(
+          c => c.label === _recreationArea.label,
+        );
+        if (updatedRecreationArea) {
+          updatedRecreationArea.topic = _recreationArea.topic;
+          updatedRecreationArea.occupants = _recreationArea.occupantsByID;
+        } else {
+          localConversationAreas = localConversationAreas.concat([
+            RecreationArea.fromServerRecreationArea(_recreationArea),
+          ]);
+          console.log(localConversationAreas[0].isRecreationArea)
+        }
+        setConversationAreas(localConversationAreas);
+        recalculateNearbyPlayers();
       });
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);

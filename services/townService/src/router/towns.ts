@@ -4,6 +4,7 @@ import { Server } from 'http';
 import { StatusCodes } from 'http-status-codes';
 import {
   conversationAreaCreateHandler,
+  recreationAreaCreateHandler,
   townCreateHandler, townDeleteHandler,
   townJoinHandler,
   townListHandler,
@@ -114,7 +115,7 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
         coveyTownID: req.params.townID,
         sessionToken: req.body.sessionToken,
         conversationArea: req.body.conversationArea,
-      }, false);
+      });
       res.status(StatusCodes.OK)
         .json(result);
     } catch (err) {
@@ -128,11 +129,11 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
 
   app.post('/towns/:townID/recreationAreas', express.json(), async (req, res) => {
     try {
-      const result = await conversationAreaCreateHandler({
+      const result = await recreationAreaCreateHandler({
         coveyTownID: req.params.townID,
         sessionToken: req.body.sessionToken,
         conversationArea: req.body.conversationArea,
-      }, true);
+      });
       res.status(StatusCodes.OK)
         .json(result);
     } catch (err) {

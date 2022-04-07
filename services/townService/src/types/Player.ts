@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { ServerConversationArea } from '../client/TownsServiceClient';
+import { ServerArea, ServerConversationArea } from '../client/TownsServiceClient';
 import { UserLocation } from '../CoveyTypes';
 // import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 
@@ -17,7 +17,7 @@ export default class Player {
   private readonly _userName: string;
 
   /** The current ConversationArea that the player is in, or undefined if they are not located within one */
-  private _activeConversationArea?: ServerConversationArea;
+  private _activeConversationArea?: ServerArea;
 
 
   constructor(userName: string) {

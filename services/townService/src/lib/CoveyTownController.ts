@@ -1,5 +1,5 @@
 import { customAlphabet, nanoid } from 'nanoid';
-import { BoundingBox, ServerConversationArea } from '../client/TownsServiceClient';
+import { BoundingBox, ServerArea, ServerConversationArea } from '../client/TownsServiceClient';
 import { ChatMessage, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
@@ -74,7 +74,8 @@ export default class CoveyTownController {
   private _listeners: CoveyTownListener[] = [];
 
   /** The list of currently active ConversationAreas in this town */
-  private _conversationAreas: ServerConversationArea[] = [];
+  //private _conversationAreas: ServerConversationArea[] = [];
+  private _conversationAreas: ServerArea[] = [];
 
   /** The list of currently active ServerServerRecreationAreas in this 
    town */
@@ -195,6 +196,30 @@ export default class CoveyTownController {
   }
 
   /**
+   * Determines if the given conversation area is valid for this town
+   *  - Must be no existing areas with same label
+   *  - Topic must be defined
+   *  - Must not overlap with existing conversation areas 
+   * @param _conversationArea 
+   * @returns 
+   */
+  private isValidArea(_conversationArea: ServerConversationArea): boolean {
+    if (this._conversationAreas.find(
+      eachExistingConversation => eachExistingConversation.label === _conversationArea.label,
+    ))
+      return false;
+    if (_conversationArea.topic === ''){
+      return false;
+    }
+    if (this._conversationAreas.find(eachExistingConversation => 
+      CoveyTownController.boxesOverlap(eachExistingConversation.boundingBox, _conversationArea.boundingBox)) !== undefined){
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
    * Creates a new conversation area in this town if there is not currently an active
    * conversation with the same label.
    *
@@ -204,67 +229,59 @@ export default class CoveyTownController {
    *
    * @param _conversationArea Information describing the conversation area to create. Ignores any
    *  occupantsById that are set on the conversation area that is passed to this method.
-   * @param _isServerRecreationArea Indicates whether or not the area being added is also a recreation area 
    *
    * @returns true if the conversation is successfully created, or false if not
    */
-  addConversationArea(_conversationArea: ServerConversationArea, _isRecreationArea: boolean): boolean {
-    // Cannot have any conversation areas or recreation areas with the same label 
-    if (
-      this._conversationAreas.find(
-        eachExistingConversation => eachExistingConversation.label === _conversationArea.label,
-      ) || this._recreationAreas.find(
-        eachExistingRecreation => eachExistingRecreation.label === _conversationArea.label,
-      )
-    )
-      return false;
-    if (_conversationArea.topic === '') {
-      return false;
-    }
-    if (
-      this._conversationAreas.concat(...this._recreationAreas).find(eachExistingConversation =>
-        CoveyTownController.boxesOverlap(
-          eachExistingConversation.boundingBox,
-          _conversationArea.boundingBox,
-        ),
-      ) !== undefined
-    ) {
-      return false;
+   addConversationArea(_conversationArea: ServerConversationArea): boolean {
+    console.log('Inside add recreation area');
+    // Ensure the conversation area is valid 
+    if (!this.isValidArea(_conversationArea)) {
+      return false; 
     }
 
-    
     const newArea: ServerConversationArea = Object.assign(_conversationArea);
-    _isRecreationArea ? this._recreationAreas.push(newArea as ServerRecreationArea) : this._conversationAreas.push(newArea);
     
-
+    this._conversationAreas.push(newArea);
     const playersInThisConversation = this.players.filter(player => player.isWithin(newArea));
-    
-
-    playersInThisConversation.forEach(player => {
-      player.activeConversationArea = undefined;
-    });
-
-    /*
-    if (_isServerRecreationArea) {
-      playersInThisConversation.forEach(player => {
-        player.activeServerRecreationArea = newArea;
-        player.activeConversationArea = undefined;
-      });
-    }
-    else {
-      playersInThisConversation.forEach(player => {
-        player.activeConversationArea = newArea;
-        player.activeServerRecreationArea = undefined;
-      });
-    }
-    */
-
-
+    playersInThisConversation.forEach(player => {player.activeConversationArea = newArea;});
     newArea.occupantsByID = playersInThisConversation.map(player => player.id);
-    _isRecreationArea ? this._listeners.forEach(listener => listener.onRecreationAreaUpdated(newArea as ServerRecreationArea)) : this._listeners.forEach(listener => listener.onConversationAreaUpdated(newArea));
+    this._listeners.forEach(listener => listener.onConversationAreaUpdated(newArea));
     return true;
   }
 
+  
+  /**
+   * Creates a new recreation area in this town if there is not currently an active
+   * conversation with the same label.
+   *
+   * Adds any players who are in the region defined by the recreation area to it.
+   *
+   * Notifies any CoveyTownListeners that the recreation has been updated
+   *
+   * @param _recreationArea Information describing the recreation area to create. Ignores any
+   *  occupantsById that are set on the recreation area that is passed to this method.
+   *
+   * @returns true if the recreation is successfully created, or false if not
+   */
+  addRecreationArea(_recreationArea: ServerConversationArea): boolean {
+    console.log('Inside add recreation area');
+    
+    // Ensure the conversation area is valid 
+    if (!this.isValidArea(_recreationArea)) {
+      return false; 
+    }
+
+    const newArea: ServerRecreationArea = Object.assign(_recreationArea);
+
+    this._conversationAreas.push(newArea);
+    const playersInThisConversation = this.players.filter(player => player.isWithin(newArea));
+    playersInThisConversation.forEach(player => {player.activeConversationArea = newArea;});
+    newArea.occupantsByID = playersInThisConversation.map(player => player.id);
+    this._listeners.forEach(listener => listener.onRecreationAreaUpdated(newArea));
+    return true;
+
+  }
+  
 
   /**
    * Creates a new MafiaGame in a recreation area if there is not currently an active mafia game in this recreation room.
