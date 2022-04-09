@@ -6,6 +6,7 @@ import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
 import { ConversationAreaCreateRequest, ServerConversationArea } from '../client/TownsServiceClient';
 import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
+import CoveyTownController from '../lib/CoveyTownController';
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -178,6 +179,18 @@ export function townUpdateHandler(requestData: TownUpdateRequest): ResponseEnvel
 }
 
 /**
+ * Returns the town controller for the given covey town, if it exists 
+ * @param coveyTownID ID representing an instance Covey Town
+ * @returns The specified town's controller or undefined
+ */
+function getTownController(coveyTownID: string): CoveyTownController | undefined {
+  const townsStore = CoveyTownsStore.getInstance();
+  const townController = townsStore.getControllerForTown(coveyTownID);
+  return townController;
+}
+
+
+/**
  * A handler to process the "Create Conversation Area" request
  * The intended flow of this handler is:
  * * Fetch the town controller for the specified town ID
@@ -185,25 +198,53 @@ export function townUpdateHandler(requestData: TownUpdateRequest): ResponseEnvel
  * * Ask the TownController to create the conversation area
  * @param _requestData Conversation area create request
  */
-export function conversationAreaCreateHandler(_requestData: ConversationAreaCreateRequest, _isRecreationArea: boolean) : ResponseEnvelope<Record<string, null>> {
-  const typeString = _isRecreationArea ? 'recreation area' : 'conversation area'
-
+ export function conversationAreaCreateHandler(_requestData: ConversationAreaCreateRequest) : ResponseEnvelope<Record<string, null>> {
+   /*
   const townsStore = CoveyTownsStore.getInstance();
   const townController = townsStore.getControllerForTown(_requestData.coveyTownID);
+  */
+  const townController = getTownController(_requestData.coveyTownID);
   if (!townController?.getSessionByToken(_requestData.sessionToken)){
     return {
-      isOK: false, response: {}, message: `Unable to create ${typeString} ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
+      isOK: false, response: {}, message: `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
     };
   }
-
-  const success = _isRecreationArea ? townController.addConversationArea(_requestData.conversationArea, true) : townController.addConversationArea(_requestData.conversationArea, false);
+  const success = townController.addConversationArea(_requestData.conversationArea);
 
   return {
     isOK: success,
     response: {},
-    message: !success ? `Unable to ${typeString} area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}` : undefined,
+    message: !success ? `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}` : undefined,
   };
 }
+
+/**
+ * A handler to process the "Create Conversation Area" request
+ * The intended flow of this handler is:
+ * * Fetch the town controller for the specified town ID
+ * * Validate that the sessionToken is valid for that town
+ * * Ask the TownController to create the conversation area
+ * @param _requestData ConversationArea create request 
+ * @returns 
+ */
+export function recreationAreaCreateHandler(_requestData: ConversationAreaCreateRequest): ResponseEnvelope<Record<string, null>> {
+  const townController = getTownController(_requestData.coveyTownID);
+  if (!townController?.getSessionByToken(_requestData.sessionToken)){
+    return {
+      isOK: false, response: {}, message: `Unable to create recreation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
+    };
+  }
+
+  const success = townController.addRecreationArea(_requestData.conversationArea);
+
+  return {
+    isOK: success,
+    response: {},
+    message: !success ? `Unable to create recreation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}` : undefined,
+  }
+
+}
+
 
 
 

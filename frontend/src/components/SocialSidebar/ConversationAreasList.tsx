@@ -1,6 +1,7 @@
 import { Box, Heading, ListItem, UnorderedList } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import ConversationArea, { ConversationAreaListener, NO_TOPIC_STRING } from '../../classes/ConversationArea';
+import RecreationArea from '../../classes/RecreationArea';
 import useConversationAreas from '../../hooks/useConversationAreas';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import PlayerName from './PlayerName';
@@ -47,14 +48,32 @@ function ConversationAreaView({ area }: ConversationAreaViewProps): JSX.Element 
     </Box>
   );
 }
+
+/*
+type ConversationAreasListProps = {
+  type: string;
+};
+*/
+
 export default function ConversationAreasList(): JSX.Element {
   const conversationAreas = useConversationAreas();
-  const activeConversationAreas = conversationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
+  const activeAreas = conversationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
+  const activeConversationAreas = activeAreas.filter(area => !area.isRecreationArea);
+  const activeRecreationAreas = activeAreas.filter(area => area.isRecreationArea);
   return (
     <Box>
       <Heading as='h2' fontSize='l'>Active Conversation Areas:</Heading>
-      { activeConversationAreas.length === 0 ? <>No active conversation areas</>: 
+      { 
+        activeConversationAreas.length === 0 ? <>No active conversation areas</>: 
         activeConversationAreas
+        .sort((a1, a2) => a1.label.localeCompare(a2.label, undefined, {numeric: true, sensitivity: 'base'}))
+        .map(area => (
+          <ConversationAreaView area={area} key={area.label} />
+        ))}
+      <Heading as='h2' fontSize='l'>Active Recreation Areas:</Heading>
+      { 
+        activeRecreationAreas.length === 0 ? <>No active recreation areas</>: 
+        activeRecreationAreas
         .sort((a1, a2) => a1.label.localeCompare(a2.label, undefined, {numeric: true, sensitivity: 'base'}))
         .map(area => (
           <ConversationAreaView area={area} key={area.label} />

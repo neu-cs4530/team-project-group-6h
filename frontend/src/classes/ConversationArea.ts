@@ -25,6 +25,8 @@ export default class ConversationArea {
 
   protected _listeners: ConversationAreaListener[] = [];
 
+  public isRecreationArea = false;
+
   constructor(label: string, boundingBox: BoundingBox, topic?: string) {
     this._boundingBox = boundingBox;
     this._label = label;
