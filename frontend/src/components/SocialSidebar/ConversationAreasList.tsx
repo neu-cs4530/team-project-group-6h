@@ -1,4 +1,4 @@
-import { Box, Heading, ListItem, UnorderedList } from '@chakra-ui/react';
+import { Box, Button, Heading, ListItem, UnorderedList } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import ConversationArea, { ConversationAreaListener, NO_TOPIC_STRING } from '../../classes/ConversationArea';
 import RecreationArea from '../../classes/RecreationArea';
@@ -56,10 +56,14 @@ type ConversationAreasListProps = {
 */
 
 export default function ConversationAreasList(): JSX.Element {
+  // get the conversation areas
   const conversationAreas = useConversationAreas();
+  // get the active conversation areas only
   const activeAreas = conversationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
+
   const activeConversationAreas = activeAreas.filter(area => !area.isRecreationArea);
   const activeRecreationAreas = activeAreas.filter(area => area.isRecreationArea);
+
   return (
     <Box>
       <Heading as='h2' fontSize='l'>Active Conversation Areas:</Heading>
@@ -70,6 +74,8 @@ export default function ConversationAreasList(): JSX.Element {
         .map(area => (
           <ConversationAreaView area={area} key={area.label} />
         ))}
+      <br/>
+      <br/>
       <Heading as='h2' fontSize='l'>Active Recreation Areas:</Heading>
       { 
         activeRecreationAreas.length === 0 ? <>No active recreation areas</>: 
@@ -78,6 +84,7 @@ export default function ConversationAreasList(): JSX.Element {
         .map(area => (
           <ConversationAreaView area={area} key={area.label} />
         ))}
+        
     </Box>
   );
 }

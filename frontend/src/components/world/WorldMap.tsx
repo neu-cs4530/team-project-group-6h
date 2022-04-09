@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import React, { useEffect, useMemo, useState } from 'react';
+import { Button } from '@chakra-ui/react';
 import BoundingBox from '../../classes/BoundingBox';
 import ConversationArea from '../../classes/ConversationArea';
 import Player, { ServerPlayer, UserLocation } from '../../classes/Player';
@@ -13,6 +14,7 @@ import { Callback } from '../VideoCall/VideoFrontend/types';
 import NewConversationModal from './NewCoversationModal';
 
 import GameUI from '../MafiaOverlay/GameUI';
+
 
 // Original inspiration and code from:
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
@@ -741,14 +743,11 @@ export default function WorldMap(): JSX.Element {
 
   return (
     <div id='app-container'>
-      <div id='testoverlay-container'>
-        <GameUI />
-      </div>
       {newConversationModal}
       <div id='map-and-social-container'>
         <div id='map-container' />
         <div id='social-container'>
-          <SocialSidebar />
+          <SocialSidebar/>
         </div>
       </div>
     </div>
