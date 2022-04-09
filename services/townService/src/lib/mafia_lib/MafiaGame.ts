@@ -1,5 +1,6 @@
 import RecreationPlayer from './RecreationPlayer';
 import GamePlayer, { Role, Team } from './GamePlayer';
+import Player from '../../types/Player';
 
 /**
 * Represents all the possible phases of a Mafia game.
@@ -16,7 +17,7 @@ export enum Phase {
  * Represents type of MafiaGame that can be instantiated by players in a Recreation Room.
  */
 export default class MafiaGame {
-  _players: RecreationPlayer[]; // players in the game
+  _players: Player[]; // players in the game
 
   _mafiaPlayers: GamePlayer[]; // array of mafia members in the game
 
@@ -32,7 +33,7 @@ export default class MafiaGame {
   // Equal to the number of roles we currently have.
   // Currently, should be 4 (minus the Unassigned Role)
   
-  MIN_PLAYERS = Object.keys(Role).length - 1;
+  MIN_PLAYERS: number = ((Object.keys(Role).length) / 2) - 1;
 
   constructor(players: RecreationPlayer[]) {
     this._players = players;
@@ -49,6 +50,10 @@ export default class MafiaGame {
     return this._winner;
   }
 
+  get minPlayers(): number {
+    return this.MIN_PLAYERS;
+  }
+
   /**
    * Return the number of players currently in the game (for lobby logic).
    */
@@ -56,8 +61,33 @@ export default class MafiaGame {
     return this._players.length;
   }
 
-  get deadPlayers(): GamePlayer[] {
-    return this._deadPlayers;
+  /**
+   * Returns the names of all the eliminated players to render in the UI.
+   */
+  get deadPlayers(): string[] {
+    // TODO: May need to change to player.userName, depending on which holds the unique identifier of the player
+    const mafiaDead: GamePlayer[] = [...this._mafiaPlayers].filter((player) => player.isAlive === false);
+    const townDead: GamePlayer[] = [...this._townPlayers].filter((player) => player.isAlive === false);
+
+    const mafiaNames: string[] = mafiaDead.map((player) => player.userName);
+    const townNames: string[] = townDead.map((player) => player.userName);
+
+    // console.log(`${[...mafiaNames, ...townNames]}`);
+    return [...mafiaNames, ...townNames];
+  }
+
+  /**
+   * Returns the names of all players still alive within the game. 
+   */
+  get alivePlayers(): string[] {
+    const mafiaAlive: GamePlayer[] = [...this._mafiaPlayers].filter((player) => player.isAlive === true);
+    const townAlive: GamePlayer[] = [...this._townPlayers].filter((player) => player.isAlive === true);
+
+    const mafiaNames: string[] = mafiaAlive.map((player) => player.userName);
+    const townNames: string[] = townAlive.map((player) => player.userName);
+
+    return [...mafiaNames, ...townNames];
+  
   }
 
   get mafiaPlayers(): GamePlayer[] {
@@ -72,7 +102,7 @@ export default class MafiaGame {
    * Cycles through the phases of the game after the game has started.
    * @throws Error if the game is either in the 'lobby' or 'win' state.
    */
-  updatePhase(): void {
+  public updatePhase(): void {
     switch (this._phase) {
       case Phase.day_discussion:
         this._phase = Phase.day_voting;
@@ -164,6 +194,50 @@ export default class MafiaGame {
   }
 
   /**
+   * TODO: Test 'Adds players that have been voted out from the game to the deadPlayers list' is failing, it isn't finding the playerName in the mafia OR town array for some reason.
+   * Eliminates the given player in the game.
+   * @param playerName The name of the player to eliminate
+   * @throws Exception if the playerName does not exist or player is not on given team.
+   */
+  public eliminatePlayer(playerName: string): void {
+
+    // find the player in either the mafia or town arrays (hopefully no same name situations)
+    // const mafiaAndTown: GamePlayer[] = [...this._mafiaPlayers, ...this._townPlayers];
+
+    const mafiaIndex = this._mafiaPlayers.findIndex((player) => {
+      //console.log(`Player.name = ${playerName}`);
+      //console.log(`Current name = ${player.userName}`);
+      //console.log(`Current id = ${player.id}`);
+
+      player.userName === playerName
+    });
+    
+    const townIndex = this._townPlayers.findIndex((player) => {
+      //console.log(`Player.name = ${playerName}`);
+      //console.log(`Current name = ${player.userName}`);
+      //console.log(`Current id = ${player.id}`);
+
+      player.userName === playerName
+    });
+  
+    // console.log(`Town Index: ${townIndex}`);
+
+    // console.log(`Town Index: ${mafiaIndex}`);
+
+    if (mafiaIndex >= 0) {
+      this._mafiaPlayers[mafiaIndex].eliminate();
+    }
+    if (townIndex >= 0) {
+      this._townPlayers[townIndex].eliminate();
+    }
+    
+    
+    
+  }
+
+
+
+  /**
    * Randomly assigns the Teams and Roles to the players within the array and adds the players to the mafiaPlayers/townPlayers fields.
    */
   private assignRoles(): void {
@@ -184,7 +258,6 @@ export default class MafiaGame {
      */ 
     let [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] = this.partition(gamePlayers);
 
-    // expression is not callable?: Solved by removing the "set" in front of role setter in GamePlayer.ts, I'm assuming setting two fields using a set is illegal?
     godfatherList.forEach((mafia) => {
       mafia.team = Team.Mafia;
       mafia.role = Role.Unassigned;
