@@ -4,6 +4,7 @@
     "description": "Development setup",
     "main": "index.js",
     "scripts": {
+        "test": "jest",
         "heroku-postbuild": "cd services/townService && npm ci && npm run build",
         "run-services-actions": "heroku local -p 3001 web",
         "lint": "cd services/townService && npm run-script lint && cd ../../frontend && npm run-script lint"
@@ -19,7 +20,7 @@
     },
     "homepage": "https://github.com/neu-se/covey.town#readme",
     "devDependencies": {
-        "@types/jest": "^26.0.15",
+        "@types/jest": "^27.4.1",
         "@typescript-eslint/eslint-plugin": "^4.8.1",
         "@typescript-eslint/parser": "^4.8.1",
         "eslint": "^7.13.0",
@@ -27,10 +28,12 @@
         "eslint-plugin-react": "^7.21.5",
         "eslint-plugin-react-hooks": "^4.2.0",
         "husky": "^4.3.0",
+        "jest": "^27.5.1",
         "lint-staged": "^10.5.1",
         "prettier": "^2.1.2",
         "prettier-plugin-organize-imports": "^1.1.1",
-        "typescript": "^4.1.2"
+        "ts-jest": "^27.1.4",
+        "typescript": "^4.6.3"
     },
     "husky": {
         "hooks": {
@@ -47,6 +50,7 @@
     "dependencies": {
         "@types/node": "^17.0.23",
         "@types/ramda": "^0.27.34",
+        "nanoid": "^3.3.2",
         "ramda": "^0.27.1",
         "typescript-is": "^0.17.0"
     }

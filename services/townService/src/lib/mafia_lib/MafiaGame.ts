@@ -22,6 +22,7 @@ export default class MafiaGame {
 
   _townPlayers: GamePlayer[]; // array of town members in the game
 
+  // TODO: Change to list of playerName strings instead? Players already have an isAlive flag, duplicating the Gameplayer object here may be redundant
   _deadPlayers: GamePlayer[]; // array of eliminated players in the game
 
   _phase = Phase.lobby;
@@ -30,7 +31,8 @@ export default class MafiaGame {
 
   // Equal to the number of roles we currently have.
   // Currently, should be 4 (minus the Unassigned Role)
-  MIN_PLAYERS = Object(Role).keys.length - 1;
+  
+  MIN_PLAYERS = Object.keys(Role).length - 1;
 
   constructor(players: RecreationPlayer[]) {
     this._players = players;
@@ -39,8 +41,8 @@ export default class MafiaGame {
     this._deadPlayers = [];
   }
 
-  get phase(): Phase {
-    return this._phase;
+  get phase(): string {
+    return Phase[this._phase];
   }
 
   get winner(): Team {
@@ -82,7 +84,7 @@ export default class MafiaGame {
         this._phase = Phase.day_discussion;
         break;
       default:
-        throw `Game is currently in phase: ${this._phase}`;
+        throw `Game is currently in phase: ${Phase[this._phase]}`;
     }
 
   }
@@ -215,7 +217,7 @@ export default class MafiaGame {
   /**
    * Starts the game by setting the phase to discussion during the day time.
    */
-  gameStart(): void {
+  public gameStart(): void {
     this._phase = Phase.day_discussion;
 
     // Current Assumption: Min # of Players = Num of Players that can fill all the following roles at least once:
@@ -243,8 +245,8 @@ export default class MafiaGame {
     // if player who left was the host and the phase is currently lobby, end game
     // if game is in progress and there are less than or equal to two players remaining, end the game
     if (
-      (leaver._isHost && this.phase === Phase.lobby) ||
-      (this._players.length <= 2 && this.phase !== Phase.lobby)
+      (leaver._isHost && this._phase === Phase.lobby) ||
+      (this._players.length <= 2 && this._phase !== Phase.lobby)
     ) {
       // end the game
       this.isGameOver();
