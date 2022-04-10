@@ -1,5 +1,5 @@
-import RecreationPlayer from './RecreationPlayer';
 import GamePlayer, { Role, Team } from './GamePlayer';
+import Player from './Player';
 
 /**
 * Represents all the possible phases of a Mafia game.
@@ -16,7 +16,9 @@ export enum Phase {
  * Represents type of MafiaGame that can be instantiated by players in a Recreation Room.
  */
 export default class MafiaGame {
-  _players: RecreationPlayer[]; // players in the game
+  _host: Player;
+
+  _players: Player[]; // players in the game
 
   _mafiaPlayers: GamePlayer[]; // array of mafia members in the game
 
@@ -30,10 +32,13 @@ export default class MafiaGame {
 
   // Equal to the number of roles we currently have.
   // Currently, should be 4 (minus the Unassigned Role)
-  MIN_PLAYERS = Object(Role).keys.length - 1;
+  // this line of code causing errors
+  // MIN_PLAYERS = Object.keys(Role).length - 1;
+  MIN_PLAYERS = 4;
 
-  constructor(_players : RecreationPlayer[]) {
-    this._players = _players;
+  constructor(host: Player, players: Player[]) {
+    this._host = host;
+    this._players = players;
     this._mafiaPlayers = [];
     this._townPlayers = [];
     this._deadPlayers = [];
@@ -50,7 +55,7 @@ export default class MafiaGame {
   /**
    * Return the number of players currently in the game (for lobby logic).
    */
-  get numPlayers(): number {
+  numPlayers(): number {
     return this._players.length;
   }
 
@@ -82,7 +87,7 @@ export default class MafiaGame {
         this._phase = Phase.day_discussion;
         break;
       default:
-        throw `Game is currently in phase: ${this._phase}`;
+        throw Error(`Game is currently in phase: ${this._phase}`);
     }
 
   }
@@ -153,7 +158,7 @@ export default class MafiaGame {
     // Get 1/MIN_PLAYERS of the list, then 1/(MIN_PLAYERS - 1) of the list...
     // o | o | o | o 
 
-    for (let i = this.MIN_PLAYERS; i > 0; i--) {
+    for (let i = this.MIN_PLAYERS; i > 0; i -= 1) {
       result.push(playerList.splice(0, Math.ceil(playerList.length / i)));
     }
 
@@ -179,7 +184,7 @@ export default class MafiaGame {
      * MIN CASE: No players w/ unassigned roles (Every role is filled). 
      * Any number > min case will have unassigned, "vanilla" Mafia/Town players.
      */ 
-    let [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] = this.partition(gamePlayers);
+    const [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] = this.partition(gamePlayers);
 
     // expression is not callable?
     // godfatherList[0].role(Role.Godfather);
@@ -212,19 +217,19 @@ export default class MafiaGame {
    * Updates the list of players in the mafia game when a player leaves. Will end the game if the leaver is the host and the phase is lobby, or if the number of players remaining in the game is less than or equal to two.
    * @param leaver The player who left the mafia game.
    */
-  removePlayer(leaver: RecreationPlayer): void {
-    this._players = this._players.filter(p => leaver.id !== p.id);
+//   removePlayer(leaver: Player): void {
+//     this._players = this._players.filter(p => leaver.id !== p.id);
 
-    // if player who left was the host and the phase is currently lobby, end game
-    // if game is in progress and there are less than or equal to two players remaining, end the game
-    if (
-      (leaver._isHost && this.phase === Phase.lobby) ||
-      (this._players.length <= 2 && this.phase !== Phase.lobby)
-    ) {
-      // end the game
-      this.isGameOver();
-      // empty the player list of this mafia game
-      this._players = [];
-    }
-  }
+//     // if player who left was the host and the phase is currently lobby, end game
+//     // if game is in progress and there are less than or equal to two players remaining, end the game
+//     if (
+//       (leaver._isHost && this.phase === Phase.lobby) ||
+//       (this._players.length <= 2 && this.phase !== Phase.lobby)
+//     ) {
+//       // end the game
+//       this.isGameOver();
+//       // empty the player list of this mafia game
+//       this._players = [];
+//     }
+//   }
 }

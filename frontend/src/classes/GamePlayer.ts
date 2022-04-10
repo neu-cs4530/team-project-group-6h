@@ -1,4 +1,5 @@
-import Player from '../../types/Player';
+import Player, { UserLocation } from "./Player";
+
 
 /**
  * Represents two possible teams that a GamePlayer can be a part of within the Mafia Game.
@@ -34,11 +35,11 @@ export default class GamePlayer extends Player {
   _target: string;
 
   /**
-   * Default constructor; input isAlive = false to create as spectator
-   */
+  * Default constructor; input isAlive = false to create as spectator
+  */
   constructor(recPlayer: Player) {
-    super(recPlayer.userName);
-
+    super(recPlayer.id, recPlayer.userName, (recPlayer.location as UserLocation));
+    
     this._isAlive = true;
     this._hasVoted = false;
     this._roleInfo = '';
@@ -49,7 +50,7 @@ export default class GamePlayer extends Player {
     this._team = team;
   }
 
-  get team(): Team {
+  get team() {
     return this._team;
   }
 
@@ -61,14 +62,14 @@ export default class GamePlayer extends Player {
     return this._isAlive;
   }
 
-  public eliminate(): void {
+  public eliminate() {
     this._isAlive = false;
   }
 
   /**
    * Sets both the role of a GamePlayer and the role information of the GamePlayer.
    */
-  set role(role: Role) {
+   set role(role: Role) {
     this._role = role;
 
     switch (role) {

@@ -1,10 +1,9 @@
-import RecreationPlayer from './RecreationPlayer';
 import GamePlayer, { Role, Team } from './GamePlayer';
 import Player from '../../types/Player';
 
 /**
-* Represents all the possible phases of a Mafia game.
-*/
+ * Represents all the possible phases of a Mafia game.
+ */
 export enum Phase {
   'lobby',
   'day_discussion',
@@ -32,10 +31,10 @@ export default class MafiaGame {
 
   // Equal to the number of roles we currently have.
   // Currently, should be 4 (minus the Unassigned Role)
-  
-  MIN_PLAYERS: number = ((Object.keys(Role).length) / 2) - 1;
 
-  constructor(_players : RecreationPlayer[]) {
+  MIN_PLAYERS: number = Object.keys(Role).length / 2 - 1;
+
+  constructor(_players: Player[]) {
     this._players = _players;
     this._mafiaPlayers = [];
     this._townPlayers = [];
@@ -66,28 +65,35 @@ export default class MafiaGame {
    */
   get deadPlayers(): string[] {
     // TODO: May need to change to player.userName, depending on which holds the unique identifier of the player
-    const mafiaDead: GamePlayer[] = [...this._mafiaPlayers].filter((player) => player.isAlive === false);
-    const townDead: GamePlayer[] = [...this._townPlayers].filter((player) => player.isAlive === false);
+    const mafiaDead: GamePlayer[] = [...this._mafiaPlayers].filter(
+      player => player.isAlive === false,
+    );
+    const townDead: GamePlayer[] = [...this._townPlayers].filter(
+      player => player.isAlive === false,
+    );
 
-    const mafiaNames: string[] = mafiaDead.map((player) => player.userName);
-    const townNames: string[] = townDead.map((player) => player.userName);
+    const mafiaNames: string[] = mafiaDead.map(player => player.userName);
+    const townNames: string[] = townDead.map(player => player.userName);
 
     // console.log(`${[...mafiaNames, ...townNames]}`);
     return [...mafiaNames, ...townNames];
   }
 
   /**
-   * Returns the names of all players still alive within the game. 
+   * Returns the names of all players still alive within the game.
    */
   get alivePlayers(): string[] {
-    const mafiaAlive: GamePlayer[] = [...this._mafiaPlayers].filter((player) => player.isAlive === true);
-    const townAlive: GamePlayer[] = [...this._townPlayers].filter((player) => player.isAlive === true);
+    const mafiaAlive: GamePlayer[] = [...this._mafiaPlayers].filter(
+      player => player.isAlive === true,
+    );
+    const townAlive: GamePlayer[] = [...this._townPlayers].filter(
+      player => player.isAlive === true,
+    );
 
-    const mafiaNames: string[] = mafiaAlive.map((player) => player.userName);
-    const townNames: string[] = townAlive.map((player) => player.userName);
+    const mafiaNames: string[] = mafiaAlive.map(player => player.userName);
+    const townNames: string[] = townAlive.map(player => player.userName);
 
     return [...mafiaNames, ...townNames];
-  
   }
 
   get mafiaPlayers(): GamePlayer[] {
@@ -114,9 +120,8 @@ export default class MafiaGame {
         this._phase = Phase.day_discussion;
         break;
       default:
-        throw `Game is currently in phase: ${Phase[this._phase]}`;
+        throw Error(`Game is currently in phase: ${Phase[this._phase]}`);
     }
-
   }
 
   /**
@@ -173,24 +178,22 @@ export default class MafiaGame {
   }
 
   /**
-   * Partitions the player array into MIN_PLAYERS number of roughly equal arrays 
+   * Partitions the player array into MIN_PLAYERS number of roughly equal arrays
    * @param playerList The list of players to partition
    * @returns An array of GamePlayer arrays (from partitioned players list)
-   * Modified form of https://stackoverflow.com/questions/8188548/splitting-a-js-array-into-n-arrays 
+   * Modified form of https://stackoverflow.com/questions/8188548/splitting-a-js-array-into-n-arrays
    */
   private partition(playerList: GamePlayer[]): GamePlayer[][] {
-
     const result: GamePlayer[][] = [];
 
     // Get 1/MIN_PLAYERS of the list, then 1/(MIN_PLAYERS - 1) of the list...
-    // o | o | o | o 
+    // o | o | o | o
 
-    for (let i = this.MIN_PLAYERS; i > 0; i--) {
+    for (let i = this.MIN_PLAYERS; i > 0; i -= 1) {
       result.push(playerList.splice(0, Math.ceil(playerList.length / i)));
     }
 
     return result;
-
   }
 
   /**
@@ -200,26 +203,27 @@ export default class MafiaGame {
    * @throws Exception if the playerName does not exist or player is not on given team.
    */
   public eliminatePlayer(playerName: string): void {
-
     // find the player in either the mafia or town arrays (hopefully no same name situations)
     // const mafiaAndTown: GamePlayer[] = [...this._mafiaPlayers, ...this._townPlayers];
 
-    const mafiaIndex = this._mafiaPlayers.findIndex((player) => {
-      //console.log(`Player.name = ${playerName}`);
-      //console.log(`Current name = ${player.userName}`);
-      //console.log(`Current id = ${player.id}`);
+    const mafiaIndex = this._mafiaPlayers.findIndex(
+      player =>
+      // console.log(`Player.name = ${playerName}`);
+      // console.log(`Current name = ${player.userName}`);
+      // console.log(`Current id = ${player.id}`);
 
-      player.userName === playerName
-    });
-    
-    const townIndex = this._townPlayers.findIndex((player) => {
-      //console.log(`Player.name = ${playerName}`);
-      //console.log(`Current name = ${player.userName}`);
-      //console.log(`Current id = ${player.id}`);
+        player.userName === playerName,
+    );
 
-      player.userName === playerName
-    });
-  
+    const townIndex = this._townPlayers.findIndex(
+      player =>
+      // console.log(`Player.name = ${playerName}`);
+      // console.log(`Current name = ${player.userName}`);
+      // console.log(`Current id = ${player.id}`);
+
+        player.userName === playerName,
+    );
+
     // console.log(`Town Index: ${townIndex}`);
 
     // console.log(`Town Index: ${mafiaIndex}`);
@@ -230,12 +234,7 @@ export default class MafiaGame {
     if (townIndex >= 0) {
       this._townPlayers[townIndex].eliminate();
     }
-    
-    
-    
   }
-
-
 
   /**
    * Randomly assigns the Teams and Roles to the players within the array and adds the players to the mafiaPlayers/townPlayers fields.
@@ -243,9 +242,9 @@ export default class MafiaGame {
   private assignRoles(): void {
     this.shuffle();
 
-    const gamePlayers = this._players.map((player) => new GamePlayer(player));
+    const gamePlayers = this._players.map(player => new GamePlayer(player));
 
-    /** CURRENT LOGIC: 
+    /** CURRENT LOGIC:
      * 0. Shuffle array (to prevent first-come = mafia)
      * 1. Partition player array into MIN_PLAYERS number of roughly equal parts
      * 2. Assign first array to Mafia, the rest to town.
@@ -253,38 +252,38 @@ export default class MafiaGame {
      * 4. Add players of first array to mafiaPlayers.
      * 5. Assign one first person in each of the following arrays to DOCTOR, HYPNOTIST, DETECTIVE
      * 6. Add players of the remaining arrays to townPlayers.
-     * MIN CASE: No players w/ unassigned roles (Every role is filled). 
+     * MIN CASE: No players w/ unassigned roles (Every role is filled).
      * Any number > min case will have unassigned, "vanilla" Mafia/Town players.
-     */ 
-    let [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] = this.partition(gamePlayers);
+     */
+    const [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] =
+      this.partition(gamePlayers);
 
-    godfatherList.forEach((mafia) => {
+    godfatherList.forEach(mafia => {
       mafia.team = Team.Mafia;
       mafia.role = Role.Unassigned;
     });
     godfatherList[0].role = Role.Godfather;
     this._mafiaPlayers = godfatherList;
 
-    doctorList.forEach((town) => {
+    doctorList.forEach(town => {
       town.team = Team.Town;
       town.role = Role.Unassigned;
     });
     doctorList[0].role = Role.Doctor;
 
-    hypnotistList.forEach((town) => {
-      town.team = Team.Mafia
+    hypnotistList.forEach(town => {
+      town.team = Team.Mafia;
       town.role = Role.Unassigned;
     });
     hypnotistList[0].role = Role.Hypnotist;
 
-    detectiveList.forEach((town) => {
+    detectiveList.forEach(town => {
       town.team = Team.Town;
       town.role = Role.Unassigned;
     });
     detectiveList[0].role = Role.Detective;
 
     this._townPlayers = [...doctorList, ...hypnotistList, ...detectiveList];
-
   }
 
   /**
@@ -296,35 +295,35 @@ export default class MafiaGame {
     // Current Assumption: Min # of Players = Num of Players that can fill all the following roles at least once:
     /** MAFIA SIDE:
      * Godfather
-     * 
+     *
      * TOWN SIDE:
      * Detective
      * Doctor
      * Hypnotist
      * MIN_PLAYERS = 4
-    */
+     */
     if (this._players.length >= this.MIN_PLAYERS) {
       this.assignRoles();
-    } 
+    }
   }
 
   /**
    * Updates the list of players in the mafia game when a player leaves. Will end the game if the leaver is the host and the phase is lobby, or if the number of players remaining in the game is less than or equal to two.
    * @param leaver The player who left the mafia game.
    */
-  removePlayer(leaver: RecreationPlayer): void {
-    this._players = this._players.filter(p => leaver.id !== p.id);
+  // removePlayer(leaver: RecreationPlayer): void {
+  //   this._players = this._players.filter(p => leaver.id !== p.id);
 
-    // if player who left was the host and the phase is currently lobby, end game
-    // if game is in progress and there are less than or equal to two players remaining, end the game
-    if (
-      (leaver._isHost && this._phase === Phase.lobby) ||
-      (this._players.length <= 2 && this._phase !== Phase.lobby)
-    ) {
-      // end the game
-      this.isGameOver();
-      // empty the player list of this mafia game
-      this._players = [];
-    }
-  }
+  //   // if player who left was the host and the phase is currently lobby, end game
+  //   // if game is in progress and there are less than or equal to two players remaining, end the game
+  //   if (
+  //     (leaver._isHost && this._phase === Phase.lobby) ||
+  //     (this._players.length <= 2 && this._phase !== Phase.lobby)
+  //   ) {
+  //     // end the game
+  //     this.isGameOver();
+  //     // empty the player list of this mafia game
+  //     this._players = [];
+  //   }
+  // }
 }

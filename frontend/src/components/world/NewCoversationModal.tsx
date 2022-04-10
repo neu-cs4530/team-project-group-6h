@@ -35,12 +35,16 @@ export default function NewConversationModal({ isOpen, closeModal, newConversati
   const video = useMaybeVideo()
 
   const [isRecreationArea, setIsRecreationArea] = useState(false);
+
   const toggleIsRecreationArea = () => {
-    console.log(isRecreationArea ? 'Change to Conversation Area' : 'Change to Recreation Area');
+    // this call enqueues a re-render of the component, so it takes some time
     setIsRecreationArea(!isRecreationArea);
   }
 
-  useEffect(() => setIsRecreationArea(false), []);
+  useEffect(() => {
+    // if isrecreationarea is updated, immediately re-render the component
+    
+  }, [isRecreationArea])
 
   const createConversation = useCallback(async () => {
     const areaType = isRecreationArea ? 'Recreation' : 'Conversation';
@@ -77,7 +81,7 @@ export default function NewConversationModal({ isOpen, closeModal, newConversati
         });
       }
     }
-  }, [topic, apiClient, newConversation, closeModal, currentTownID, sessionToken, toast, video]);
+  }, [isRecreationArea, topic, newConversation, toast, video, closeModal, apiClient, sessionToken, currentTownID]);
 
 
   return (

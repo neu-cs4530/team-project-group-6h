@@ -1,4 +1,4 @@
-import MafiaGame from '../../../services/townService/src/lib/mafia_lib/MafiaGame';
+import MafiaGame from './MafiaGame';
 import BoundingBox from './BoundingBox';
 import ConversationArea, {ServerConversationArea, ConversationAreaListener} from './ConversationArea';
 /**

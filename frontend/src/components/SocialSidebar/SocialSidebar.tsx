@@ -1,4 +1,4 @@
-import { Button, Heading, StackDivider, VStack } from '@chakra-ui/react';
+import { Heading, StackDivider, VStack } from '@chakra-ui/react';
 import React from 'react';
 import useConversationAreas from '../../hooks/useConversationAreas';
 import ConversationAreasList from './ConversationAreasList';
@@ -6,20 +6,18 @@ import PlayersList from './PlayersList';
 import StartGame from './StartGame';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import RecreationArea from '../../classes/RecreationArea';
+import ConversationArea from '../../classes/ConversationArea';
 
 export default function SocialSidebar(): JSX.Element {
   // get all the conversation areas of this town
   const convoAreas = useConversationAreas();
-
   // get all the recreation areas of this town
   const recAreas = convoAreas.filter((area) => area.isRecreationArea);
-  recAreas.map((area) => area as RecreationArea);
-  
   const coveyApp = useCoveyAppState();
   // get my player's id
   const { myPlayerID }= coveyApp;
   // find the recreation area my player is located in
-  const myPlayerRecArea = (recAreas.filter((area) => area.occupants.includes(myPlayerID))[0]);
+  const myPlayerRecArea = (recAreas.find((area) => area.occupants.includes(myPlayerID)));
 
     return (
       <VStack align="left"
@@ -36,8 +34,11 @@ export default function SocialSidebar(): JSX.Element {
         <PlayersList /> 
         <ConversationAreasList />
 
-        {/* start button to show for player */}
-        {myPlayerRecArea !== undefined ? <StartGame area={myPlayerRecArea} /> : <p>Player is not in a recreation area!</p>}
+        {/* start button to show for player if they are in a recreation area */}
+        {myPlayerRecArea !== undefined ? 
+        <StartGame area={myPlayerRecArea} hostID={myPlayerID}/> 
+        : <p>Your player is not in a recreation area!</p>}
+        
       </VStack>
     );
   }

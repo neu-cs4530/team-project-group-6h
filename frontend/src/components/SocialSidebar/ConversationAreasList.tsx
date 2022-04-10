@@ -74,8 +74,6 @@ export default function ConversationAreasList(): JSX.Element {
         .map(area => (
           <ConversationAreaView area={area} key={area.label} />
         ))}
-      <br/>
-      <br/>
       <Heading as='h2' fontSize='l'>Active Recreation Areas:</Heading>
       { 
         activeRecreationAreas.length === 0 ? <>No active recreation areas</>: 

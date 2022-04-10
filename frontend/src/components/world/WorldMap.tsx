@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button } from '@chakra-ui/react';
+import { Box, Button } from '@chakra-ui/react';
 import BoundingBox from '../../classes/BoundingBox';
 import ConversationArea from '../../classes/ConversationArea';
 import Player, { ServerPlayer, UserLocation } from '../../classes/Player';
@@ -12,8 +12,6 @@ import usePlayerMovement from '../../hooks/usePlayerMovement';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import NewConversationModal from './NewCoversationModal';
-
-import GameUI from '../MafiaOverlay/GameUI';
 
 
 // Original inspiration and code from:
@@ -745,11 +743,11 @@ export default function WorldMap(): JSX.Element {
     <div id='app-container'>
       {newConversationModal}
       <div id='map-and-social-container'>
-        <div id='map-container' />
-        <div id='social-container'>
-          <SocialSidebar/>
+        <div id='map-container'/>
+          <div id='social-container'>
+          <SocialSidebar />
+          </div>
         </div>
-      </div>
     </div>
   );
 }

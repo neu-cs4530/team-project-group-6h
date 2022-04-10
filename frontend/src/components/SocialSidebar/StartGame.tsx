@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useState }from 'react';
-import { Button, Input } from "@chakra-ui/react";
+import React, { useEffect, useState }from 'react';
+import { Alert, AlertIcon, Button } from "@chakra-ui/react";
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import MafiaGame from '../../classes/MafiaGame';
-import useConversationAreas from '../../hooks/useConversationAreas';
-import ConversationArea, { ConversationAreaListener } from '../../classes/ConversationArea';
-import RecreationPlayer from '../../../../services/townService/src/lib/mafia_lib/RecreationPlayer';
+import ConversationArea from '../../classes/ConversationArea';
+import usePlayersInTown from '../../hooks/usePlayersInTown';
+import Player from '../../classes/Player';
 
 export enum Phase {
-    'unstarted',
     'lobby',
     'day_discussion',
     'day_voting',
@@ -15,19 +14,19 @@ export enum Phase {
     'win',
 }
 
-type RecreationAreaProps = {
+type ConversationAreaProps = {
     area: ConversationArea,
+    hostID: string,
 };
 
-export default function StartGame({ area }: RecreationAreaProps ): JSX.Element {
-    const [mafiaGameState, setMafiaGameState] = useState<Phase>(Phase.unstarted);
+export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX.Element {
+    const [mafiaGameState, setMafiaGameState] = useState<Phase|undefined>(undefined);
+    const allPlayers = usePlayersInTown();
 
-    let btnTxt: string;
-    if (mafiaGameState === Phase.unstarted) {
-        btnTxt = 'Start Game';
-    } else if (mafiaGameState === Phase.lobby) {
+    let btnTxt = 'Start Game';
+    if (mafiaGameState === Phase.lobby) {
         btnTxt = 'Join Game';
-    } else {
+    } else if (mafiaGameState) {
         btnTxt = 'Spectate Game';
     }
 
@@ -35,12 +34,25 @@ export default function StartGame({ area }: RecreationAreaProps ): JSX.Element {
     // depending on the state of the mafia game in the conversation area, update button display
 
     const handleClick = () => {
-        setMafiaGameState(Phase.lobby); // initializes the mafia game
+        // get all the players in this area
+        const playersInArea = area.occupants.map((occupant) => allPlayers.filter((player) => 
+        player.id === occupant)[0]);
+        
+        // get the host
+        const host = playersInArea.filter((player) => player.id === hostID)[0];
+        
         // add the current conversation area players to the new mafia game
-        const createdGame = new MafiaGame(area.occupants.map((userName) => new RecreationPlayer(userName)));
-        // modify the area to have a mafia game playing
+        const createdGame = new MafiaGame(host, playersInArea);
+        // modify the area to initialize a mafia game
         (area as RecreationArea).mafiaGame = createdGame;
+        // initializes the mafia game
+        setMafiaGameState(createdGame.phase);
+        console.log('game created');
     }
+
+    useEffect(() => {
+        
+    }, [mafiaGameState]);
 
     return (
         // if player has not started game in this recreation area yet, then show "start game"
@@ -48,6 +60,8 @@ export default function StartGame({ area }: RecreationAreaProps ): JSX.Element {
         // otherwise show "join game" or "spectate game"
         <div>
             <Button colorScheme='teal' onClick={handleClick}>{btnTxt}</Button>
+            <br/>
+            {mafiaGameState === Phase.lobby ? `You are currently in a lobby! Host: ${hostID}` : 'Not in a game'}
         </div>
     );
 }
