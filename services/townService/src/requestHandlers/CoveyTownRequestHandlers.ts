@@ -4,7 +4,10 @@ import Player from '../types/Player';
 import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
-import { ConversationAreaCreateRequest, ServerConversationArea } from '../client/TownsServiceClient';
+import {
+  ConversationAreaCreateRequest,
+  ServerConversationArea,
+} from '../client/TownsServiceClient';
 import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 import CoveyTownController from '../lib/CoveyTownController';
 
@@ -103,7 +106,9 @@ export interface ResponseEnvelope<T> {
  *
  * @param requestData an object representing the player's request
  */
-export async function townJoinHandler(requestData: TownJoinRequest): Promise<ResponseEnvelope<TownJoinResponse>> {
+export async function townJoinHandler(
+  requestData: TownJoinRequest,
+): Promise<ResponseEnvelope<TownJoinResponse>> {
   const townsStore = CoveyTownsStore.getInstance();
 
   const coveyTownController = townsStore.getControllerForTown(requestData.coveyTownID);
@@ -139,7 +144,9 @@ export function townListHandler(): ResponseEnvelope<TownListResponse> {
   };
 }
 
-export function townCreateHandler(requestData: TownCreateRequest): ResponseEnvelope<TownCreateResponse> {
+export function townCreateHandler(
+  requestData: TownCreateRequest,
+): ResponseEnvelope<TownCreateResponse> {
   const townsStore = CoveyTownsStore.getInstance();
   if (requestData.friendlyName.length === 0) {
     return {
@@ -157,29 +164,41 @@ export function townCreateHandler(requestData: TownCreateRequest): ResponseEnvel
   };
 }
 
-export function townDeleteHandler(requestData: TownDeleteRequest): ResponseEnvelope<Record<string, null>> {
+export function townDeleteHandler(
+  requestData: TownDeleteRequest,
+): ResponseEnvelope<Record<string, null>> {
   const townsStore = CoveyTownsStore.getInstance();
   const success = townsStore.deleteTown(requestData.coveyTownID, requestData.coveyTownPassword);
   return {
     isOK: success,
     response: {},
-    message: !success ? 'Invalid password. Please double check your town update password.' : undefined,
+    message: !success
+      ? 'Invalid password. Please double check your town update password.'
+      : undefined,
   };
 }
 
-export function townUpdateHandler(requestData: TownUpdateRequest): ResponseEnvelope<Record<string, null>> {
+export function townUpdateHandler(
+  requestData: TownUpdateRequest,
+): ResponseEnvelope<Record<string, null>> {
   const townsStore = CoveyTownsStore.getInstance();
-  const success = townsStore.updateTown(requestData.coveyTownID, requestData.coveyTownPassword, requestData.friendlyName, requestData.isPubliclyListed);
+  const success = townsStore.updateTown(
+    requestData.coveyTownID,
+    requestData.coveyTownPassword,
+    requestData.friendlyName,
+    requestData.isPubliclyListed,
+  );
   return {
     isOK: success,
     response: {},
-    message: !success ? 'Invalid password or update values specified. Please double check your town update password.' : undefined,
+    message: !success
+      ? 'Invalid password or update values specified. Please double check your town update password.'
+      : undefined,
   };
-
 }
 
 /**
- * Returns the town controller for the given covey town, if it exists 
+ * Returns the town controller for the given covey town, if it exists
  * @param coveyTownID ID representing an instance Covey Town
  * @returns The specified town's controller or undefined
  */
@@ -189,7 +208,6 @@ function getTownController(coveyTownID: string): CoveyTownController | undefined
   return townController;
 }
 
-
 /**
  * A handler to process the "Create Conversation Area" request
  * The intended flow of this handler is:
@@ -198,15 +216,19 @@ function getTownController(coveyTownID: string): CoveyTownController | undefined
  * * Ask the TownController to create the conversation area
  * @param _requestData Conversation area create request
  */
- export function conversationAreaCreateHandler(_requestData: ConversationAreaCreateRequest) : ResponseEnvelope<Record<string, null>> {
-   /*
+export function conversationAreaCreateHandler(
+  _requestData: ConversationAreaCreateRequest,
+): ResponseEnvelope<Record<string, null>> {
+  /*
   const townsStore = CoveyTownsStore.getInstance();
   const townController = townsStore.getControllerForTown(_requestData.coveyTownID);
   */
   const townController = getTownController(_requestData.coveyTownID);
-  if (!townController?.getSessionByToken(_requestData.sessionToken)){
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
     return {
-      isOK: false, response: {}, message: `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
+      isOK: false,
+      response: {},
+      message: `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
     };
   }
   const success = townController.addConversationArea(_requestData.conversationArea);
@@ -214,7 +236,9 @@ function getTownController(coveyTownID: string): CoveyTownController | undefined
   return {
     isOK: success,
     response: {},
-    message: !success ? `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}` : undefined,
+    message: !success
+      ? `Unable to create conversation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`
+      : undefined,
   };
 }
 
@@ -224,14 +248,18 @@ function getTownController(coveyTownID: string): CoveyTownController | undefined
  * * Fetch the town controller for the specified town ID
  * * Validate that the sessionToken is valid for that town
  * * Ask the TownController to create the conversation area
- * @param _requestData ConversationArea create request 
- * @returns 
+ * @param _requestData ConversationArea create request
+ * @returns
  */
-export function recreationAreaCreateHandler(_requestData: ConversationAreaCreateRequest): ResponseEnvelope<Record<string, null>> {
+export function recreationAreaCreateHandler(
+  _requestData: ConversationAreaCreateRequest,
+): ResponseEnvelope<Record<string, null>> {
   const townController = getTownController(_requestData.coveyTownID);
-  if (!townController?.getSessionByToken(_requestData.sessionToken)){
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
     return {
-      isOK: false, response: {}, message: `Unable to create recreation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
+      isOK: false,
+      response: {},
+      message: `Unable to create recreation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`,
     };
   }
 
@@ -240,13 +268,11 @@ export function recreationAreaCreateHandler(_requestData: ConversationAreaCreate
   return {
     isOK: success,
     response: {},
-    message: !success ? `Unable to create recreation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}` : undefined,
-  }
-
+    message: !success
+      ? `Unable to create recreation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`
+      : undefined,
+  };
 }
-
-
-
 
 /**
  * An adapter between CoveyTownController's event interface (CoveyTownListener)
@@ -269,16 +295,16 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
       socket.emit('townClosing');
       socket.disconnect(true);
     },
-    onConversationAreaDestroyed(conversation: ServerConversationArea){
+    onConversationAreaDestroyed(conversation: ServerConversationArea) {
       socket.emit('conversationDestroyed', conversation);
     },
-    onConversationAreaUpdated(conversation: ServerConversationArea){
+    onConversationAreaUpdated(conversation: ServerConversationArea) {
       socket.emit('conversationUpdated', conversation);
     },
-    onRecreationAreaUpdated(recreation: ServerRecreationArea){
+    onRecreationAreaUpdated(recreation: ServerRecreationArea) {
       socket.emit('recreationUpdated', recreation);
     },
-    onChatMessage(message: ChatMessage){
+    onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);
     },
   };
@@ -294,8 +320,7 @@ export function townSubscriptionHandler(socket: Socket): void {
   // For each player, the session token should be the same string returned by joinTownHandler
   const { token, coveyTownID } = socket.handshake.auth as { token: string; coveyTownID: string };
 
-  const townController = CoveyTownsStore.getInstance()
-    .getControllerForTown(coveyTownID);
+  const townController = CoveyTownsStore.getInstance().getControllerForTown(coveyTownID);
 
   // Retrieve our metadata about this player from the TownController
   const s = townController?.getSessionByToken(token);
@@ -318,7 +343,9 @@ export function townSubscriptionHandler(socket: Socket): void {
     townController.destroySession(s);
   });
 
-  socket.on('chatMessage', (message: ChatMessage) => { townController.onChatMessage(message); });
+  socket.on('chatMessage', (message: ChatMessage) => {
+    townController.onChatMessage(message);
+  });
 
   // Register an event listener for the client socket: if the client updates their
   // location, inform the CoveyTownController
@@ -328,5 +355,5 @@ export function townSubscriptionHandler(socket: Socket): void {
 
   // Register an event listener for the client socket: if the client creates a new mafia game,
   // inform the CoveyTownController
-  //socket.on('createMafiaGame', (recLabel: string, host: Player) => { townController.onCreateMafiaGame(recLabel, host)})
+  // socket.on('createMafiaGame', (recLabel: string, host: Player) => { townController.onCreateMafiaGame(recLabel, host)})
 }

@@ -2,8 +2,8 @@ import GamePlayer, { Role, Team } from './GamePlayer';
 import Player from '../../types/Player';
 
 /**
-* Represents all the possible phases of a Mafia game.
-*/
+ * Represents all the possible phases of a Mafia game.
+ */
 export enum Phase {
   'lobby',
   'day_discussion',
@@ -28,8 +28,7 @@ export default class MafiaGame {
 
   // Equal to the number of roles we currently have.
   // Currently, should be 4 (minus the Unassigned Role)
-  
-  MIN_PLAYERS: number = ((Object.keys(Role).length) / 2) - 1;
+  private MIN_PLAYERS: number = Object.keys(Role).length / 2 - 1;
 
   constructor(host: Player) {
     this._host = host;
@@ -49,7 +48,7 @@ export default class MafiaGame {
     return this._winner;
   }
 
-  get minPlayers(): number {
+  get minPlayers() {
     return this.MIN_PLAYERS;
   }
 
@@ -123,9 +122,8 @@ export default class MafiaGame {
         this._phase = Phase.day_discussion;
         break;
       default:
-        throw `Game is currently in phase: ${Phase[this._phase]}`;
+        throw Error(`Game is currently in phase: ${Phase[this._phase]}`);
     }
-
   }
 
   /**
@@ -178,24 +176,22 @@ export default class MafiaGame {
   }
 
   /**
-   * Partitions the player array into MIN_PLAYERS number of roughly equal arrays 
+   * Partitions the player array into MIN_PLAYERS number of roughly equal arrays
    * @param playerList The list of players to partition
    * @returns An array of GamePlayer arrays (from partitioned players list)
-   * Modified form of https://stackoverflow.com/questions/8188548/splitting-a-js-array-into-n-arrays 
+   * Modified form of https://stackoverflow.com/questions/8188548/splitting-a-js-array-into-n-arrays
    */
   private partition(playerList: GamePlayer[]): GamePlayer[][] {
-
     const result: GamePlayer[][] = [];
 
     // Get 1/MIN_PLAYERS of the list, then 1/(MIN_PLAYERS - 1) of the list...
-    // o | o | o | o 
+    // o | o | o | o
 
-    for (let i = this.MIN_PLAYERS; i > 0; i--) {
+    for (let i = this.MIN_PLAYERS; i > 0; i -= 1) {
       result.push(playerList.splice(0, Math.ceil(playerList.length / i)));
     }
 
     return result;
-
   }
 
   /**
@@ -231,9 +227,9 @@ export default class MafiaGame {
   private assignRoles(): void {
     this.shuffle();
 
-    const gamePlayers = this._players.map((player) => new GamePlayer(player));
+    const gamePlayers = this._players.map(player => new GamePlayer(player));
 
-    /** CURRENT LOGIC: 
+    /** CURRENT LOGIC:
      * 0. Shuffle array (to prevent first-come = mafia)
      * 1. Partition player array into MIN_PLAYERS number of roughly equal parts
      * 2. Assign first array to Mafia, the rest to town.
@@ -242,16 +238,17 @@ export default class MafiaGame {
      * 5. Add players of the arrays to gamePlayers.
      * MIN CASE: No players w/ unassigned roles (Every role is filled). 
      * Any number > min case will have unassigned, "vanilla" Mafia/Town players.
-     */ 
-    let [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] = this.partition(gamePlayers);
+     */
+    const [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] =
+      this.partition(gamePlayers);
 
-    godfatherList.forEach((mafia) => {
+    godfatherList.forEach(mafia => {
       mafia.team = Team.Mafia;
       mafia.role = Role.Unassigned;
     });
     godfatherList[0].role = Role.Godfather;
 
-    doctorList.forEach((town) => {
+    doctorList.forEach(town => {
       town.team = Team.Town;
       town.role = Role.Unassigned;
     });
@@ -263,7 +260,7 @@ export default class MafiaGame {
     });
     hypnotistList[0].role = Role.Hypnotist;
 
-    detectiveList.forEach((town) => {
+    detectiveList.forEach(town => {
       town.team = Team.Town;
       town.role = Role.Unassigned;
     });
@@ -306,7 +303,7 @@ export default class MafiaGame {
     // Current Assumption: Min # of Players = Num of Players that can fill all the following roles at least once:
     /** MAFIA SIDE:
      * Godfather
-     * 
+     *
      * TOWN SIDE:
      * Detective
      * Doctor
@@ -315,7 +312,7 @@ export default class MafiaGame {
     */
     if (this.numPlayers() >= this.MIN_PLAYERS) {
       this.assignRoles();
-    } 
+    }
   }
 
   /**
