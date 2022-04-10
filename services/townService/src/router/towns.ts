@@ -147,7 +147,7 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
   });
 
   // Create Mafia Game Lobby
-  app.post('/towns:townID/createLobby', express.json(), async (req,res) => {
+  app.post('/towns/:townID/createLobby', express.json(), async (req,res) => {
     try {
       const result = await mafiaGameLobbyCreateHandler({
         coveyTownID: req.params.townID,
