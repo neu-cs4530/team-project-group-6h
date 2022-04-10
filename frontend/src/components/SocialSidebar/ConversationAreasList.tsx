@@ -56,11 +56,13 @@ type ConversationAreasListProps = {
 */
 
 export default function ConversationAreasList(): JSX.Element {
+  // get the conversation areas
   const conversationAreas = useConversationAreas();
+  // get the active conversation areas only
   const activeAreas = conversationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
+
   const activeConversationAreas = activeAreas.filter(area => !area.isRecreationArea);
-  // const activeRecreationAreas = activeAreas.filter(area => area.isRecreationArea);
-  const activeRecreationAreas = activeAreas.filter(area => area instanceof RecreationArea);
+  const activeRecreationAreas = activeAreas.filter(area => area.isRecreationArea);
   return (
     <Box>
       <Heading as='h2' fontSize='l'>Active Conversation Areas:</Heading>
@@ -79,6 +81,7 @@ export default function ConversationAreasList(): JSX.Element {
         .map(area => (
           <ConversationAreaView area={area} key={area.label} />
         ))}
+        
     </Box>
   );
 }
