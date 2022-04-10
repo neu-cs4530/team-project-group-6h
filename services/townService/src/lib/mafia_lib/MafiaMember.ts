@@ -1,3 +1,4 @@
+import Player from '../../types/Player';
 import GamePlayer, { Team } from './GamePlayer';
 
 /**
@@ -7,7 +8,7 @@ import GamePlayer, { Team } from './GamePlayer';
 export default class MafiaMember extends GamePlayer {
   _roleInfo = 'Mafia: Can eliminate one Town member during the night.';
 
-  constructor(gamePlayer: GamePlayer) {
+  constructor(gamePlayer: Player) {
     super(gamePlayer);
     this.team = Team.Mafia;
   }

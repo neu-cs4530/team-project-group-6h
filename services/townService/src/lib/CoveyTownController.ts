@@ -318,7 +318,7 @@ export default class CoveyTownController {
       // if no mafia game exists in the given recreation area, then initiate a mafia game and update the recreation area
 
       // creates a mafia game with only the host in the list of players
-      const createdGame = new MafiaGame([gameHost]);
+      const createdGame = new MafiaGame(gameHost);
       _ServerRecreationArea._mafiaGame = createdGame;
 
       // let listeners know the recreation area has been updated
@@ -346,13 +346,14 @@ export default class CoveyTownController {
 
     // Ensure host is in the game 
     const host = areaToAddGame.occupantsByID.find(id => id === hostID);
-    if(!host) {
+    const hostPlayer = this._players.find(player => player.id === hostID);
+    if(!host || !hostPlayer) {
       return false;
     }
 
     // Create game
-    const hostPlayer = this._players.find(player => player.id === hostID);
-    // hostPlayer._isHost = true; 
+    
+    
     const newGame = new MafiaGame(hostPlayer);
     areaToAddGame._mafiaGame = newGame; 
 

@@ -1,3 +1,4 @@
+import Player from '../../types/Player';
 import GamePlayer, { Team } from './GamePlayer';
 
 /**
@@ -9,7 +10,7 @@ export default class TownMember extends GamePlayer {
    */
   _roleInfo = 'Town Member: Can vote to eliminate one (1) player during the day.';
   
-  constructor(gamePlayer: GamePlayer) {
+  constructor(gamePlayer: Player) {
     super(gamePlayer);
     this.team = Team.Town;
   }

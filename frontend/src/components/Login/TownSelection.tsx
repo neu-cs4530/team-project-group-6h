@@ -73,9 +73,15 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         });
         return;
       }
-      const initData = await Video.setup(userName, coveyRoomID);
 
+      const initData = await Video.setup(userName, coveyRoomID);
+      console.log(initData ? 'video setup' : 'video not setup');
+
+      console.log(`Conversation Areas: ${initData.conversationAreas.length}`);
+      console.log(`Recreation Areas: ${initData.recreationAreas}`);
       const loggedIn = await doLogin(initData);
+      console.log(initData ? 'log in success' : 'log in fail');
+
       if (loggedIn) {
         assert(initData.providerVideoToken);
         await videoConnect(initData.providerVideoToken);

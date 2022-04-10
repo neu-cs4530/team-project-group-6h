@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState }from 'react';
-import { Alert, AlertIcon, Button, toast, useToast } from "@chakra-ui/react";
+import { Alert, AlertIcon, Button, useToast } from "@chakra-ui/react";
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import MafiaGame from '../../classes/MafiaGame';
 import ConversationArea from '../../classes/ConversationArea';
@@ -61,9 +61,9 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
         try {
             await apiClient.createGameLobby({
                 coveyTownID: currentTownID,
-                sessionToken: sessionToken,
+                sessionToken,
                 recreationAreaLabel: area.label,
-                hostID: hostID,
+                hostID,
             });
             toast({
                 title: 'Mafia Game Lobby Created!',

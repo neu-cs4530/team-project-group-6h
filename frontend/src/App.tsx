@@ -157,7 +157,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       let localConversationAreas = initData.conversationAreas.map(sa =>
         ConversationArea.fromServerConversationArea(sa),
       );
-      let localRecreationAreas = initData.recreationAreas.map(sa =>   RecreationArea.fromServerRecreationArea(sa),
+      let localRecreationAreas = initData.recreationAreas.map(sa => RecreationArea.fromServerRecreationArea(sa),
       );
       let localNearbyPlayers: Player[] = [];
       setPlayersInTown(localPlayers);
