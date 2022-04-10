@@ -1,10 +1,11 @@
-import React, { useEffect, useState }from 'react';
-import { Alert, AlertIcon, Button } from "@chakra-ui/react";
+import React, { useCallback, useEffect, useState }from 'react';
+import { Alert, AlertIcon, Button, toast, useToast } from "@chakra-ui/react";
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import MafiaGame from '../../classes/MafiaGame';
 import ConversationArea from '../../classes/ConversationArea';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import Player from '../../classes/Player';
+import useCoveyAppState from '../../hooks/useCoveyAppState';
 
 export enum Phase {
     'lobby',
@@ -23,6 +24,10 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
     const [mafiaGameState, setMafiaGameState] = useState<Phase|undefined>(undefined);
     const allPlayers = usePlayersInTown();
 
+    const {apiClient, sessionToken, currentTownID} = useCoveyAppState();
+
+    const toast = useToast();
+
     let btnTxt = 'Start Game';
     if (mafiaGameState === Phase.lobby) {
         btnTxt = 'Join Game';
@@ -33,6 +38,7 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
     // if player is in a conversation area, then show a button
     // depending on the state of the mafia game in the conversation area, update button display
 
+    /*
     const handleClick = () => {
         // get all the players in this area
         const playersInArea = area.occupants.map((occupant) => allPlayers.filter((player) => 
@@ -49,6 +55,28 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
         setMafiaGameState(createdGame.phase);
         console.log('game created');
     }
+    */
+
+    const createGameLobby = useCallback(async () => {
+        try {
+            await apiClient.createGameLobby({
+                coveyTownID: currentTownID,
+                sessionToken: sessionToken,
+                recreationAreaLabel: area.label,
+                hostID: hostID,
+            });
+            toast({
+                title: 'Mafia Game Lobby Created!',
+                status: 'success',
+            });
+        } catch (err) {
+            toast({
+                title: 'Unable to create Mafia Game Lobby',
+                description: err.toString(),
+                status: 'error',
+            })
+        }
+    }, []); // TODO: dependencies??? does this need to be useCallback?
 
     useEffect(() => {
         
@@ -59,7 +87,7 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
         // once start game button is clicked, then mafia overlay should show
         // otherwise show "join game" or "spectate game"
         <div>
-            <Button colorScheme='teal' onClick={handleClick}>{btnTxt}</Button>
+            <Button colorScheme='teal' onClick={createGameLobby}>{btnTxt}</Button>
             <br/>
             {mafiaGameState === Phase.lobby ? `You are currently in a lobby! Host: ${hostID}` : 'Not in a game'}
         </div>

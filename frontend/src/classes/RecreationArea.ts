@@ -25,7 +25,7 @@ export default class RecreationArea extends ConversationArea {
         this._mafiaGame = mafiaGame; 
     }
 
-    set mafiaGame(game: MafiaGame) {
+    set mafiaGame(game: MafiaGame | undefined) {
         this._mafiaGame = game; 
     }
 

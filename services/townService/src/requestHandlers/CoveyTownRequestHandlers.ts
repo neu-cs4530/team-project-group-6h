@@ -7,9 +7,11 @@ import CoveyTownsStore from '../lib/CoveyTownsStore';
 import {
   ConversationAreaCreateRequest,
   ServerConversationArea,
+  GameLobbyCreateRequest,
 } from '../client/TownsServiceClient';
 import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 import CoveyTownController from '../lib/CoveyTownController';
+import MafiaGame from '../lib/mafia_lib/MafiaGame';
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -219,10 +221,6 @@ function getTownController(coveyTownID: string): CoveyTownController | undefined
 export function conversationAreaCreateHandler(
   _requestData: ConversationAreaCreateRequest,
 ): ResponseEnvelope<Record<string, null>> {
-  /*
-  const townsStore = CoveyTownsStore.getInstance();
-  const townController = townsStore.getControllerForTown(_requestData.coveyTownID);
-  */
   const townController = getTownController(_requestData.coveyTownID);
   if (!townController?.getSessionByToken(_requestData.sessionToken)) {
     return {
@@ -243,12 +241,12 @@ export function conversationAreaCreateHandler(
 }
 
 /**
- * A handler to process the "Create Conversation Area" request
+ * A handler to process the "Create Recreation Area" request
  * The intended flow of this handler is:
  * * Fetch the town controller for the specified town ID
  * * Validate that the sessionToken is valid for that town
- * * Ask the TownController to create the conversation area
- * @param _requestData ConversationArea create request
+ * * Ask the TownController to create the recreation area
+ * @param _requestData RecreationArea create request
  * @returns
  */
 export function recreationAreaCreateHandler(
@@ -271,6 +269,36 @@ export function recreationAreaCreateHandler(
     message: !success
       ? `Unable to create recreation area ${_requestData.conversationArea.label} with topic ${_requestData.conversationArea.topic}`
       : undefined,
+  };
+}
+
+/**
+ * A handler to process the "Create Mafia Game Lobby" request
+ * The intended flow of the handler is:
+ * * Fetch the town controller for the specified town ID
+ * * Validate that the sessionToken is valid for that town
+ * * Ask the TownController to create the mafia game lobby
+ * @param _requestData GameLobbyCreate request data 
+ * @returns Status of request 
+ */
+export function mafiaGameLobbyCreateHandler(
+  _requestData: GameLobbyCreateRequest,
+): ResponseEnvelope<Record<string, null>> {
+  const townController = getTownController(_requestData.coveyTownID);
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
+    return {
+      isOK: false,
+      response: {},
+      message: `Unable to create mafia game lobby in ${_requestData.recreationAreaLabel}.`,
+    };
+  }
+
+  const success = townController.createMafiaGameLobby(_requestData.recreationAreaLabel, _requestData.hostID);
+
+  return {
+    isOK: true, // success?
+    response: {},
+    message: !success ? `Unable to create mafia game lobby in ${_requestData.recreationAreaLabel}.` : undefined,
   };
 }
 
@@ -303,6 +331,9 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     },
     onRecreationAreaUpdated(recreation: ServerRecreationArea) {
       socket.emit('recreationUpdated', recreation);
+    },
+    onLobbyCreated(recreationArea: ServerRecreationArea, game: MafiaGame) {
+      socket.emit('lobbyCreated', recreationArea, game)
     },
     onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);

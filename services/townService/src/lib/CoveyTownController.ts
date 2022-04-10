@@ -57,11 +57,10 @@ export default class CoveyTownController {
     return this._conversationAreas;
   }
 
-  /*
+  
   get recreationAreas(): ServerRecreationArea[] {
     return this._recreationAreas;
   }
-  */ 
  
   /** The list of players currently in the town * */
   private _players: Player[] = [];
@@ -81,7 +80,7 @@ export default class CoveyTownController {
 
   /** The list of currently active ServerServerRecreationAreas in this 
    town */
-  //private _recreationAreas: ServerRecreationArea[] = []; 
+  private _recreationAreas: ServerRecreationArea[] = []; 
 
 
   private readonly _coveyTownID: string;
@@ -182,7 +181,7 @@ export default class CoveyTownController {
    * @param player Player to remove from conversation area
    * @param conversation Conversation area to remove player from
    */
-  removePlayerFromConversationArea(player: Player, conversation: ServerConversationArea): void {
+  removePlayerFromConversationArea(player: Player, conversation: ServerArea): void {
     conversation.occupantsByID.splice(
       conversation.occupantsByID.findIndex(p => p === player.id),
       1,
@@ -191,6 +190,10 @@ export default class CoveyTownController {
       this._conversationAreas.splice(
         this._conversationAreas.findIndex(conv => conv === conversation),
         1,
+      );
+      this._recreationAreas.splice(
+        this._recreationAreas.findIndex(rec => rec === conversation),
+        1
       );
       this._listeners.forEach(listener => listener.onConversationAreaDestroyed(conversation));
     } else {
@@ -286,6 +289,7 @@ export default class CoveyTownController {
     const newArea: ServerRecreationArea = Object.assign(_recreationArea);
 
     this._conversationAreas.push(newArea);
+    this._recreationAreas.push(newArea);
     const playersInThisConversation = this.players.filter(player => player.isWithin(newArea));
     playersInThisConversation.forEach(player => {
       player.activeConversationArea = newArea;
@@ -326,6 +330,38 @@ export default class CoveyTownController {
     }
 
     return false;
+  }
+
+  createMafiaGameLobby(recAreaLabel: string, hostID: string) {
+    // Ensure the specified area exists and doesn't have a game
+    const areaToAddGame = this.recreationAreas.find(area => area.label === recAreaLabel)
+    if (areaToAddGame) {
+      if (areaToAddGame._mafiaGame) {
+        return false; 
+      }
+    }
+    else {
+      return false; 
+    }
+
+    // Ensure host is in the game 
+    const host = areaToAddGame.occupantsByID.find(id => id === hostID);
+    if(!host) {
+      return false;
+    }
+
+    // Create game
+    const hostPlayer = this._players.find(player => player.id === hostID);
+    // hostPlayer._isHost = true; 
+    const newGame = new MafiaGame(hostPlayer);
+    areaToAddGame._mafiaGame = newGame; 
+
+    // Notify listeners
+    this._listeners.forEach(listener => 
+      listener.onLobbyCreated(areaToAddGame, newGame)
+    );
+
+    return true;
   }
 
   /**

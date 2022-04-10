@@ -8,5 +8,5 @@ import RecreationPlayer from './RecreationPlayer';
 export type ServerRecreationArea = {
   _mafiaGame: MafiaGame | undefined; // undefined if not yet started
 
-  _players: RecreationPlayer[]; // undefined if there are no players in the recArea
+  //_players: RecreationPlayer[]; // undefined if there are no players in the recArea
 } & ServerConversationArea;
