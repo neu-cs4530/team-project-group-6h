@@ -1,15 +1,20 @@
 import MafiaGame, { Phase } from './MafiaGame'
 import { Role } from './GamePlayer'
-import RecreationPlayer from './RecreationPlayer';
 import { nanoid } from 'nanoid';
+import Player from '../../types/Player';
+
 
 describe('MafiaGame', () => {
-  const recPlayer1 = new RecreationPlayer(nanoid());
-  const recPlayer2 = new RecreationPlayer(nanoid());
-  const recPlayer3 = new RecreationPlayer(nanoid());
-  const recPlayer4 = new RecreationPlayer(nanoid());
-  const recArray = [recPlayer1, recPlayer2, recPlayer3, recPlayer4];
-  const newMafiaGame = new MafiaGame(recArray); // TODO: We might want to mock this instead.
+  const recPlayer1 = new Player(nanoid());
+  const recPlayer2 = new Player(nanoid());
+  const recPlayer3 = new Player(nanoid());
+  const recPlayer4 = new Player(nanoid());
+  const newMafiaGame = new MafiaGame(recPlayer1); 
+  newMafiaGame.addPlayer(recPlayer2);
+  newMafiaGame.addPlayer(recPlayer3);
+  newMafiaGame.addPlayer(recPlayer4);
+
+  // TODO: We might want to mock this instead.
   /** console.log(`RecPlayer1 username: ${recPlayer1.userName}`);
   console.log(`RecPlayer1 ID: ${recPlayer1.id}`);
   console.log(`RecPlayer2 username: ${recPlayer2.userName}`);
@@ -29,9 +34,9 @@ describe('MafiaGame', () => {
 
   });
   it('Adds players that have been voted out from the game to the deadPlayers list', () => {
-    newMafiaGame.eliminatePlayer(recPlayer2.userName);
-    // console.log(`townplayers: ${JSON.stringify(newMafiaGame.townPlayers)}`);
-    // console.log(`mafiaPlayers: ${JSON.stringify(newMafiaGame.mafiaPlayers)}`);
+    newMafiaGame.eliminatePlayer(recPlayer2.id);
+    console.log(`townplayers: ${JSON.stringify(newMafiaGame.townPlayers)}`);
+    console.log(`mafiaPlayers: ${JSON.stringify(newMafiaGame.mafiaPlayers)}`);
 
     expect(newMafiaGame.townPlayers.length).toBe(3);
     expect(newMafiaGame.mafiaPlayers.length).toBe(1);
@@ -51,9 +56,9 @@ describe('MafiaGame', () => {
   });
   it('Throws error if game phase is updated before or after the game', () => {
     
-    newMafiaGame._phase = Phase.win;
+    newMafiaGame.changePhase = Phase.win;
     expect(() => newMafiaGame.updatePhase()).toThrow(`Game is currently in phase: ${Phase[Phase.win]}`);
-    newMafiaGame._phase = Phase.lobby;
+    newMafiaGame.changePhase = Phase.lobby;
     expect(() => newMafiaGame.updatePhase()).toThrow(`Game is currently in phase: ${Phase[Phase.lobby]}`);
     
   });

@@ -1,6 +1,6 @@
-import RecreationPlayer from './RecreationPlayer';
 import Player from '../../types/Player';
-
+import { ServerArea } from '../../client/TownsServiceClient';
+import { UserLocation } from '../../CoveyTypes';
 
 /**
  * Represents two possible teams that a GamePlayer can be a part of within the Mafia Game.
@@ -20,12 +20,14 @@ export enum Role {
 }
 
 /**
- * Extends the RecreationPlayer type, adding general functionality that a player within the Mafia Game will need.
+ * Contains general functionality necessary for a player in a mafiaGame. 
  */
-export default class GamePlayer extends Player {
+export default class GamePlayer {
+  _player: Player; // the player
+
   _isAlive: boolean; // Is the player currently alive within the game?
 
-  _hasVoted: boolean; // Has the player voted yet during the voting cycle?
+  _currentVote: string | undefined; // ID of the player voted for during this cycle
 
   _team = Team.Unassigned; // The team that the GamePlayer is on
 
@@ -33,30 +35,59 @@ export default class GamePlayer extends Player {
 
   _roleInfo: string; // Information about the player's given role
 
-  _target: string;
+  _target: string | undefined; // the target player to perform role actions on
+
+  _voteTally: number = 0;
 
   /**
   * Default constructor; input isAlive = false to create as spectator
   */
   constructor(recPlayer: Player) {
-    super(recPlayer.userName);
-    
+    this._player = recPlayer;
     this._isAlive = true;
-    this._hasVoted = false;
+    this._currentVote = undefined;
     this._roleInfo = '';
-    this._target = '';
+    this._target = undefined;
+  }
+
+  get playerID(): string {
+    return this._player.id;
+  }
+
+  get playerUserName(): string {
+    return this._player.userName;
+  }
+
+  get playerConvArea(): ServerArea | undefined {
+    return this._player.activeConversationArea;
+  }
+
+  get playerLocation(): UserLocation {
+    return this._player.location;
   }
 
   set team(team: Team) {
     this._team = team;
   }
 
-  get team() {
+  get team(): Team {
     return this._team;
   }
 
-  set target(target: string) {
+  set votedPlayer(currentVote: string) {
+    this._currentVote = currentVote;
+  }
+
+  get currentVote(): string | undefined {
+    return this._currentVote;
+  }
+
+  set targetPlayer(target: string) {
     this._target = target;
+  }
+
+  get target(): string | undefined {
+    return this._target;
   }
 
   get isAlive(): boolean {
@@ -95,5 +126,9 @@ export default class GamePlayer extends Player {
         }
         this._roleInfo = 'Able to vote to eliminate (1) player during the day.';
     }
+  }
+
+  vote() {
+    this._voteTally += 1;
   }
 }
