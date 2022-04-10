@@ -1,4 +1,4 @@
-import { Box, Heading, ListItem, UnorderedList } from '@chakra-ui/react';
+import { Box, Button, Heading, ListItem, UnorderedList } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import ConversationArea, { ConversationAreaListener, NO_TOPIC_STRING } from '../../classes/ConversationArea';
 import RecreationArea from '../../classes/RecreationArea';
@@ -59,7 +59,8 @@ export default function ConversationAreasList(): JSX.Element {
   const conversationAreas = useConversationAreas();
   const activeAreas = conversationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
   const activeConversationAreas = activeAreas.filter(area => !area.isRecreationArea);
-  const activeRecreationAreas = activeAreas.filter(area => area.isRecreationArea);
+  // const activeRecreationAreas = activeAreas.filter(area => area.isRecreationArea);
+  const activeRecreationAreas = activeAreas.filter(area => area instanceof RecreationArea);
   return (
     <Box>
       <Heading as='h2' fontSize='l'>Active Conversation Areas:</Heading>

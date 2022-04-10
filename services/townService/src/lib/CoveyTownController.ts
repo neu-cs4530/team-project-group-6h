@@ -53,14 +53,16 @@ export default class CoveyTownController {
     return this._coveyTownID;
   }
 
-  get conversationAreas(): ServerConversationArea[] {
+  get conversationAreas(): ServerArea[] {
     return this._conversationAreas;
   }
 
+  /*
   get recreationAreas(): ServerRecreationArea[] {
     return this._recreationAreas;
   }
-
+  */ 
+ 
   /** The list of players currently in the town * */
   private _players: Player[] = [];
 
@@ -79,7 +81,7 @@ export default class CoveyTownController {
 
   /** The list of currently active ServerServerRecreationAreas in this 
    town */
-  private _recreationAreas: ServerRecreationArea[] = []; 
+  //private _recreationAreas: ServerRecreationArea[] = []; 
 
   private readonly _coveyTownID: string;
 

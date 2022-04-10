@@ -16,7 +16,7 @@ Switch,
 
 useToast
 } from '@chakra-ui/react';
-import React,{ useCallback,useState } from 'react';
+import React,{ useCallback,useEffect,useState } from 'react';
 import ConversationArea from '../../classes/ConversationArea';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import useMaybeVideo from '../../hooks/useMaybeVideo';
@@ -36,8 +36,11 @@ export default function NewConversationModal( {isOpen, closeModal, newConversati
 
     const [isRecreationArea, setIsRecreationArea] = useState(false);
     const toggleIsRecreationArea = () => {
+      console.log(isRecreationArea ? 'Change to Conversation Area' : 'Change to Recreation Area'); 
       setIsRecreationArea(!isRecreationArea); 
     }
+
+    useEffect(() => setIsRecreationArea(false), []);
 
     const createConversation = useCallback(async () => {
       const areaType = isRecreationArea ? 'Recreation' : 'Conversation'; 
