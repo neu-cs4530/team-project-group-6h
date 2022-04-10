@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Button } from '@chakra-ui/react';
+import NewConversationModal from './NewConversationModal';
 import BoundingBox from '../../classes/BoundingBox';
 import ConversationArea from '../../classes/ConversationArea';
 import Player, { ServerPlayer, UserLocation } from '../../classes/Player';
@@ -11,7 +11,6 @@ import useCoveyAppState from '../../hooks/useCoveyAppState';
 import usePlayerMovement from '../../hooks/usePlayerMovement';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import { Callback } from '../VideoCall/VideoFrontend/types';
-import NewConversationModal from './NewCoversationModal';
 
 
 // Original inspiration and code from:

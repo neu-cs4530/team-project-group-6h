@@ -82,6 +82,7 @@ export default class CoveyTownController {
    town */
   private _recreationAreas: ServerRecreationArea[] = []; 
 
+
   private readonly _coveyTownID: string;
 
   private _friendlyName: string;
@@ -357,8 +358,10 @@ export default class CoveyTownController {
 
     // Notify listeners
     this._listeners.forEach(listener => 
-      listener.onLobbyCreated(areaToAddGame, newGame);
+      listener.onLobbyCreated(areaToAddGame, newGame));
     );
+
+    return true;
   }
 
   /**

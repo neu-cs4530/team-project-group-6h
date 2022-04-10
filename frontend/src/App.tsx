@@ -248,6 +248,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           console.log(localConversationAreas[0].isRecreationArea)
         }
         setConversationAreas(localConversationAreas);
+        setRecreationAreas(localRecreationAreas);
         recalculateNearbyPlayers();
       });
       socket.on('lobbyCreated', (_recreationArea: ServerRecreationArea, _mafiaGame: MafiaGame) => {

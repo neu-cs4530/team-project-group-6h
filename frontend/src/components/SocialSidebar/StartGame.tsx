@@ -76,7 +76,7 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
                 status: 'error',
             })
         }
-    }, [])
+    }, []); // TODO: dependencies??? does this need to be useCallback?
 
     useEffect(() => {
         
@@ -87,7 +87,7 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
         // once start game button is clicked, then mafia overlay should show
         // otherwise show "join game" or "spectate game"
         <div>
-            <Button colorScheme='teal' onClick={handleClick}>{btnTxt}</Button>
+            <Button colorScheme='teal' onClick={createGameLobby}>{btnTxt}</Button>
             <br/>
             {mafiaGameState === Phase.lobby ? `You are currently in a lobby! Host: ${hostID}` : 'Not in a game'}
         </div>
