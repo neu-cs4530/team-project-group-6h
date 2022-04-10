@@ -63,7 +63,6 @@ export default function ConversationAreasList(): JSX.Element {
 
   const activeConversationAreas = activeAreas.filter(area => !area.isRecreationArea);
   const activeRecreationAreas = activeAreas.filter(area => area.isRecreationArea);
-
   return (
     <Box>
       <Heading as='h2' fontSize='l'>Active Conversation Areas:</Heading>

@@ -43,7 +43,7 @@ export interface TownJoinResponse {
   /** Conversation areas currently active in this town */
   conversationAreas: ServerConversationArea[];
   /** Recreation areas currently active in this town */
-  recreationAreas: ServerRecreationArea[];
+  //recreationAreas: ServerRecreationArea[];
 }
 
 /**
@@ -131,7 +131,7 @@ export async function townJoinHandler(
       friendlyName: coveyTownController.friendlyName,
       isPubliclyListed: coveyTownController.isPubliclyListed,
       conversationAreas: coveyTownController.conversationAreas,
-      recreationAreas: coveyTownController.recreationAreas,
+      //recreationAreas: coveyTownController.recreationAreas,
     },
   };
 }

@@ -39,11 +39,11 @@ export default class Player {
     return this._id;
   }
 
-  get activeConversationArea(): ServerConversationArea | undefined {
+  get activeConversationArea(): ServerArea | undefined {
     return this._activeConversationArea;
   }
 
-  set activeConversationArea(conversationArea: ServerConversationArea | undefined) {
+  set activeConversationArea(conversationArea: ServerArea | undefined) {
     this._activeConversationArea = conversationArea;
   }
 
@@ -55,7 +55,7 @@ export default class Player {
    * @param conversation 
    * @returns 
    */
-  isWithin(conversation: ServerConversationArea) : boolean {
+  isWithin(conversation: ServerArea) : boolean {
     return (
       this.location.x > conversation.boundingBox.x - conversation.boundingBox.width / 2 &&
       this.location.x < conversation.boundingBox.x + conversation.boundingBox.width / 2 &&

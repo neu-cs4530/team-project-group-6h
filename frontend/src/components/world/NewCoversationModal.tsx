@@ -34,30 +34,38 @@ export default function NewConversationModal({ isOpen, closeModal, newConversati
   const toast = useToast()
   const video = useMaybeVideo()
 
-  const [isRecreationArea, setIsRecreationArea] = useState(false);
+    const [isRecreationArea, setIsRecreationArea] = useState(false);
+    const toggleIsRecreationArea = () => {
+      console.log(isRecreationArea ? 'Change to Conversation Area' : 'Change to Recreation Area'); 
+      setIsRecreationArea(!isRecreationArea); 
+    }
 
-  const toggleIsRecreationArea = () => {
-    // this call enqueues a re-render of the component, so it takes some time
-    setIsRecreationArea(!isRecreationArea);
-  }
+    useEffect(() => setIsRecreationArea(false), []);
 
-  useEffect(() => {
-    // if isrecreationarea is updated, immediately re-render the component
-    
-  }, [isRecreationArea])
-
-  const createConversation = useCallback(async () => {
-    const areaType = isRecreationArea ? 'Recreation' : 'Conversation';
-    if (topic) {
-      const conversationToCreate = newConversation;
-      conversationToCreate.topic = topic;
-      try {
-        if (isRecreationArea) {
-          console.log('create recreation');
-          await apiClient.createRecreation({
-            sessionToken,
-            coveyTownID: currentTownID,
-            conversationArea: conversationToCreate.toServerConversationArea(),
+    const createConversation = useCallback(async () => {
+      const areaType = isRecreationArea ? 'Recreation' : 'Conversation'; 
+      if (topic) {
+          const conversationToCreate = newConversation;
+          conversationToCreate.topic = topic;
+        try {
+          if (isRecreationArea) {
+            console.log('create recreation');
+            await apiClient.createRecreation({
+              sessionToken,
+              coveyTownID: currentTownID,
+              conversationArea: conversationToCreate.toServerConversationArea(),
+            });
+          }
+          else {
+            await apiClient.createConversation({
+              sessionToken,
+              coveyTownID: currentTownID,
+              conversationArea: conversationToCreate.toServerConversationArea(),
+            });
+          }
+          toast({
+            title: `${areaType} Created!`,
+            status: 'success',
           });
         }
         else {
