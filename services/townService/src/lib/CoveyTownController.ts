@@ -358,7 +358,7 @@ export default class CoveyTownController {
 
     // Notify listeners
     this._listeners.forEach(listener => 
-      listener.onLobbyCreated(areaToAddGame, newGame));
+      listener.onLobbyCreated(areaToAddGame, newGame)
     );
 
     return true;
