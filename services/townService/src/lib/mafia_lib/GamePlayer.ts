@@ -1,4 +1,6 @@
 import RecreationPlayer from './RecreationPlayer';
+import Player from '../../types/Player';
+
 
 /**
  * Represents two possible teams that a GamePlayer can be a part of within the Mafia Game.
@@ -20,7 +22,7 @@ export enum Role {
 /**
  * Extends the RecreationPlayer type, adding general functionality that a player within the Mafia Game will need.
  */
-export default class GamePlayer extends RecreationPlayer {
+export default class GamePlayer extends Player {
   _isAlive: boolean; // Is the player currently alive within the game?
 
   _hasVoted: boolean; // Has the player voted yet during the voting cycle?
@@ -36,8 +38,9 @@ export default class GamePlayer extends RecreationPlayer {
   /**
   * Default constructor; input isAlive = false to create as spectator
   */
-  constructor(recPlayer: RecreationPlayer) {
+  constructor(recPlayer: Player) {
     super(recPlayer.userName);
+    
     this._isAlive = true;
     this._hasVoted = false;
     this._roleInfo = '';
@@ -48,10 +51,26 @@ export default class GamePlayer extends RecreationPlayer {
     this._team = team;
   }
 
+  get team() {
+    return this._team;
+  }
+
+  set target(target: string) {
+    this._target = target;
+  }
+
+  get isAlive(): boolean {
+    return this._isAlive;
+  }
+
+  public eliminate() {
+    this._isAlive = false;
+  }
+
   /**
    * Sets both the role of a GamePlayer and the role information of the GamePlayer.
    */
-  set role(role: Role) {
+   set role(role: Role) {
     this._role = role;
 
     switch (role) {
@@ -76,13 +95,5 @@ export default class GamePlayer extends RecreationPlayer {
         }
         this._roleInfo = 'Able to vote to eliminate (1) player during the day.';
     }
-  }
-
-  set target(target: string) {
-    this._target = target;
-  }
-
-  get isAlive(): boolean {
-    return this._isAlive;
   }
 }
