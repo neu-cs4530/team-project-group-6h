@@ -57,11 +57,10 @@ export default class CoveyTownController {
     return this._conversationAreas;
   }
 
-  /*
+  
   get recreationAreas(): ServerRecreationArea[] {
     return this._recreationAreas;
   }
-  */ 
  
   /** The list of players currently in the town * */
   private _players: Player[] = [];
@@ -76,12 +75,12 @@ export default class CoveyTownController {
   private _listeners: CoveyTownListener[] = [];
 
   /** The list of currently active ConversationAreas in this town */
-  //private _conversationAreas: ServerConversationArea[] = [];
+  // private _conversationAreas: ServerConversationArea[] = [];
   private _conversationAreas: ServerArea[] = [];
 
   /** The list of currently active ServerServerRecreationAreas in this 
    town */
-  //private _recreationAreas: ServerRecreationArea[] = []; 
+  private _recreationAreas: ServerRecreationArea[] = []; 
 
   private readonly _coveyTownID: string;
 
@@ -181,7 +180,7 @@ export default class CoveyTownController {
    * @param player Player to remove from conversation area
    * @param conversation Conversation area to remove player from
    */
-  removePlayerFromConversationArea(player: Player, conversation: ServerConversationArea): void {
+  removePlayerFromConversationArea(player: Player, conversation: ServerArea): void {
     conversation.occupantsByID.splice(
       conversation.occupantsByID.findIndex(p => p === player.id),
       1,
@@ -190,6 +189,10 @@ export default class CoveyTownController {
       this._conversationAreas.splice(
         this._conversationAreas.findIndex(conv => conv === conversation),
         1,
+      );
+      this._recreationAreas.splice(
+        this._recreationAreas.findIndex(rec => rec === conversation),
+        1
       );
       this._listeners.forEach(listener => listener.onConversationAreaDestroyed(conversation));
     } else {
@@ -201,20 +204,28 @@ export default class CoveyTownController {
    * Determines if the given conversation area is valid for this town
    *  - Must be no existing areas with same label
    *  - Topic must be defined
-   *  - Must not overlap with existing conversation areas 
-   * @param _conversationArea 
-   * @returns 
+   *  - Must not overlap with existing conversation areas
+   * @param _conversationArea
+   * @returns
    */
   private isValidArea(_conversationArea: ServerConversationArea): boolean {
-    if (this._conversationAreas.find(
-      eachExistingConversation => eachExistingConversation.label === _conversationArea.label,
-    ))
+    if (
+      this._conversationAreas.find(
+        eachExistingConversation => eachExistingConversation.label === _conversationArea.label,
+      )
+    )
       return false;
-    if (_conversationArea.topic === ''){
+    if (_conversationArea.topic === '') {
       return false;
     }
-    if (this._conversationAreas.find(eachExistingConversation => 
-      CoveyTownController.boxesOverlap(eachExistingConversation.boundingBox, _conversationArea.boundingBox)) !== undefined){
+    if (
+      this._conversationAreas.find(eachExistingConversation =>
+        CoveyTownController.boxesOverlap(
+          eachExistingConversation.boundingBox,
+          _conversationArea.boundingBox,
+        ),
+      ) !== undefined
+    ) {
       return false;
     }
 
@@ -234,24 +245,25 @@ export default class CoveyTownController {
    *
    * @returns true if the conversation is successfully created, or false if not
    */
-   addConversationArea(_conversationArea: ServerConversationArea): boolean {
+  addConversationArea(_conversationArea: ServerConversationArea): boolean {
     console.log('Inside add recreation area');
-    // Ensure the conversation area is valid 
+    // Ensure the conversation area is valid
     if (!this.isValidArea(_conversationArea)) {
-      return false; 
+      return false;
     }
 
     const newArea: ServerConversationArea = Object.assign(_conversationArea);
-    
+
     this._conversationAreas.push(newArea);
     const playersInThisConversation = this.players.filter(player => player.isWithin(newArea));
-    playersInThisConversation.forEach(player => {player.activeConversationArea = newArea;});
+    playersInThisConversation.forEach(player => {
+      player.activeConversationArea = newArea;
+    });
     newArea.occupantsByID = playersInThisConversation.map(player => player.id);
     this._listeners.forEach(listener => listener.onConversationAreaUpdated(newArea));
     return true;
   }
 
-  
   /**
    * Creates a new recreation area in this town if there is not currently an active
    * conversation with the same label.
@@ -267,23 +279,24 @@ export default class CoveyTownController {
    */
   addRecreationArea(_recreationArea: ServerConversationArea): boolean {
     console.log('Inside add recreation area');
-    
-    // Ensure the conversation area is valid 
+
+    // Ensure the conversation area is valid
     if (!this.isValidArea(_recreationArea)) {
-      return false; 
+      return false;
     }
 
     const newArea: ServerRecreationArea = Object.assign(_recreationArea);
 
     this._conversationAreas.push(newArea);
+    this._recreationAreas.push(newArea);
     const playersInThisConversation = this.players.filter(player => player.isWithin(newArea));
-    playersInThisConversation.forEach(player => {player.activeConversationArea = newArea;});
+    playersInThisConversation.forEach(player => {
+      player.activeConversationArea = newArea;
+    });
     newArea.occupantsByID = playersInThisConversation.map(player => player.id);
     this._listeners.forEach(listener => listener.onRecreationAreaUpdated(newArea));
     return true;
-
   }
-  
 
   /**
    * Creates a new MafiaGame in a recreation area if there is not currently an active mafia game in this recreation room.
@@ -294,7 +307,10 @@ export default class CoveyTownController {
    *
    * @returns true if the game is successfully created, or false if not
    */
-  createMafiaGame(gameHost: RecreationPlayer, _ServerRecreationArea: ServerRecreationArea): boolean {
+  createMafiaGame(
+    gameHost: RecreationPlayer,
+    _ServerRecreationArea: ServerRecreationArea,
+  ): boolean {
     const existingGame = _ServerRecreationArea._mafiaGame;
 
     if (!existingGame) {
@@ -305,12 +321,44 @@ export default class CoveyTownController {
       _ServerRecreationArea._mafiaGame = createdGame;
 
       // let listeners know the recreation area has been updated
-      this._listeners.forEach(listener => listener.onConversationAreaUpdated(_ServerRecreationArea));
+      this._listeners.forEach(listener =>
+        listener.onConversationAreaUpdated(_ServerRecreationArea),
+      );
 
       return true;
     }
 
     return false;
+  }
+
+  createMafiaGameLobby(recAreaLabel: string, hostID: string) {
+    // Ensure the specified area exists and doesn't have a game
+    const areaToAddGame = this.recreationAreas.find(area => area.label === recAreaLabel)
+    if (areaToAddGame) {
+      if (areaToAddGame._mafiaGame) {
+        return false; 
+      }
+    }
+    else {
+      return false; 
+    }
+
+    // Ensure host is in the game 
+    const host = areaToAddGame.occupantsByID.find(id => id === hostID);
+    if(!host) {
+      return false;
+    }
+
+    // Create game
+    const hostPlayer = this._players.find(player => player.id === hostID);
+    // hostPlayer._isHost = true; 
+    const newGame = new MafiaGame(hostPlayer);
+    areaToAddGame._mafiaGame = newGame; 
+
+    // Notify listeners
+    this._listeners.forEach(listener => 
+      listener.onLobbyCreated(areaToAddGame, newGame);
+    );
   }
 
   /**
@@ -333,7 +381,6 @@ export default class CoveyTownController {
     const noOverlap =
       rect1.x1 >= rect2.x2 || rect2.x1 >= rect1.x2 || rect1.y1 >= rect2.y2 || rect2.y1 >= rect1.y2;
     return !noOverlap;
-
   }
 
   /**
@@ -359,8 +406,6 @@ export default class CoveyTownController {
   onChatMessage(message: ChatMessage): void {
     this._listeners.forEach(listener => listener.onChatMessage(message));
   }
-
-
 
   /**
    * Fetch a player's session based on the provided session token. Returns undefined if the

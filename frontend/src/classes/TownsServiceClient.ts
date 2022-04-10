@@ -88,13 +88,12 @@ export interface ConversationCreateRequest {
   conversationArea: ServerConversationArea;
 }
 
-/*
-export interface RecreationCreateRequest {
+export interface GameLobbyCreateRequest {
   coveyTownID: string;
   sessionToken: string;
-  recreationArea: ServerRecreationArea; 
+  recreationAreaLabel: string; 
+  hostID: string;
 }
-*/
 
 /**
  * Envelope that wraps any response from the server
@@ -104,6 +103,7 @@ export interface ResponseEnvelope<T> {
   message?: string;
   response?: T;
 }
+
 
 export type CoveyTownInfo = {
   friendlyName: string;
@@ -169,6 +169,12 @@ export default class TownsServiceClient {
 
   async createRecreation(requestData: ConversationCreateRequest) : Promise<void> {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/recreationAreas`, requestData);
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
+  // Create Game Lobby
+  async createGameLobby(requestData: GameLobbyCreateRequest) : Promise<void> {
+    const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/createLobby`, requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 

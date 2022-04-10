@@ -113,6 +113,16 @@ export interface ConversationAreaCreateRequest {
 }
 
 /**
+ * Payload sent by the client to create a new mafia game 
+ */
+export interface GameLobbyCreateRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  recreationAreaLabel: string; 
+  hostID: string;
+}
+
+/**
  * Envelope that wraps any response from the server
  */
 export interface ResponseEnvelope<T> {

@@ -1,5 +1,6 @@
 import { ServerConversationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
+import MafiaGame from '../lib/mafia_lib/MafiaGame';
 import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 import Player from './Player';
 
@@ -47,6 +48,13 @@ export default interface CoveyTownListener {
    * @param conversationArea the conversation area that has been destroyed
    */
   onConversationAreaDestroyed(conversationArea: ServerConversationArea): void;
+
+  /**
+   * Called when a new mafia game lobby is created
+   * @param recreationArea Rec area where the game is created
+   * @param game The new game instance
+   */
+  onLobbyCreated(recreationArea: ServerRecreationArea, game: MafiaGame): void;
 
   /**
    * Called when a chat message is received from a user
