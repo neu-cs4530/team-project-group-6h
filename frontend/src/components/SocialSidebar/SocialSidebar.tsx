@@ -8,6 +8,8 @@ import useCoveyAppState from '../../hooks/useCoveyAppState';
 import RecreationArea from '../../classes/RecreationArea';
 import ConversationArea from '../../classes/ConversationArea';
 import useRecreationAreas from '../../hooks/useRecreationAreas';
+import CreateGame from './CreateGame';
+import usePlayersInTown from '../../hooks/usePlayersInTown';
 
 export default function SocialSidebar(): JSX.Element {
   // get all the conversation areas of this town
@@ -17,6 +19,7 @@ export default function SocialSidebar(): JSX.Element {
   const coveyApp = useCoveyAppState();
   // get my player's id
   const { myPlayerID }= coveyApp;
+
   // find the recreation area my player is located in
   const myPlayerRecArea = (recAreas.find((area) => area.occupants.includes(myPlayerID)));
 
@@ -34,6 +37,7 @@ export default function SocialSidebar(): JSX.Element {
         <Heading fontSize='xl' as='h1'>Players In This Town</Heading>
         <PlayersList /> 
         <ConversationAreasList />
+       
 
         {/* start button to show for player if they are in a recreation area */}
         {myPlayerRecArea !== undefined ? 

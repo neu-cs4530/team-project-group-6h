@@ -21,7 +21,7 @@ type ConversationAreaProps = {
 };
 
 export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX.Element {
-    const [mafiaGameState, setMafiaGameState] = useState<Phase|undefined>(area.mafiaGame?._phase);
+    const [mafiaGame, setMafiaGame] = useState<MafiaGame | undefined>(area.mafiaGame);
     const allPlayers = usePlayersInTown();
 
     const {apiClient, sessionToken, currentTownID} = useCoveyAppState();
@@ -29,9 +29,9 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
     const toast = useToast();
 
     let btnTxt = 'Start Game';
-    if (mafiaGameState === Phase.lobby) {
+    if (mafiaGame?._phase === Phase.lobby) {
         btnTxt = 'Join Game';
-    } else if (mafiaGameState) {
+    } else if (mafiaGame?._phase) {
         btnTxt = 'Spectate Game';
     }
 
@@ -47,11 +47,10 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
                 title: 'Mafia Game Lobby Created!',
                 status: 'success',
             });
-            if (!area.mafiaGame) {
+            if (!mafiaGame) {
                 console.log('Mafia game undefined');
                 console.log(`Area label: ${area.label}`);
             }
-            setMafiaGameState(area.mafiaGame?._phase);
         } catch (err) {
             toast({
                 title: 'Unable to create Mafia Game Lobby',
@@ -59,20 +58,25 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
                 status: 'error',
             })
         }
-    }, [mafiaGameState, allPlayers, apiClient, sessionToken, currentTownID, toast, btnTxt, area, hostID]); 
+    }, [allPlayers, apiClient, sessionToken, currentTownID, toast, btnTxt, area, hostID]); 
 
     useEffect(() => {
         console.log('IN USE EFFECT');
         const updateListener: RecreationAreaListener = {
             onMafiaGameCreated: (game: MafiaGame) => {
-                setMafiaGameState(game._phase);
+                console.log(`In Listener, on Mafia Game Created! Phase: ${game.phase}, HOST: ${game._host.userName}, NUM PLAYERS: ${game._players.length}`);
+                
+                setMafiaGame(game); 
+            },
+            onMafiaGameUpdated: (game: MafiaGame) => {
+                setMafiaGame(game);
             }
         };
         area.addRecListener(updateListener);
         return () => {
             area.removeListener(updateListener);
         };
-    }, [setMafiaGameState, area]);
+    }, [mafiaGame, setMafiaGame, area]);
 
     return (
         // if player has not started game in this recreation area yet, then show "start game"
@@ -81,7 +85,7 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
         <div>
             <Button colorScheme='teal' onClick={createGameLobby}>{btnTxt}</Button>
             <br/>
-            {mafiaGameState === Phase.lobby ? `You are currently in a lobby! Host: ${hostID}` : 'Not in a game'}
+            {mafiaGame?._phase === Phase.lobby ? `You are currently in a lobby! Host: ${hostID}` : 'Not in a game'}
         </div>
     );
 }

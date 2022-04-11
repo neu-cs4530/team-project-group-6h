@@ -255,25 +255,34 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         recalculateNearbyPlayers();
       });
       socket.on('lobbyCreated', (_recreationArea: ServerRecreationArea, _hostID: string) => {
-        console.log('LOBBY CREATED EMITTED');
+        // console.log('LOBBY CREATED EMITTED');
         const existingRecArea = localRecreationAreas.find(a => a.label === _recreationArea.label);
+        /*
         if (existingRecArea) {
           console.log(`Found the area to be updated in App.tsx, Label: ${existingRecArea.label}`);
         }
+        */
         const host = localPlayers.find(p => p.id === _hostID);
+        /*
         if (host) {
           console.log(`Found the host: ${host.userName}`);
         }
         else {
           console.log(`No host with ID: ${_hostID}`);
         }
+        */
         if (existingRecArea && host) {
           existingRecArea.mafiaGame = new MafiaGame(host); 
           // setRecreationAreas(localRecreationAreas); probably don't need???
         }
-
-
       }); 
+      socket.on('playerJoinedGame', (_recreationAreaLabel: string, _playerID: string) => {
+        const existingRecArea = localRecreationAreas.find(a => a.label === _recreationAreaLabel); 
+        const player = localPlayers.find(p => p.id === _playerID); 
+        if (existingRecArea?.mafiaGame && player) {
+          existingRecArea.mafiaGame.addPlayer(player);
+        }
+      })
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);
         if(existingArea){

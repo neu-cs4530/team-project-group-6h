@@ -93,6 +93,19 @@ export default class MafiaGame {
   }
 
   /**
+   * Adds the player to the list of players if in lobby phase
+   * @param player Player added to the game
+   * @returns Whether or not the player was added
+   */
+  addPlayer(player: Player): boolean {
+    if (this._phase === Phase.lobby) {
+      this._players.push(player);
+      return true; 
+    }
+    return false; 
+  }
+
+  /**
    * Determines if the game is over if there are no players remaining in either the Mafia or the town team.
    *
    * @returns False if the game is not over, true if it is over

@@ -1,6 +1,7 @@
 import MafiaGame from './MafiaGame';
 import BoundingBox from './BoundingBox';
 import ConversationArea, {ServerConversationArea, ConversationAreaListener} from './ConversationArea';
+import Player from './Player';
 
 /**
  * Represents type of ServerRecreationArea that can be created. Extends the ServerConversationArea properties and methods while also containing the property of a mafia game.
@@ -11,6 +12,7 @@ import ConversationArea, {ServerConversationArea, ConversationAreaListener} from
   } & ServerConversationArea;
 
 export type RecreationAreaListener = {
+    onMafiaGameUpdated? : (game: MafiaGame) => void; 
     onMafiaGameCreated? : (game: MafiaGame) => void;
     onMafiaGameStarted? : (game: MafiaGame) => void;
     onMafiaGameFinished? : (game: MafiaGame, winner: string) => void;
@@ -30,6 +32,7 @@ export default class RecreationArea extends ConversationArea {
     }
 
     set mafiaGame(game: MafiaGame | undefined) {
+        console.log('IN SET MAFIA GAME');
         let gameCreated = false; 
         if (this._mafiaGame === undefined) {
             gameCreated = true; 
@@ -37,6 +40,7 @@ export default class RecreationArea extends ConversationArea {
         this._mafiaGame = game; 
         
         if (gameCreated && game) {
+            console.log('new game created, notifying listeners'); 
             this._recListeners.forEach(recListener => recListener.onMafiaGameCreated?.(game));
         }
     }
@@ -59,6 +63,31 @@ export default class RecreationArea extends ConversationArea {
 
     static isRecreationArea(): boolean {
         return true; 
+    }
+
+    containsPlayerID(playerID: string) {
+        return this._occupants.includes(playerID);
+    }
+
+
+    /**
+     * Attempts to add the given player to this rec areas game 
+     * @param player The player to be added
+     * @returns Whether or not the player was added 
+     */
+    addPlayerToGame(player: Player): boolean {
+        const inArea = this._occupants.includes(player.id);
+        if (!inArea) {
+            return false;
+        }
+        const game = this.mafiaGame
+        if (game && game.addPlayer(player)) {
+            this._recListeners.forEach(recListener => recListener.onMafiaGameUpdated?.(game));
+            return true;
+        }
+
+        return false; 
+
     }
 
 }

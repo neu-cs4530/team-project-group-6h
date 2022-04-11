@@ -4,6 +4,7 @@ import { ServerPlayer } from './Player';
 import { ServerConversationArea } from './ConversationArea';
 import { ServerRecreationArea } from './RecreationArea'; 
 
+
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
  */
@@ -95,6 +96,13 @@ export interface GameLobbyCreateRequest {
   hostID: string;
 }
 
+export interface GameLobbyJoinRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  recreationAreaLabel: string;
+  playerID: string; 
+}
+
 /**
  * Envelope that wraps any response from the server
  */
@@ -175,6 +183,12 @@ export default class TownsServiceClient {
   // Create Game Lobby
   async createGameLobby(requestData: GameLobbyCreateRequest) : Promise<void> {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/createLobby`, requestData);
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
+  // Join Game Lobby
+  async joinGameLobby(requestData: GameLobbyJoinRequest) : Promise<void> {
+    const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/joinLobby`, requestData); 
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 

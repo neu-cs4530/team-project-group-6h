@@ -15,7 +15,7 @@ export type ConversationAreaListener = {
 };
 
 export default class ConversationArea {
-  private _occupants: string[] = [];
+  protected _occupants: string[] = [];
 
   private _label: string;
 
