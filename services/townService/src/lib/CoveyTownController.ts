@@ -205,6 +205,7 @@ export default class CoveyTownController {
     } else {
       if (recArea) {
         this._listeners.forEach(listener => listener.onRecreationAreaUpdated(recArea));
+        console.log('Player leaving recreation area'); 
       }
       else {
         this._listeners.forEach(listener => listener.onConversationAreaUpdated(conversation));
