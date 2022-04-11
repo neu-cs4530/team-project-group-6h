@@ -216,6 +216,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         recalculateNearbyPlayers();
       });
       socket.on('conversationUpdated', (_conversationArea: ServerConversationArea) => {
+        console.log(`Updating conversation area: ${_conversationArea.label}`);
         const updatedConversationArea = localConversationAreas.find(
           c => c.label === _conversationArea.label,
         );
@@ -231,6 +232,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         recalculateNearbyPlayers();
       });
       socket.on('recreationUpdated', (_recreationArea: ServerRecreationArea) => {
+        console.log(`Updating rec area: ${_recreationArea.label}`);
         const updatedRecreationArea = localRecreationAreas.find(
           c => c.label === _recreationArea.label,
         );
@@ -251,8 +253,16 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setRecreationAreas(localRecreationAreas);
         recalculateNearbyPlayers();
       });
-      socket.on('lobbyCreated', (_recreationArea: ServerRecreationArea, _mafiaGame: MafiaGame) => {
-        // TODO??? might not need
+      socket.on('lobbyCreated', (_recreationArea: ServerRecreationArea, _hostID: string) => {
+        console.log('LOBBY CREATED EMITTED');
+        const existingRecArea = localRecreationAreas.find(a => a.label === _recreationArea.label);
+        const host = localPlayers.find(p => p.id === _hostID);
+        if (existingRecArea && host) {
+          existingRecArea.mafiaGame = new MafiaGame(host); 
+          // setRecreationAreas(localRecreationAreas); probably don't need???
+        }
+
+
       }); 
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);
@@ -264,6 +274,18 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setConversationAreas(localConversationAreas);
         recalculateNearbyPlayers();
       });
+      socket.on('recreationDestroyed', (_recreationArea: ServerRecreationArea) => {
+        const existingRecArea = localRecreationAreas.find(a => a.label === _recreationArea.label);
+        if (existingRecArea) {
+          existingRecArea.topic = undefined;
+          existingRecArea.occupants = [];
+        }
+        localRecreationAreas = localRecreationAreas.filter(a => a.label !== _recreationArea.label);
+        localConversationAreas = localConversationAreas.filter(a => a.label !== _recreationArea.label);
+        setRecreationAreas(localRecreationAreas);
+        setConversationAreas(localConversationAreas);
+        recalculateNearbyPlayers();
+      })
       dispatchAppUpdate({
         action: 'doConnect',
         data: {

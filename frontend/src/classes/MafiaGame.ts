@@ -36,9 +36,9 @@ export default class MafiaGame {
   // MIN_PLAYERS = Object.keys(Role).length - 1;
   MIN_PLAYERS = 4;
 
-  constructor(host: Player, players: Player[]) {
+  constructor(host: Player) {
     this._host = host;
-    this._players = players;
+    this._players = [];
     this._mafiaPlayers = [];
     this._townPlayers = [];
     this._deadPlayers = [];

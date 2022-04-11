@@ -69,6 +69,7 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
                 title: 'Mafia Game Lobby Created!',
                 status: 'success',
             });
+            setMafiaGameState(Phase.lobby);
         } catch (err) {
             toast({
                 title: 'Unable to create Mafia Game Lobby',
@@ -76,7 +77,7 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
                 status: 'error',
             })
         }
-    }, []); // TODO: dependencies??? does this need to be useCallback?
+    }, [mafiaGameState, allPlayers, apiClient, sessionToken, currentTownID, toast, btnTxt, area, hostID]); 
 
     useEffect(() => {
         

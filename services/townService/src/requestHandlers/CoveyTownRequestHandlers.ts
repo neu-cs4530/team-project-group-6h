@@ -326,14 +326,17 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onConversationAreaDestroyed(conversation: ServerConversationArea) {
       socket.emit('conversationDestroyed', conversation);
     },
+    onRecreationAreaDestroyed(recreation: ServerRecreationArea) {
+      socket.emit('recreationDestroyed', recreation);
+    },
     onConversationAreaUpdated(conversation: ServerConversationArea) {
       socket.emit('conversationUpdated', conversation);
     },
     onRecreationAreaUpdated(recreation: ServerRecreationArea) {
       socket.emit('recreationUpdated', recreation);
     },
-    onLobbyCreated(recreationArea: ServerRecreationArea, game: MafiaGame) {
-      socket.emit('lobbyCreated', recreationArea, game)
+    onLobbyCreated(recreationArea: ServerRecreationArea, hostID: string) {
+      socket.emit('lobbyCreated', recreationArea, hostID)
     },
     onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);

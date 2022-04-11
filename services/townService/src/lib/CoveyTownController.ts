@@ -182,6 +182,7 @@ export default class CoveyTownController {
    * @param conversation Conversation area to remove player from
    */
   removePlayerFromConversationArea(player: Player, conversation: ServerArea): void {
+    const recArea = this._recreationAreas.find(rec => rec.label === conversation.label);
     conversation.occupantsByID.splice(
       conversation.occupantsByID.findIndex(p => p === player.id),
       1,
@@ -191,13 +192,23 @@ export default class CoveyTownController {
         this._conversationAreas.findIndex(conv => conv === conversation),
         1,
       );
-      this._recreationAreas.splice(
-        this._recreationAreas.findIndex(rec => rec === conversation),
-        1
-      );
-      this._listeners.forEach(listener => listener.onConversationAreaDestroyed(conversation));
+      if (recArea) {
+        this._recreationAreas.splice(
+          this._recreationAreas.findIndex(rec => rec === conversation),
+          1
+        );
+        this._listeners.forEach(listener => listener.onRecreationAreaDestroyed(recArea)); 
+      }
+      else {
+        this._listeners.forEach(listener => listener.onConversationAreaDestroyed(conversation));
+      }
     } else {
-      this._listeners.forEach(listener => listener.onConversationAreaUpdated(conversation));
+      if (recArea) {
+        this._listeners.forEach(listener => listener.onRecreationAreaUpdated(recArea));
+      }
+      else {
+        this._listeners.forEach(listener => listener.onConversationAreaUpdated(conversation));
+      }
     }
   }
 
@@ -333,34 +344,42 @@ export default class CoveyTownController {
   }
 
   createMafiaGameLobby(recAreaLabel: string, hostID: string) {
+    console.log('In create mafia game');
     // Ensure the specified area exists and doesn't have a game
     const areaToAddGame = this.recreationAreas.find(area => area.label === recAreaLabel)
     if (areaToAddGame) {
       if (areaToAddGame._mafiaGame) {
+        console.log('This rec area already has a game!')
         return false; 
       }
     }
     else {
+      console.log('This area is not a rec area');
       return false; 
     }
 
-    // Ensure host is in the game 
+    console.log('Area doesnt have a game yet!');
+
+    // Ensure host is in the area 
     const host = areaToAddGame.occupantsByID.find(id => id === hostID);
     const hostPlayer = this._players.find(player => player.id === hostID);
     if(!host || !hostPlayer) {
       return false;
     }
 
+    console.log('Valid host');
+
+
+     // Notify listeners
+     this._listeners.forEach(listener => listener.onLobbyCreated(areaToAddGame, hostID));
+     console.log('Listeners notified');
+
     // Create game
-    
-    
     const newGame = new MafiaGame(hostPlayer);
     areaToAddGame._mafiaGame = newGame; 
+    console.log('Game created');
 
-    // Notify listeners
-    this._listeners.forEach(listener => 
-      listener.onLobbyCreated(areaToAddGame, newGame)
-    );
+   
 
     return true;
   }

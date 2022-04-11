@@ -3,7 +3,7 @@ import React from 'react';
 import useConversationAreas from '../../hooks/useConversationAreas';
 import ConversationAreasList from './ConversationAreasList';
 import PlayersList from './PlayersList';
-import StartGame from './StartGame';
+import StartGameButton from './StartGame';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import RecreationArea from '../../classes/RecreationArea';
 import ConversationArea from '../../classes/ConversationArea';
@@ -36,7 +36,7 @@ export default function SocialSidebar(): JSX.Element {
 
         {/* start button to show for player if they are in a recreation area */}
         {myPlayerRecArea !== undefined ? 
-        <StartGame area={myPlayerRecArea} hostID={myPlayerID}/> 
+        <StartGameButton area={myPlayerRecArea} hostID={myPlayerID}/> 
         : <p>Your player is not in a recreation area!</p>}
         
       </VStack>

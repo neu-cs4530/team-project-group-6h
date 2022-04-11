@@ -50,11 +50,17 @@ export default interface CoveyTownListener {
   onConversationAreaDestroyed(conversationArea: ServerConversationArea): void;
 
   /**
+   * Called when a recreation area is destroyed
+   * @param recreationArea the recreation area that has been destroyed
+   */
+  onRecreationAreaDestroyed(recreationArea: ServerRecreationArea): void;
+
+  /**
    * Called when a new mafia game lobby is created
    * @param recreationArea Rec area where the game is created
-   * @param game The new game instance
+   * @param hostID The host of the game 
    */
-  onLobbyCreated(recreationArea: ServerRecreationArea, game: MafiaGame): void;
+  onLobbyCreated(recreationArea: ServerRecreationArea, hostID: string): void;
 
   /**
    * Called when a chat message is received from a user
