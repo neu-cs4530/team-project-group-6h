@@ -40,6 +40,7 @@ export default function SocialSidebar(): JSX.Element {
         <StartGameButton area={myPlayerRecArea} hostID={myPlayerID}/> 
         : <p>Your player is not in a recreation area!</p>}
         
+        
       </VStack>
     );
   }
