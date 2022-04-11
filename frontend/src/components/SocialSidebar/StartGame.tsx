@@ -85,7 +85,7 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
         <div>
             <Button colorScheme='teal' onClick={createGameLobby}>{btnTxt}</Button>
             <br/>
-            {mafiaGame?._phase === Phase.lobby ? `You are currently in a lobby! Host: ${hostID}` : 'Not in a game'}
+            {mafiaGame?._phase === Phase.lobby ? `You are currently in a lobby! Host: ${mafiaGame._host.userName}` : 'Not in a game'}
         </div>
     );
 }

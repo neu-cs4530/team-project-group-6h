@@ -38,7 +38,7 @@ export default class MafiaGame {
 
   constructor(host: Player) {
     this._host = host;
-    this._players = [];
+    this._players = [host];
     this._mafiaPlayers = [];
     this._townPlayers = [];
     this._deadPlayers = [];
