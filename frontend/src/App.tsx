@@ -37,6 +37,7 @@ import VideoContext from './contexts/VideoContext';
 import { CoveyAppState } from './CoveyTypes';
 import RecreationArea, { ServerRecreationArea } from './classes/RecreationArea'
 import MafiaGame from './classes/MafiaGame';
+import RecreationAreasContext from './contexts/RecreationAreasContext';
 
 export const MOVEMENT_UPDATE_DELAY_MS = 0;
 export const CALCULATE_NEARBY_PLAYERS_MOVING_DELAY_MS = 300;
@@ -256,7 +257,16 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       socket.on('lobbyCreated', (_recreationArea: ServerRecreationArea, _hostID: string) => {
         console.log('LOBBY CREATED EMITTED');
         const existingRecArea = localRecreationAreas.find(a => a.label === _recreationArea.label);
+        if (existingRecArea) {
+          console.log(`Found the area to be updated in App.tsx, Label: ${existingRecArea.label}`);
+        }
         const host = localPlayers.find(p => p.id === _hostID);
+        if (host) {
+          console.log(`Found the host: ${host.userName}`);
+        }
+        else {
+          console.log(`No host with ID: ${_hostID}`);
+        }
         if (existingRecArea && host) {
           existingRecArea.mafiaGame = new MafiaGame(host); 
           // setRecreationAreas(localRecreationAreas); probably don't need???
@@ -344,7 +354,9 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             <PlayersInTownContext.Provider value={playersInTown}>
               <NearbyPlayersContext.Provider value={nearbyPlayers}>
                 <ConversationAreasContext.Provider value={conversationAreas}>
+                  <RecreationAreasContext.Provider value={recreationAreas}>
                   {page}
+                  </RecreationAreasContext.Provider>
                 </ConversationAreasContext.Provider>
               </NearbyPlayersContext.Provider>
             </PlayersInTownContext.Provider>

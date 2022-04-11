@@ -7,12 +7,13 @@ import StartGameButton from './StartGame';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import RecreationArea from '../../classes/RecreationArea';
 import ConversationArea from '../../classes/ConversationArea';
+import useRecreationAreas from '../../hooks/useRecreationAreas';
 
 export default function SocialSidebar(): JSX.Element {
   // get all the conversation areas of this town
   const convoAreas = useConversationAreas();
   // get all the recreation areas of this town
-  const recAreas = convoAreas.filter((area) => area.isRecreationArea);
+  const recAreas = useRecreationAreas() as RecreationArea[];
   const coveyApp = useCoveyAppState();
   // get my player's id
   const { myPlayerID }= coveyApp;
