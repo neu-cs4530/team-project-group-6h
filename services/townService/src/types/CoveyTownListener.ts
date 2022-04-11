@@ -63,6 +63,13 @@ export default interface CoveyTownListener {
   onLobbyCreated(recreationArea: ServerRecreationArea, hostID: string): void;
 
   /**
+   * Called when a player joins a mafia game
+   * @param recreationAreaLabel Rec area containing the game
+   * @param playerID Player joining the game 
+   */
+  onPlayerJoinedGame(recreationAreaLabel: string, playerID: string): void;
+
+  /**
    * Called when a chat message is received from a user
    * @param message the new chat message
    */

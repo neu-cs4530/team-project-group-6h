@@ -123,6 +123,16 @@ export interface GameLobbyCreateRequest {
 }
 
 /**
+ * Payload sent by the client to join a mafia game lobby
+ */
+export interface GameLobbyJoinRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  recreationAreaLabel: string; 
+  playerID: string;
+}
+
+/**
  * Envelope that wraps any response from the server
  */
 export interface ResponseEnvelope<T> {

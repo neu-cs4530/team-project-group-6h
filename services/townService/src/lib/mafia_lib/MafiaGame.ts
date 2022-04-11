@@ -101,9 +101,14 @@ export default class MafiaGame {
   /**
    * Adds a player to the game lobby.
    * @param player The playyer to add to the game lobby.
+   * @returns Whether or not the player was added
    */
-  public addPlayer(player: Player): void {
-    this._players.push(player);
+  public addPlayer(player: Player): boolean {
+    if (this._phase = Phase.lobby) {
+      this._players.push(player);
+      return true;
+    }
+    return false; 
   }
 
   /**

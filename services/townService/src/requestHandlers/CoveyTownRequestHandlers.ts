@@ -8,6 +8,7 @@ import {
   ConversationAreaCreateRequest,
   ServerConversationArea,
   GameLobbyCreateRequest,
+  GameLobbyJoinRequest,
 } from '../client/TownsServiceClient';
 import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 import CoveyTownController from '../lib/CoveyTownController';
@@ -296,7 +297,28 @@ export function mafiaGameLobbyCreateHandler(
   const success = townController.createMafiaGameLobby(_requestData.recreationAreaLabel, _requestData.hostID);
 
   return {
-    isOK: true, // success?
+    isOK: success,
+    response: {},
+    message: !success ? `Unable to create mafia game lobby in ${_requestData.recreationAreaLabel}.` : undefined,
+  };
+}
+
+export function mafiaGameLobbyJoinHandler(
+  _requestData: GameLobbyJoinRequest,
+): ResponseEnvelope<Record<string, null>> {
+  const townController = getTownController(_requestData.coveyTownID);
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
+    return {
+      isOK: false,
+      response: {},
+      message: `Unable to join mafia game lobby in ${_requestData.recreationAreaLabel}.`,
+    };
+  }
+
+  const success = townController.joinMafiaGameLobby(_requestData.recreationAreaLabel, _requestData.playerID);
+
+  return {
+    isOK: success, 
     response: {},
     message: !success ? `Unable to create mafia game lobby in ${_requestData.recreationAreaLabel}.` : undefined,
   };
@@ -337,6 +359,9 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     },
     onLobbyCreated(recreationArea: ServerRecreationArea, hostID: string) {
       socket.emit('lobbyCreated', recreationArea, hostID)
+    },
+    onPlayerJoinedGame(recreationAreaLabel: string, playerID: string) {
+      socket.emit('playerJoinedGame', recreationAreaLabel, playerID);
     },
     onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);
