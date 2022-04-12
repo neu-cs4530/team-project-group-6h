@@ -59,6 +59,27 @@ export default class MafiaGame {
     return this._players.length;
   }
 
+  public playerRole(playerID: string): Role | undefined {
+
+    const getPlayer = (p : GamePlayer) => (p.id === playerID);
+    const townPlayerIDs = this._townPlayers.map(gPlayer => gPlayer.id);
+    const mafiaPlayerIDs = this._mafiaPlayers.map(gPlayer => gPlayer.id);
+
+    if (townPlayerIDs.includes(playerID)) {
+      return this._townPlayers.find(getPlayer)?.role;
+    }
+    if (mafiaPlayerIDs.includes(playerID)) {
+      return this._mafiaPlayers.find(getPlayer)?.role;
+    }
+    return undefined;
+  }
+
+  get alivePlayers(): GamePlayer[] {
+    const aliveTown = this._townPlayers.filter((player) => (!this._deadPlayers.includes(player)));
+    const aliveMafia = this._mafiaPlayers.filter((player) => (!this._deadPlayers.includes(player)));
+    return aliveTown.concat(aliveMafia);
+  }
+
   get deadPlayers(): GamePlayer[] {
     return this._deadPlayers;
   }

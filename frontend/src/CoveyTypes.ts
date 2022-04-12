@@ -23,3 +23,14 @@ export type CoveyAppState = {
   socket: Socket | null,
   apiClient: TownsServiceClient
 };
+
+export type MafiaGameState = {
+  gameName: string,
+  gameNumDays: number,
+  gamePhase: string,
+  gameTimeLeft: number,
+  playerIDs: string[],
+  playerRoles: Map<string, string>, // maps player IDs to their roles
+  playerIsAlive: Map<string, boolean>,
+  playerVotes: Map<string, string | undefined>, // maps player id to the id of player they voted for
+}
