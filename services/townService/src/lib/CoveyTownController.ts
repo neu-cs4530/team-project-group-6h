@@ -61,6 +61,10 @@ export default class CoveyTownController {
   get recreationAreas(): ServerRecreationArea[] {
     return this._recreationAreas;
   }
+
+  get mafiaGames(): MafiaGame[] {
+    return this._mafiaGames; 
+  }
  
   /** The list of players currently in the town * */
   private _players: Player[] = [];
@@ -81,6 +85,10 @@ export default class CoveyTownController {
   /** The list of currently active ServerServerRecreationAreas in this 
    town */
   private _recreationAreas: ServerRecreationArea[] = []; 
+
+  /** The list of active mafia games in the town 
+   */
+  private _mafiaGames: MafiaGame[] = []; 
 
 
   private readonly _coveyTownID: string;
@@ -151,6 +159,7 @@ export default class CoveyTownController {
    * @param location New location for this player
    */
   updatePlayerLocation(player: Player, location: UserLocation): void {
+    console.log('player moved');
     const conversation = this.conversationAreas.find(
       conv => conv.label === location.conversationLabel,
     );
@@ -160,6 +169,7 @@ export default class CoveyTownController {
     player.activeConversationArea = conversation;
 
     if (conversation !== prevConversation) {
+      console.log('New conversation area');
       if (prevConversation) {
         this.removePlayerFromConversationArea(player, prevConversation);
       }
@@ -311,39 +321,7 @@ export default class CoveyTownController {
     return true;
   }
 
-  /**
-   * Creates a new MafiaGame in a recreation area if there is not currently an active mafia game in this recreation room.
-   *
-   * Notifies any CoveyTownListeners that the conversation has been updated
-   *
-   * @param _ServerRecreationArea Contains information describing the game to create. There should be only one player in the given mafia game that will be designated as the host.
-   *
-   * @returns true if the game is successfully created, or false if not
-   */
-  createMafiaGame(
-    gameHost: RecreationPlayer,
-    _ServerRecreationArea: ServerRecreationArea,
-  ): boolean {
-    const existingGame = _ServerRecreationArea._mafiaGame;
-
-    if (!existingGame) {
-      // if no mafia game exists in the given recreation area, then initiate a mafia game and update the recreation area
-
-      // creates a mafia game with only the host in the list of players
-      const createdGame = new MafiaGame(gameHost);
-      _ServerRecreationArea._mafiaGame = createdGame;
-
-      // let listeners know the recreation area has been updated
-      this._listeners.forEach(listener =>
-        listener.onConversationAreaUpdated(_ServerRecreationArea),
-      );
-
-      return true;
-    }
-
-    return false;
-  }
-
+ 
   /**
    * Creates a new instance of a mafia game with the given host in the specified rec area 
    * @param recAreaLabel Rec area in which the game occurs
@@ -354,7 +332,7 @@ export default class CoveyTownController {
     // Ensure the specified area exists and doesn't have a game
     const areaToAddGame = this.recreationAreas.find(area => area.label === recAreaLabel)
     if (areaToAddGame) {
-      if (areaToAddGame._mafiaGame) {
+      if (areaToAddGame._mafiaGameID) {
         return false; 
       }
     }
@@ -369,12 +347,16 @@ export default class CoveyTownController {
       return false;
     }
 
-     // Notify listeners
-     this._listeners.forEach(listener => listener.onLobbyCreated(areaToAddGame, hostID));
+     
 
     // Create game
     const newGame = new MafiaGame(hostPlayer);
-    areaToAddGame._mafiaGame = newGame; 
+    areaToAddGame._mafiaGameID = newGame.id; 
+    console.log(`Mafia game created w/ id: ${newGame.id}`);
+    this._mafiaGames.push(newGame); 
+
+    // Notify listeners
+    this._listeners.forEach(listener => listener.onLobbyCreated(areaToAddGame, hostID, newGame.id));
     return true;
   }
 
@@ -388,28 +370,39 @@ export default class CoveyTownController {
     // Ensure the recreation area exists and has a mafia game in lobby phase
     const recArea = this._recreationAreas.find(rec => rec.label === recAreaLabel);
     if (!recArea) {
+      console.log(`Cant join lobby, rec area ${recAreaLabel} doesnt exist`); 
       return false; 
     }
-    if (recArea._mafiaGame?.phase !== 'lobby') {
+
+    const mafiaGame = this.mafiaGames.find(g => g.id === recArea._mafiaGameID); 
+    if (mafiaGame?.phase !== 'lobby') {
+      console.log(`Can't join lobby, ${recAreaLabel}'s game has started`);
       return false; 
     }
+
+    console.log(`Joining mafia game with ID: ${mafiaGame.id}`);
+    console.log(`Game Phase: ${mafiaGame.phase}`);
 
     // Ensure the player is valid and in the recreation area and not in any games?
     const player = this._players.find(p => p.id === playerID); 
     if (!player) {
+      console.log(`Can't find player w/ ID ${playerID}`);
       return false; 
     }
     if (!recArea.occupantsByID.includes(playerID)) {
+      console.log(`Player ${playerID} is not in Rec Area ${recAreaLabel}`);
       return false; 
     }
 
     // Add the player to the game 
-    if (recArea._mafiaGame.addPlayer(player)) {
+    if (mafiaGame.addPlayer(player)) {
       // Notify listeners that player was added to game
-      this._listeners.forEach(listener => listener.onPlayerJoinedGame(recAreaLabel, playerID));     
+      this._listeners.forEach(listener => listener.onPlayerJoinedGame(recAreaLabel, playerID)); 
+      console.log('Player successfully added to game');    
       return true; 
     }
 
+    console.log('mafiaGame.addPlayer failed');
     return false; 
   }
 

@@ -20,12 +20,17 @@ const GameLobby = ({area, playerID}: GameLobbyProps): JSX.Element => {
     useEffect(() => {
         const updateListener: RecreationAreaListener = {
             onMafiaGameUpdated: (game: MafiaGame) => {
+                console.log('In onMafiaGameUpdated (GameLobby)');
+                // console.log(`Occupants before: ${}`)
                 setMafiaGame(game);
+            },
+            onMafiaGameCreated: (game: MafiaGame) => {
+              setMafiaGame(game);
             }
         };
         area.addRecListener(updateListener);
         return () => {
-            area.removeListener(updateListener);
+            area.removeRecListener(updateListener);
         }; 
     }, [mafiaGame, setMafiaGame, area]); 
 

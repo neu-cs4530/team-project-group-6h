@@ -308,6 +308,7 @@ export function mafiaGameLobbyJoinHandler(
 ): ResponseEnvelope<Record<string, null>> {
   const townController = getTownController(_requestData.coveyTownID);
   if (!townController?.getSessionByToken(_requestData.sessionToken)) {
+    console.log('Invalid session/token');
     return {
       isOK: false,
       response: {},
@@ -316,11 +317,11 @@ export function mafiaGameLobbyJoinHandler(
   }
 
   const success = townController.joinMafiaGameLobby(_requestData.recreationAreaLabel, _requestData.playerID);
-
+  console.log(`Success: ${success}`);
   return {
     isOK: success, 
     response: {},
-    message: !success ? `Unable to create mafia game lobby in ${_requestData.recreationAreaLabel}.` : undefined,
+    message: !success ? `Unable to join mafia game lobby in ${_requestData.recreationAreaLabel}.` : undefined,
   };
 }
 
@@ -357,8 +358,8 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onRecreationAreaUpdated(recreation: ServerRecreationArea) {
       socket.emit('recreationUpdated', recreation);
     },
-    onLobbyCreated(recreationArea: ServerRecreationArea, hostID: string) {
-      socket.emit('lobbyCreated', recreationArea, hostID)
+    onLobbyCreated(recreationArea: ServerRecreationArea, hostID: string, mafiaGameID: string) {
+      socket.emit('lobbyCreated', recreationArea, hostID, mafiaGameID)
     },
     onPlayerJoinedGame(recreationAreaLabel: string, playerID: string) {
       socket.emit('playerJoinedGame', recreationAreaLabel, playerID);

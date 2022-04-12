@@ -60,7 +60,7 @@ export default interface CoveyTownListener {
    * @param recreationArea Rec area where the game is created
    * @param hostID The host of the game 
    */
-  onLobbyCreated(recreationArea: ServerRecreationArea, hostID: string): void;
+  onLobbyCreated(recreationArea: ServerRecreationArea, hostID: string, mafiaGameID: string): void;
 
   /**
    * Called when a player joins a mafia game
