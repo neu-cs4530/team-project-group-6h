@@ -3,11 +3,11 @@ import React from 'react';
 import useConversationAreas from '../../hooks/useConversationAreas';
 import ConversationAreasList from './ConversationAreasList';
 import PlayersList from './PlayersList';
-import CreateGameButton from './CreateGameButton';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import RecreationArea from '../../classes/RecreationArea';
 import ConversationArea from '../../classes/ConversationArea';
 import useRecreationAreas from '../../hooks/useRecreationAreas';
+import GameLobby from './GameLobby';
 
 export default function SocialSidebar(): JSX.Element {
   // get all the conversation areas of this town
@@ -20,6 +20,8 @@ export default function SocialSidebar(): JSX.Element {
 
   // find the recreation area my player is located in
   const myPlayerRecArea = (recAreas.find((area) => area.occupants.includes(myPlayerID)));
+
+
 
     return (
       <VStack align="left"
@@ -37,8 +39,8 @@ export default function SocialSidebar(): JSX.Element {
         <ConversationAreasList />
       
         {/* start button to show for player if they are in a recreation area */}
-        {myPlayerRecArea !== undefined ? 
-          <CreateGameButton area={myPlayerRecArea} myPlayerID={myPlayerID}/> 
+        {myPlayerRecArea !== undefined && myPlayerRecArea.isRecreationArea ? 
+          <GameLobby area={myPlayerRecArea} playerID={myPlayerID}/> 
         : <p>Your player is not in a recreation area!</p>}
         
       </VStack>

@@ -154,6 +154,7 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
 
   app.post('/towns/:townID/joinLobby', express.json(), async (req, res) => {
     try {
+      console.log('In POST');
       const result = await mafiaGameLobbyJoinHandler({
         coveyTownID: req.params.townID,
         sessionToken: req.body.sessionToken,

@@ -16,6 +16,8 @@ export enum Phase {
  * Represents type of MafiaGame that can be instantiated by players in a Recreation Room.
  */
 export default class MafiaGame {
+  private readonly _id: string; 
+  
   _host: Player;
 
   _players: Player[]; // players in the game
@@ -36,12 +38,17 @@ export default class MafiaGame {
   // MIN_PLAYERS = Object.keys(Role).length - 1;
   MIN_PLAYERS = 4;
 
-  constructor(host: Player) {
+  constructor(id: string, host: Player) {
+    this._id = id; 
     this._host = host;
     this._players = [host];
     this._mafiaPlayers = [];
     this._townPlayers = [];
     this._deadPlayers = [];
+  }
+
+  get id(): string {
+    return this._id;
   }
 
   get phase(): Phase {
@@ -91,6 +98,7 @@ export default class MafiaGame {
   get townPlayers(): GamePlayer[] {
     return this._townPlayers;
   }
+
 
   /**
    * Cycles through the phases of the game after the game has started.

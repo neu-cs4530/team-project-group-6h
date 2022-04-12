@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import Player from '../../types/Player';
 import GamePlayer, { Role, Team } from './GamePlayer';
 
@@ -16,6 +17,8 @@ export enum Phase {
  * Represents type of MafiaGame that can be instantiated by players in a Recreation Room.
  */
 export default class MafiaGame {
+  private readonly _id: string; // unique identifier
+
   private _players: Player[]; // players in the game lobby
 
   private _host: Player; // the id of the host
@@ -31,6 +34,7 @@ export default class MafiaGame {
   private MIN_PLAYERS: number = Object.keys(Role).length / 2 - 1;
 
   constructor(host: Player) {
+    this._id = nanoid();
     this._host = host;
     this._players = [host];
     this._gamePlayers = [];
@@ -50,6 +54,10 @@ export default class MafiaGame {
 
   get minPlayers(): number {
     return this.MIN_PLAYERS;
+  }
+
+  get id() {
+    return this._id;
   }
 
   /**

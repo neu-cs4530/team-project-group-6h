@@ -3,6 +3,7 @@ import BoundingBox from './BoundingBox';
 import ConversationArea, {ServerConversationArea, ConversationAreaListener} from './ConversationArea';
 import Player from './Player';
 
+
 /**
  * Represents type of ServerRecreationArea that can be created. Extends the ServerConversationArea properties and methods while also containing the property of a mafia game.
  */
@@ -20,6 +21,7 @@ export type RecreationAreaListener = {
 
 export default class RecreationArea extends ConversationArea {
     private _mafiaGame: MafiaGame | undefined; 
+    
     
     private _recListeners: RecreationAreaListener[] = []; 
 
@@ -45,6 +47,16 @@ export default class RecreationArea extends ConversationArea {
         }
     }
 
+    get mafiaGame(): MafiaGame | undefined {
+        return this._mafiaGame;
+    }
+
+    addMafiaGame(game: MafiaGame) {
+        this._mafiaGame = game;
+        console.log(`In Add Mafia Game: ${this._mafiaGame.id}`);
+        this._recListeners.forEach(recListener => recListener.onMafiaGameCreated?.(game));
+    }
+
     toServerRecreationArea(): ServerRecreationArea {
         const serverArea = super.toServerConversationArea() as ServerRecreationArea;
         serverArea.mafiaGame = this._mafiaGame;
@@ -53,6 +65,10 @@ export default class RecreationArea extends ConversationArea {
 
     addRecListener(listener: RecreationAreaListener) {
         this._recListeners.push(listener);
+    }
+
+    removeRecListener(listener: RecreationAreaListener) {
+        this._recListeners = this._recListeners.filter(eachListener => eachListener !== listener);
     }
 
     static fromServerRecreationArea(serverArea: ServerRecreationArea): RecreationArea {
@@ -88,6 +104,14 @@ export default class RecreationArea extends ConversationArea {
 
         return false; 
 
+    }
+
+    notifyPlayerAdded() {
+        console.log('Notify player added to game');
+        const game = this.mafiaGame;
+        if (game) {
+            this._recListeners.forEach(listener => listener.onMafiaGameUpdated?.(game));
+        }
     }
 
 }

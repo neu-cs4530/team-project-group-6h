@@ -74,7 +74,7 @@ export default function CreateGameButton({ area, myPlayerID }: ConversationAreaP
         };
         area.addRecListener(updateListener);
         return () => {
-            area.removeListener(updateListener);
+            area.removeRecListener(updateListener);
         };
     }, [mafiaGame, setMafiaGame, area]);
 
@@ -83,12 +83,7 @@ export default function CreateGameButton({ area, myPlayerID }: ConversationAreaP
         // once start game button is clicked, then mafia overlay should show
         // otherwise show "join game" or "spectate game"
         <div>
-            {mafiaGame ? '' : <Button colorScheme='teal' onClick={createGameLobby}>Create Game</Button>}
-            <br/>
-            {mafiaGame?._phase === Phase.lobby ? 
-                `Currently in a lobby. Host: ${mafiaGame._host.userName}` : 'You are not in a game'}
-            <br/>
-            {mafiaGame ? <JoinGameButton hostID={mafiaGame._host.id} myPlayerID={myPlayerID} area={area}/> : ''}
+            <Button colorScheme='teal' onClick={createGameLobby}>Create Game</Button>
         </div>
     );
 }
