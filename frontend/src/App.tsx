@@ -291,8 +291,8 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         const host = localPlayers.find(p => p.id === _hostID);
        
         if (existingRecArea && host) {
-          existingRecArea.mafiaGame = new MafiaGame(_mafiaGameID, host); 
-          // existingRecArea.addMafiaGame(new MafiaGame(_mafiaGameID, host)); 
+          // existingRecArea.mafiaGame = new MafiaGame(_mafiaGameID, host); 
+          existingRecArea.addMafiaGame(new MafiaGame(_mafiaGameID, host)); 
           console.log(`Created mafia game in Rec Area: ${existingRecArea.label}`);
           if (existingRecArea.mafiaGame) {
             console.log('Confirming mafia game exists');

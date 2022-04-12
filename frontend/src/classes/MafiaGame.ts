@@ -78,6 +78,7 @@ export default class MafiaGame {
     return this._townPlayers;
   }
 
+
   /**
    * Cycles through the phases of the game after the game has started.
    * @throws Error if the game is either in the 'lobby' or 'win' state.

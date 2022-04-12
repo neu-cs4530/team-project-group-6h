@@ -22,6 +22,7 @@ export type RecreationAreaListener = {
 export default class RecreationArea extends ConversationArea {
     private _mafiaGame: MafiaGame | undefined; 
     
+    
     private _recListeners: RecreationAreaListener[] = []; 
 
     public isRecreationArea = true; 
@@ -46,9 +47,14 @@ export default class RecreationArea extends ConversationArea {
         }
     }
 
+    get mafiaGame(): MafiaGame | undefined {
+        return this._mafiaGame;
+    }
+
     addMafiaGame(game: MafiaGame) {
         this._mafiaGame = game;
         console.log(`In Add Mafia Game: ${this._mafiaGame.id}`);
+        this._recListeners.forEach(recListener => recListener.onMafiaGameCreated?.(game));
     }
 
     toServerRecreationArea(): ServerRecreationArea {
