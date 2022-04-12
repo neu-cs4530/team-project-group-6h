@@ -194,7 +194,6 @@ export default class TownsServiceClient {
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 
-<<<<<<< HEAD
   // Create Game Lobby
   async createGameLobby(requestData: GameLobbyCreateRequest) : Promise<void> {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/createLobby`, requestData);
@@ -205,27 +204,6 @@ export default class TownsServiceClient {
   async joinGameLobby(requestData: GameLobbyJoinRequest) : Promise<void> {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/joinLobby`, requestData); 
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
-=======
-  async getMafiaGameData(requestData: MafiaGameDataRequest) : Promise<MafiaGameDataResponse> {
-
-    const mockResponse : MafiaGameDataResponse = {
-      gamePhase: 'day',
-      playerRoles: 'roles',
-      deadPlayers: ['p1', 'p2', 'p3'],
-      alivePlayers: ['p4', 'p5', 'p6'],
-      parentRecArea: 'sample rec',
-      votesCast: ['yes', 'no'],
-    }
-    // this line is unnecessary
-    const a = this._axios;
-    
-    return mockResponse;
-
-    /*
-    const responseWrapper = await this._axios.get<ResponseEnvelope<MafiaGameDataResponse>>(`/towns/${requestData.coveyTownID}/recreationAreas/${requestData.parentRecArea}/gameData`);
-    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
-    */
->>>>>>> 4fcde555e45e400d0b4d80f9605fc8f181fdaf24
   }
 
 }
