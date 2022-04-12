@@ -3,13 +3,11 @@ import React from 'react';
 import useConversationAreas from '../../hooks/useConversationAreas';
 import ConversationAreasList from './ConversationAreasList';
 import PlayersList from './PlayersList';
-import StartGameButton from './CreateGameButton';
+import CreateGameButton from './CreateGameButton';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import RecreationArea from '../../classes/RecreationArea';
 import ConversationArea from '../../classes/ConversationArea';
 import useRecreationAreas from '../../hooks/useRecreationAreas';
-import usePlayersInTown from '../../hooks/usePlayersInTown';
-import GameLobby from './GameLobby';
 
 export default function SocialSidebar(): JSX.Element {
   // get all the conversation areas of this town
@@ -37,17 +35,12 @@ export default function SocialSidebar(): JSX.Element {
         <Heading fontSize='xl' as='h1'>Players In This Town</Heading>
         <PlayersList /> 
         <ConversationAreasList />
-       
-
+      
         {/* start button to show for player if they are in a recreation area */}
-    
-        {myPlayerRecArea ? 
-          <GameLobby area={myPlayerRecArea} playerID={myPlayerID}/>
-        :
-        <p>Join a Recreation Area to Create or Join a Mafia Game!</p>
-        }
+        {myPlayerRecArea !== undefined ? 
+          <CreateGameButton area={myPlayerRecArea} myPlayerID={myPlayerID}/> 
+        : <p>Your player is not in a recreation area!</p>}
         
-  
       </VStack>
     );
   }
