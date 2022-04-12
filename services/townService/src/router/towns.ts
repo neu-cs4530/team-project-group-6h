@@ -146,6 +146,7 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
         });
     }
   });
+<<<<<<< HEAD
 
   // Create Mafia Game Lobby
   app.post('/towns/:townID/createLobby', express.json(), async (req,res) => {
@@ -181,6 +182,8 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
       });
     }
   })
+=======
+>>>>>>> 4fcde555e45e400d0b4d80f9605fc8f181fdaf24
 
   const socketServer = new io.Server(http, { cors: { origin: '*' } });
   socketServer.on('connection', townSubscriptionHandler);
