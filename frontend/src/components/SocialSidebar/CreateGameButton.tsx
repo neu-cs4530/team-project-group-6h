@@ -6,6 +6,7 @@ import ConversationArea from '../../classes/ConversationArea';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import Player from '../../classes/Player';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
+import JoinGameButton from './JoinGameButton';
 
 export enum Phase {
     'lobby',
@@ -17,10 +18,10 @@ export enum Phase {
 
 type ConversationAreaProps = {
     area: RecreationArea,
-    hostID: string,
+    myPlayerID: string,
 };
 
-export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX.Element {
+export default function CreateGameButton({ area, myPlayerID }: ConversationAreaProps ): JSX.Element {
     const [mafiaGame, setMafiaGame] = useState<MafiaGame | undefined>(area.mafiaGame);
     const allPlayers = usePlayersInTown();
 
@@ -41,7 +42,7 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
                 coveyTownID: currentTownID,
                 sessionToken,
                 recreationAreaLabel: area.label,
-                hostID,
+                hostID: myPlayerID,
             });
             toast({
                 title: 'Mafia Game Lobby Created!',
@@ -58,14 +59,13 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
                 status: 'error',
             })
         }
-    }, [allPlayers, apiClient, sessionToken, currentTownID, toast, btnTxt, area, hostID]); 
+    }, [allPlayers, apiClient, sessionToken, currentTownID, toast, btnTxt, area]); 
 
     useEffect(() => {
         console.log('IN USE EFFECT');
         const updateListener: RecreationAreaListener = {
             onMafiaGameCreated: (game: MafiaGame) => {
                 console.log(`In Listener, on Mafia Game Created! Phase: ${game.phase}, HOST: ${game._host.userName}, NUM PLAYERS: ${game._players.length}`);
-                
                 setMafiaGame(game); 
             },
             onMafiaGameUpdated: (game: MafiaGame) => {
@@ -83,9 +83,12 @@ export default function StartGame({ area, hostID }: ConversationAreaProps ): JSX
         // once start game button is clicked, then mafia overlay should show
         // otherwise show "join game" or "spectate game"
         <div>
-            <Button colorScheme='teal' onClick={createGameLobby}>{btnTxt}</Button>
+            {mafiaGame ? '' : <Button colorScheme='teal' onClick={createGameLobby}>Create Game</Button>}
             <br/>
-            {mafiaGame?._phase === Phase.lobby ? `You are currently in a lobby! Host: ${mafiaGame._host.userName}` : 'Not in a game'}
+            {mafiaGame?._phase === Phase.lobby ? 
+                `Currently in a lobby. Host: ${mafiaGame._host.userName}` : 'You are not in a game'}
+            <br/>
+            {mafiaGame ? <JoinGameButton hostID={mafiaGame._host.id} myPlayerID={myPlayerID} area={area}/> : ''}
         </div>
     );
 }
