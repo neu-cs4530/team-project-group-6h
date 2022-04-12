@@ -4,14 +4,14 @@ import RecreationArea from '../../classes/RecreationArea'
 import useCoveyAppState from '../../hooks/useCoveyAppState'
 
 
-type CreateGameProps = {
+type JoinGameProps = {
   hostID: string,  
   myPlayerID: string,
   area: RecreationArea,
 }
 
 
-export default function JoinGameButton({ hostID, myPlayerID, area }: CreateGameProps): JSX.Element {
+export default function JoinGameButton({ hostID, myPlayerID, area }: JoinGameProps): JSX.Element {
   const { apiClient, sessionToken, currentTownID } = useCoveyAppState();
 
   const toast = useToast();
