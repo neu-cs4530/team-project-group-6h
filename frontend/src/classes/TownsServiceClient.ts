@@ -40,20 +40,6 @@ export interface TownJoinResponse {
   recreationAreas: ServerRecreationArea[]; 
 }
 
-export interface MafiaGameDataRequest {
-  coveyTownID: string;
-  parentRecArea: string;
-}
-
-export interface MafiaGameDataResponse {
-  gamePhase: string;
-  playerRoles: string;
-  deadPlayers: string[];
-  alivePlayers: string[];
-  parentRecArea: string;
-  votesCast: string[];
-}
-
 /**
  * Payload sent by client to create a Town in Covey.Town
  */
