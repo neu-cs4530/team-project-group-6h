@@ -23,7 +23,9 @@ const LobbyButton = ({area, mafiaGame, playerID}: LobbyButtonProps): JSX.Element
     const [playerInGame, setPlayerInGame] = useState(playerInMafiaGame());
     
 
-    useEffect(() => {setPlayerInGame(playerInMafiaGame())}, [mafiaGame]); 
+    useEffect(() => {
+        console.log(`Mafia game updated in LobbyButton, num occupants = ${mafiaGame?._players.length}`)
+    }, [mafiaGame]); 
 
 
 

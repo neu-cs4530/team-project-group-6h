@@ -191,6 +191,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
         recalculateNearbyPlayers();
       });
+      
       socket.on('playerMoved', (player: ServerPlayer) => {
         if (player._id !== gamePlayerID) {
           const now = Date.now();
@@ -211,6 +212,36 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           }
         }
       });
+      
+     /*
+      socket.on('playerMoved', (playerID: string) => {
+        const playerObj = localPlayers.find(p => p.id === playerID); 
+        if (!playerObj || !playerObj.location) {
+          return;
+        }
+
+        const player: ServerPlayer = {_id: playerID, _userName: playerObj.userName, location: playerObj.location}
+
+        if (player._id !== gamePlayerID) {
+          const now = Date.now();
+          playerMovementCallbacks.forEach(cb => cb(player));
+          if (
+            !player.location.moving ||
+            now - lastRecalculateNearbyPlayers > CALCULATE_NEARBY_PLAYERS_MOVING_DELAY_MS
+          ) {
+            lastRecalculateNearbyPlayers = now;
+            const updatePlayer = localPlayers.find(p => p.id === player._id);
+            if (updatePlayer) {
+              updatePlayer.location = player.location;
+            } else {
+              localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
+              setPlayersInTown(localPlayers);
+            }
+            recalculateNearbyPlayers();
+          }
+        }
+      });
+      */
       socket.on('playerDisconnect', (disconnectedPlayer: ServerPlayer) => {
         localPlayers = localPlayers.filter(player => player.id !== disconnectedPlayer._id);
         setPlayersInTown(localPlayers);
@@ -254,33 +285,38 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setRecreationAreas(localRecreationAreas);
         recalculateNearbyPlayers();
       });
-      socket.on('lobbyCreated', (_recreationArea: ServerRecreationArea, _hostID: string) => {
-        // console.log('LOBBY CREATED EMITTED');
+      socket.on('lobbyCreated', (_recreationArea: ServerRecreationArea, _hostID: string, _mafiaGameID: string) => {
         const existingRecArea = localRecreationAreas.find(a => a.label === _recreationArea.label);
-        /*
-        if (existingRecArea) {
-          console.log(`Found the area to be updated in App.tsx, Label: ${existingRecArea.label}`);
-        }
-        */
+      
         const host = localPlayers.find(p => p.id === _hostID);
-        /*
-        if (host) {
-          console.log(`Found the host: ${host.userName}`);
-        }
-        else {
-          console.log(`No host with ID: ${_hostID}`);
-        }
-        */
+       
         if (existingRecArea && host) {
-          existingRecArea.mafiaGame = new MafiaGame(host); 
-          // setRecreationAreas(localRecreationAreas); probably don't need???
+          existingRecArea.mafiaGame = new MafiaGame(_mafiaGameID, host); 
+          // existingRecArea.addMafiaGame(new MafiaGame(_mafiaGameID, host)); 
+          console.log(`Created mafia game in Rec Area: ${existingRecArea.label}`);
+          if (existingRecArea.mafiaGame) {
+            console.log('Confirming mafia game exists');
+          }
+          setRecreationAreas(localRecreationAreas); // probably don't need???
         }
       }); 
       socket.on('playerJoinedGame', (_recreationAreaLabel: string, _playerID: string) => {
+        console.log('Player Joined Game');
         const existingRecArea = localRecreationAreas.find(a => a.label === _recreationAreaLabel); 
-        const player = localPlayers.find(p => p.id === _playerID); 
+        const player = localPlayers.find(p => p.id === _playerID);
+        
+        if (existingRecArea?.mafiaGame) {
+          console.log(existingRecArea.mafiaGame._host)
+        } else {
+          console.log(`Mafia game doesn't exist in ${existingRecArea?.label}`);
+        }
+
         if (existingRecArea?.mafiaGame && player) {
-          existingRecArea.mafiaGame.addPlayer(player);
+          console.log('game and player exist');
+          if (existingRecArea.mafiaGame.addPlayer(player)) {
+            console.log('add player to area successful')
+            existingRecArea.notifyPlayerAdded(); 
+          };
         }
       })
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
