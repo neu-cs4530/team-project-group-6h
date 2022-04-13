@@ -1,6 +1,5 @@
-import MafiaGame, { Phase } from './MafiaGame'
-import { Role } from './GamePlayer'
 import { nanoid } from 'nanoid';
+import MafiaGame, { Phase } from './MafiaGame';
 import Player from '../../types/Player';
 
 
@@ -35,14 +34,30 @@ describe('MafiaGame', () => {
   });
   it('Adds players that have been voted out from the game to the deadPlayers list', () => {
     newMafiaGame.eliminatePlayer(recPlayer2.id);
-    console.log(`townplayers: ${JSON.stringify(newMafiaGame.townPlayers)}`);
-    console.log(`mafiaPlayers: ${JSON.stringify(newMafiaGame.mafiaPlayers)}`);
+    // console.log(`townplayers: ${JSON.stringify(newMafiaGame.townPlayers)}`);
+    // console.log(`mafiaPlayers: ${JSON.stringify(newMafiaGame.mafiaPlayers)}`);
 
     expect(newMafiaGame.townPlayers.length).toBe(3);
     expect(newMafiaGame.mafiaPlayers.length).toBe(1);
     expect(newMafiaGame.deadPlayers.length).toBe(1);
-    expect(newMafiaGame.deadPlayers).toContain(recPlayer2.userName); 
-    
+    expect(newMafiaGame.deadPlayers[0]).toBeDefined(); 
+    expect(newMafiaGame.deadPlayers[0].playerUserName).toBe(recPlayer2.userName); 
+    expect(newMafiaGame.deadPlayers[0].playerID).toBe(recPlayer2.id);
+    expect(newMafiaGame.deadPlayers[0].isAlive).toBe(false);
+
+    // no duplicate eliminations
+    newMafiaGame.eliminatePlayer(recPlayer2.id);
+    expect(newMafiaGame.townPlayers.length).toBe(3);
+    expect(newMafiaGame.mafiaPlayers.length).toBe(1);
+    expect(newMafiaGame.mafiaPlayers.length).toBe(1);
+
+    newMafiaGame.eliminatePlayer(recPlayer1.id);
+
+    expect(newMafiaGame.townPlayers.length).toBe(3);
+    expect(newMafiaGame.mafiaPlayers.length).toBe(1);
+    expect(newMafiaGame.deadPlayers.length).toBe(2);
+    expect(newMafiaGame.deadPlayers[1]).toBeDefined();
+
   });
 
   it('Cycles through the phases after the game has started', () => {

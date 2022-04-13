@@ -169,10 +169,13 @@ export default class MafiaGame {
 
   /**
    * Randomly shuffles the list of players for fair role assignment. Modified answer from https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+   * @returns shuffled version of player array
    */
-  private shuffle(): void {
+  private shuffle(): Player[] {
     let currentIndex = this.numPlayers();
     let randomIndex = this.numPlayers();
+
+    const playerArray = [...this._players];
 
     // While there remain elements to shuffle...
     while (currentIndex !== 0) {
@@ -181,11 +184,13 @@ export default class MafiaGame {
       currentIndex -= 1;
 
       // And swap it with the current element.
-      [this._players[currentIndex], this._players[randomIndex]] = [
-        this._players[randomIndex],
-        this._players[currentIndex],
+      [playerArray[currentIndex], playerArray[randomIndex]] = [
+        playerArray[randomIndex],
+        playerArray[currentIndex],
       ];
     }
+
+    return playerArray;
   }
 
   /**
@@ -219,17 +224,22 @@ export default class MafiaGame {
     // const mafiaAndTown: GamePlayer[] = [...this._mafiaPlayers, ...this._townPlayers];
 
     const playerIndex = this._gamePlayers.findIndex((player) => {
-      //console.log(`Player.name = ${playerName}`);
-      //console.log(`Current name = ${player.playerUserName}`);
-      //console.log(`Current id = ${player.id}`);
-
-      player.playerID === playerID;
+      // console.log(`Player ID = ${playerID}`);
+      // console.log(`Current ID = ${player.playerID}`);
+      // console.log(`${playerID === player.playerID}`);
+      return playerID === player.playerID;
     });
   
     // console.log(`Index: ${playerIndex}`);
 
     if (playerIndex >= 0) {
-      this._gamePlayers[playerIndex].eliminate();
+      const gamePlayer = this._gamePlayers[playerIndex];
+      if (gamePlayer.isAlive) {
+        this._gamePlayers[playerIndex].eliminate();
+      }
+    }
+    else {
+      throw 'This player does not exist';
     }
     
   }
@@ -238,9 +248,9 @@ export default class MafiaGame {
    * Randomly assigns the Teams and Roles to the players within the array and adds the players to the mafiaPlayers/townPlayers fields.
    */
   private assignRoles(): void {
-    this.shuffle();
+    const shuffledPlayers = this.shuffle();
 
-    const gamePlayers = this._players.map(player => new GamePlayer(player));
+    const gamePlayers = shuffledPlayers.map(player => new GamePlayer(player));
 
     /** CURRENT LOGIC:
      * 0. Shuffle array (to prevent first-come = mafia)
