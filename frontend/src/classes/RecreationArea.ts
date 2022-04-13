@@ -16,7 +16,6 @@ export type RecreationAreaListener = {
     onMafiaGameUpdated? : (game: MafiaGame) => void; 
     onMafiaGameCreated? : (game: MafiaGame) => void;
     onMafiaGameStarted? : (game: MafiaGame) => void;
-    onMafiaGameFinished? : (game: MafiaGame, winner: string) => void;
 } & ConversationAreaListener;
 
 export default class RecreationArea extends ConversationArea {
@@ -65,10 +64,12 @@ export default class RecreationArea extends ConversationArea {
 
     addRecListener(listener: RecreationAreaListener) {
         this._recListeners.push(listener);
+        this._listeners.push(listener);
     }
 
     removeRecListener(listener: RecreationAreaListener) {
         this._recListeners = this._recListeners.filter(eachListener => eachListener !== listener);
+        this._listeners = this._listeners.filter(eachListener => eachListener !== listener);
     }
 
     static fromServerRecreationArea(serverArea: ServerRecreationArea): RecreationArea {

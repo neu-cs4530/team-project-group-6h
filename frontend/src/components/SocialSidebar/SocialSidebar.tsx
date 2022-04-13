@@ -1,5 +1,5 @@
 import { Heading, StackDivider, VStack } from '@chakra-ui/react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import useConversationAreas from '../../hooks/useConversationAreas';
 import ConversationAreasList from './ConversationAreasList';
 import PlayersList from './PlayersList';
@@ -19,7 +19,15 @@ export default function SocialSidebar(): JSX.Element {
   const { myPlayerID }= coveyApp;
 
   // find the recreation area my player is located in
-  const myPlayerRecArea = (recAreas.find((area) => area.occupants.includes(myPlayerID)));
+  const getMyPlayerRecArea = function(): RecreationArea | undefined {
+    return recAreas.find((area => area.occupants.includes(myPlayerID))); 
+  }
+  const [myPlayerRecArea, setMyPlayerRecArea] = useState(getMyPlayerRecArea());
+
+  useEffect(() => {
+    console.log('SOCIAL SIDEBAR USE EFFECT');
+    setMyPlayerRecArea(getMyPlayerRecArea());
+  }, [recAreas]); 
 
 
 
@@ -39,9 +47,12 @@ export default function SocialSidebar(): JSX.Element {
         <ConversationAreasList />
       
         {/* start button to show for player if they are in a recreation area */}
+        
         {myPlayerRecArea !== undefined && myPlayerRecArea.isRecreationArea ? 
           <GameLobby area={myPlayerRecArea} playerID={myPlayerID}/> 
         : <p>Your player is not in a recreation area!</p>}
+ 
+   
         
       </VStack>
     );
