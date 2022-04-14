@@ -11,7 +11,9 @@ import useCoveyAppState from '../../hooks/useCoveyAppState';
 import usePlayerMovement from '../../hooks/usePlayerMovement';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import { Callback } from '../VideoCall/VideoFrontend/types';
-
+import GameUI from '../MafiaOverlay/GameUI';
+import useRecreationAreas from '../../hooks/useRecreationAreas';
+import RecreationArea from '../../classes/RecreationArea';
 
 // Original inspiration and code from:
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
@@ -738,15 +740,19 @@ export default function WorldMap(): JSX.Element {
     return <></>;
   }, [video, newConversation, setNewConversation]);
 
+  const recAreas = useRecreationAreas() as RecreationArea[];
+  const findCurrentRecArea = (rec: RecreationArea) => (rec.occupants.find((id) => (id === myPlayerID)) !== undefined);
+  const currentRecArea = recAreas.find(findCurrentRecArea);
+
   return (
     <div id='app-container'>
       {newConversationModal}
-      <div id='map-and-social-container'>
-        <div id='map-container'/>
-          <div id='social-container'>
-          <SocialSidebar />
-          </div>
+      <div id='map-container'>
+        <div id='game-ui-container'>
+          <GameUI myID={myPlayerID} recArea={currentRecArea} />
         </div>
+      </div>
+      <div id='social-container'><SocialSidebar /></div>
     </div>
   );
 }

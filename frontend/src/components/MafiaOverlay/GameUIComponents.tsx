@@ -1,15 +1,25 @@
 import { Container, Heading, Text } from '@chakra-ui/react';
 import React from 'react';
+import { StringMappingType } from 'typescript';
+import { Role } from '../../../../services/townService/src/lib/mafia_lib/GamePlayer';
+
+type GameUIHeaderProps = {
+    gameName: string
+    gamePhase: string
+}
 
 // Needs hook into game name, time of day
-export function GameUIHeader(): JSX.Element {
+export function GameUIHeader({gameName, gamePhase}: GameUIHeaderProps): JSX.Element {
     const isDay = true;
     return (
-    <Heading fontSize='xl' as='h1' color={isDay ? 'black' : 'white'}>Game Name: Day N Discussion</Heading>
+    <Heading fontSize='xl' as='h1' color={isDay ? 'black' : 'white'}>{gameName}: {gamePhase}</Heading>
     );
 }
 
-// Needs hook into time remaining for each voting period
+type GameUITimerProps = {
+    gameTimeLeft: number
+}
+
 export function GameUITimer(): JSX.Element {
     return (
         <Container 
@@ -22,15 +32,17 @@ export function GameUITimer(): JSX.Element {
     );
 }
 
-// needs hook into player role
-export function GameUIRoleDescription(): JSX.Element {
+type GameUIRoleDescriptionProps = {
+    playerRole: Role | undefined,
+}
+
+export function GameUIRoleDescription({playerRole}: GameUIRoleDescriptionProps): JSX.Element {
     return (
         <Container
                 width="200px"
                 height="296px"
-                className='ui-container'
-            >
-                <Heading fontSize='xl' as='h1'>My Role:<br/>Sample role</Heading>
+                className='ui-container'>
+                <Heading fontSize='xl' as='h1'>My Role:<br/>{playerRole ? playerRole.toString() : 'undefined'}</Heading>
                 <Text fontSize='md'><br/>Abilities: <br/>- can do this<br/>- can also do this</Text>
             </Container>
     );
@@ -56,8 +68,11 @@ export function GameUIRoleList(): JSX.Element {
     );
 }
 
-// needs hook into list of alive players
-export function GameUIAlivePlayerList(): JSX.Element {
+type GameUIPlayerListProps = {
+    players: (string | undefined)[]
+}
+// needs an array map from players to strings
+export function GameUIAlivePlayerList({players}: GameUIPlayerListProps): JSX.Element {
     return (
         <Container 
             width="200px"
@@ -65,13 +80,14 @@ export function GameUIAlivePlayerList(): JSX.Element {
             className='ui-container'
                 >
                     <Heading fontSize='xl' as='h1'>Players</Heading>
-                    <Text fontSize='xs'>- Player 1<br/>- Player 2<br/>- Player 3<br/>- Player 4</Text>
+                    <ul>
+                    {players.map((player) => (player ? <li key={player}>{player}</li> : (<li />)))}
+                    </ul>
                 </Container>
     );
 }
  
-// needs hook into list of dead players
-export function GameUIDeadPlayerList(): JSX.Element {
+export function GameUIDeadPlayerList({players}: GameUIPlayerListProps): JSX.Element {
     return (
         <Container
             width="200px"
@@ -79,7 +95,7 @@ export function GameUIDeadPlayerList(): JSX.Element {
             className='ui-container'
                 >
                     <Heading fontSize='xl' as='h1'>Graveyard</Heading>
-                    <Text fontSize='xs'>- Player 5<br/>- Player 6<br/>- Player 7<br/>- Player 8</Text>
+                    <Text fontSize='xs'>{players[0]}</Text>
                 </Container>
     );
 }
@@ -101,13 +117,29 @@ export function GameUIVideoOverlay(): JSX.Element {
     );
 }
 
-export function GameUILobbyHeader(): JSX.Element {
+type GameUILobbyHeaderProps = {
+    gameName: string,
+}
+
+export function GameUILobbyHeader({gameName}: GameUILobbyHeaderProps): JSX.Element {
+    return (
+    <Heading fontSize='xl' as='h1'>Welcome to {gameName}</Heading>
+    );
+}
+
+export function GameUILobbyRoles(): JSX.Element {
     return (
         <Container
-            width='300px'
+            width='350px'
             height='550px'>
-            <Heading>Roles:</Heading>
-            <Text>- General Town<br/>- Doctor<br/>- Investigator<br/>- Mafia Member<br/>- Godfather</Text>
+            <Heading>Roles</Heading>
+            <ul>
+                <li>General Town: able to vote on a member of the town to lynch</li>
+                <li>Doctor: can block the mafia from killing a town member for one night</li>
+                <li>Investigator: can discover the role of another town member each night</li>
+                <li>General Mafia: can plot to kill members of the town at night</li>
+                <li>Godfather: can choose who to kill on behalf of the mafia</li>
+            </ul>
         </Container>
     );
 }
@@ -115,25 +147,27 @@ export function GameUILobbyHeader(): JSX.Element {
 export function GameUILobbyRules(): JSX.Element {
     return (
         <Container 
-            width="200px"
-            height="296px"
-            className='ui-container'
-                >
-                    <Heading fontSize='xl' as='h1'>Players</Heading>
-                    <Text fontSize='xs'>- Player 1<br/>- Player 2<br/>- Player 3<br/>- Player 4</Text>
-                </Container>
+            width="500px"
+            height="550px">
+            <Heading>Rules</Heading>
+            <Text>The town is split into town members (General Town, Doctor, Investigator) and mafia members (General Mafia, Godfather). <br/><br/>
+                Every night, the mafia can choose one town member to kill. Using the information from special roles and who was killed, 
+                everyone must discuss who, if anyone, to lynch during the day. <br/><br/>The town wins if all mafia members are killed, and the 
+                mafia win if all the town are killed.
+            </Text>
+        </Container>
     );
 }
 
-export function GameUILobbyPlayersList(): JSX.Element {
+export function GameUILobbyPlayersList({players}: GameUIPlayerListProps): JSX.Element {
     return (
         <Container 
-            width="200px"
-            height="296px"
-            className='ui-container'
-                >
-                    <Heading fontSize='xl' as='h1'>Players</Heading>
-                    <Text fontSize='xs'>- Player 1<br/>- Player 2<br/>- Player 3<br/>- Player 4</Text>
-                </Container>
+            width="350px"
+            height="550px">
+            <Heading>Players</Heading>
+            <ul>
+            {players.map((p: string | undefined) => (p ? <li key={p}>{p}</li> : <li />))}
+            </ul>
+        </Container>
     );
 }
