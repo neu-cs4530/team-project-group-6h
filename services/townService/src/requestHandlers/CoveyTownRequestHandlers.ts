@@ -389,7 +389,7 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
       socket.emit('playerJoinedGame', recreationAreaLabel, playerID);
     },
     onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]) {
-      socket.emit('mafiaGameStarted', playerRoles);
+      socket.emit('mafiaGameStarted', recAreaLabel, playerRoles);
     },
     onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);

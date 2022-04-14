@@ -223,9 +223,9 @@ export default class MafiaGame {
     this._mafiaPlayers = playerRoles.filter(player => 
       player.team === Team.Mafia );
 
-    this._townPlayers = playerRoles.filter(player => {
+    this._townPlayers = playerRoles.filter(player => 
       player.team === Team.Town
-    });
+    );
     
 
     /*

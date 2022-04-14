@@ -36,7 +36,7 @@ export default class GamePlayer {
 
   _target: string | undefined; // the target player to perform role actions to
 
-  _voteTally: number = 0; 
+  _voteTally = 0; 
 
   /**
   * Default constructor; input isAlive = false to create as spectator
