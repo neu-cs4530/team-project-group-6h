@@ -9,10 +9,12 @@ import {
   ServerConversationArea,
   GameLobbyCreateRequest,
   GameLobbyJoinRequest,
+  GameStartRequest,
 } from '../client/TownsServiceClient';
 import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 import CoveyTownController from '../lib/CoveyTownController';
 import MafiaGame from '../lib/mafia_lib/MafiaGame';
+import GamePlayer from '../lib/mafia_lib/GamePlayer';
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -324,6 +326,28 @@ export function mafiaGameLobbyJoinHandler(
     message: !success ? `Unable to join mafia game lobby in ${_requestData.recreationAreaLabel}.` : undefined,
   };
 }
+export function mafiaGameStartHandler(
+  _requestData: GameStartRequest,
+): ResponseEnvelope<Record<string, null>> {
+  const townController = getTownController(_requestData.coveyTownID);
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
+    console.log('Invalid session/token');
+    return {
+      isOK: false,
+      response: {},
+      message: `Unable to start mafia game lobby in ${_requestData.recreationAreaLabel}.`,
+    };
+  }
+
+  const success = townController.startMafiaGame(_requestData.recreationAreaLabel, _requestData.playerStartID);
+  console.log(`Success: ${success}`);
+  return {
+    isOK: success, 
+    response: {},
+    message: !success ? `Unable to start mafia game lobby in ${_requestData.recreationAreaLabel}.` : undefined,
+  };
+}
+
 
 /**
  * An adapter between CoveyTownController's event interface (CoveyTownListener)
@@ -363,6 +387,9 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     },
     onPlayerJoinedGame(recreationAreaLabel: string, playerID: string) {
       socket.emit('playerJoinedGame', recreationAreaLabel, playerID);
+    },
+    onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]) {
+      socket.emit('mafiaGameStarted', playerRoles);
     },
     onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);

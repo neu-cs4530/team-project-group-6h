@@ -60,6 +60,14 @@ export default class MafiaGame {
     return this._id; 
   }
 
+  get host() {
+    return this._host;
+  }
+
+  get gamePlayers() {
+    return this._gamePlayers;
+  }
+
   /**
    * Gets the role of the given player. 
    * @param playerID The player that we want to find the role of

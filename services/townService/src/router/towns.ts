@@ -12,6 +12,7 @@ import {
   townUpdateHandler,
   mafiaGameLobbyCreateHandler,
   mafiaGameLobbyJoinHandler,
+  mafiaGameStartHandler,
 } from '../requestHandlers/CoveyTownRequestHandlers';
 import { logError } from '../Utils';
 
@@ -165,14 +166,32 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
     }
   });
 
+  // Player join game lobby
   app.post('/towns/:townID/joinLobby', express.json(), async (req, res) => {
     try {
-      console.log('In POST');
       const result = await mafiaGameLobbyJoinHandler({
         coveyTownID: req.params.townID,
         sessionToken: req.body.sessionToken,
         recreationAreaLabel: req.body.recreationAreaLabel,
         playerID: req.body.playerID,
+      });
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error, please see log in server for more details',
+      });
+    }
+  })
+
+  // Start Mafia Game
+  app.post('/towns/:townID/startGame', express.json(), async (req, res) => {
+    try {
+      const result = await mafiaGameStartHandler({
+        coveyTownID: req.params.townID,
+        sessionToken: req.body.sessionToken,
+        recreationAreaLabel: req.body.recreationAreaLabel,
+        playerStartID: req.body.playerStartID,
       });
       res.status(StatusCodes.OK).json(result);
     } catch (err) {

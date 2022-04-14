@@ -5,6 +5,7 @@ import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 import PlayerSession from '../types/PlayerSession';
 import IVideoClient from './IVideoClient';
+import GamePlayer from './mafia_lib/GamePlayer';
 import MafiaGame, { Phase } from './mafia_lib/MafiaGame';
 import RecreationPlayer from './mafia_lib/RecreationPlayer';
 import { ServerRecreationArea } from './mafia_lib/ServerRecreationArea';
@@ -360,6 +361,8 @@ export default class CoveyTownController {
     return true;
   }
 
+ 
+
   /**
    * Adds the player to the rec area's mafia game instance 
    * @param recAreaLabel The recreation area with the mafia game 
@@ -405,6 +408,35 @@ export default class CoveyTownController {
     console.log('mafiaGame.addPlayer failed');
     return false; 
   }
+
+   /**
+   * Starts the mafia game in the given recreation area
+   * @param recAreaLabel Recreation area containing the game to start
+   * @param playerStartID The player requesting to start the game
+   * @returns Whether or not the game was started
+   */
+    startMafiaGame(recAreaLabel: string, playerStartID: string): boolean {
+      // Ensure recArea has a game in lobby phase
+      const recArea = this._recreationAreas.find(rec => rec.label === recAreaLabel);
+      const gameID = recArea?._mafiaGameID;
+      const mafiaGame = this.mafiaGames.find(game => game.id === gameID);
+      if (!gameID || !mafiaGame || mafiaGame.phase !== 'lobby') {
+        return false;
+      }
+      
+      // Ensure the given player is the host of the game lobby
+      const player = this.players.find(p => p.id === playerStartID);
+      if (!player || !player.activeConversationArea || player.activeConversationArea.label !== recAreaLabel || player !== mafiaGame.host) {
+        return false;
+      };
+  
+      // Start game 
+      mafiaGame.gameStart(); 
+
+      this._listeners.forEach(listener => listener.onMafiaGameStarted(recAreaLabel, mafiaGame.gamePlayers)); 
+  
+      return true; 
+    }
 
   /**
    * Detects whether two bounding boxes overlap and share any points

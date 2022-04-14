@@ -1,5 +1,6 @@
 import { ServerConversationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
+import GamePlayer from '../lib/mafia_lib/GamePlayer';
 import MafiaGame from '../lib/mafia_lib/MafiaGame';
 import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 import Player from './Player';
@@ -68,6 +69,13 @@ export default interface CoveyTownListener {
    * @param playerID Player joining the game 
    */
   onPlayerJoinedGame(recreationAreaLabel: string, playerID: string): void;
+
+
+  /**
+   * Called when a mafia game is started
+   * @param playerRoles Roles assigned to players in the game
+   */
+  onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]): void;
 
   /**
    * Called when a chat message is received from a user
