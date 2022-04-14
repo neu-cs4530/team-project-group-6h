@@ -7,11 +7,12 @@ import CoveyTownsStore from '../lib/CoveyTownsStore';
 import {
   ConversationAreaCreateRequest,
   ServerConversationArea,
+  ServerRecreationArea,
   GameLobbyCreateRequest,
   GameLobbyJoinRequest,
   GameStartRequest,
 } from '../client/TownsServiceClient';
-import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
+
 import CoveyTownController from '../lib/CoveyTownController';
 import MafiaGame from '../lib/mafia_lib/MafiaGame';
 import GamePlayer from '../lib/mafia_lib/GamePlayer';
@@ -383,7 +384,7 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
       socket.emit('recreationUpdated', recreation);
     },
     onLobbyCreated(recreationArea: ServerRecreationArea, hostID: string, mafiaGameID: string) {
-      socket.emit('lobbyCreated', recreationArea, hostID, mafiaGameID)
+      socket.emit('lobbyCreated', recreationArea, hostID, mafiaGameID);
     },
     onPlayerJoinedGame(recreationAreaLabel: string, playerID: string) {
       socket.emit('playerJoinedGame', recreationAreaLabel, playerID);

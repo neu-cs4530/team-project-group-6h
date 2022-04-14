@@ -221,24 +221,13 @@ export default class MafiaGame {
   }
 
   /**
-   * TODO: Test 'Adds players that have been voted out from the game to the deadPlayers list' is failing, it isn't finding the playerName in the mafia OR town array for some reason.
    * Eliminates the given player in the game.
    * @param playerName The id of the player to eliminate
    * @throws Exception if the playerName does not exist or player is not on given team.
    */
   public eliminatePlayer(playerID: string): void {
+    const playerIndex = this._gamePlayers.findIndex(player => playerID === player.playerID);
 
-    // find the player in either the mafia or town arrays (hopefully no same name situations)
-    // const mafiaAndTown: GamePlayer[] = [...this._mafiaPlayers, ...this._townPlayers];
-
-    const playerIndex = this._gamePlayers.findIndex((player) => {
-      // console.log(`Player ID = ${playerID}`);
-      // console.log(`Current ID = ${player.playerID}`);
-      // console.log(`${playerID === player.playerID}`);
-      return playerID === player.playerID;
-    });
-  
-    // console.log(`Index: ${playerIndex}`);
 
     if (playerIndex >= 0) {
       const gamePlayer = this._gamePlayers[playerIndex];

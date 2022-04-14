@@ -1,6 +1,6 @@
 import Player from '../../types/Player';
-import { ServerArea } from '../../client/TownsServiceClient';
 import { UserLocation } from '../../CoveyTypes';
+import { ServerArea } from '../../client/TownsServiceClient';
 
 /**
  * Represents two possible teams that a GamePlayer can be a part of within the Mafia Game.
@@ -23,21 +23,21 @@ export enum Role {
  * Contains general functionality necessary for a player in a mafiaGame. 
  */
 export default class GamePlayer {
-  _player: Player; // the associated player
+  private _player: Player; // the associated player
 
-  _isAlive: boolean; // Is the player currently alive within the game?
+  private _isAlive: boolean; // Is the player currently alive within the game?
 
-  _currentVote: string | undefined; // ID of the player voted for during this cycle
+  private _currentVote: string | undefined; // ID of the player voted for during this cycle
 
-  _team = Team.Unassigned; // The team that the GamePlayer is on
+  private _team = Team.Unassigned; // The team that the GamePlayer is on
 
-  _role = Role.Unassigned; // The currently assigned role that the player has
+  private _role = Role.Unassigned; // The currently assigned role that the player has
 
-  _roleInfo: string; // Information about the player's given role
+  private _roleInfo: string; // Information about the player's given role
 
-  _target: string | undefined; // the target player to perform role actions on
+  private _target: string | undefined; // the target player to perform role actions on
 
-  _voteTally: number = 0;
+  _voteTally = 0;
 
   /**
    * Default constructor; input isAlive = false to create as spectator
@@ -74,6 +74,10 @@ export default class GamePlayer {
     return this._team;
   }
 
+  get voteTally(): number {
+    return this._voteTally;
+  }
+
   set votedPlayer(currentVote: string) {
     this._currentVote = currentVote;
   }
@@ -94,9 +98,14 @@ export default class GamePlayer {
     return this._isAlive;
   }
 
+  get roleInfo(): string {
+    return this._roleInfo;
+  }
+
   public eliminate(): void {
     this._isAlive = false;
   }
+  
 
   /**
    * Sets both the role of a GamePlayer and the role information of the GamePlayer.
@@ -128,7 +137,12 @@ export default class GamePlayer {
     }
   }
 
-  vote() {
+  get role(): Role {
+    return this._role;
+  }
+  
+
+  vote(): void {
     this._voteTally += 1;
   }
 }
