@@ -57,6 +57,14 @@ export default class GamePlayer {
     return this._team;
   }
 
+  get userName() {
+    return this._player.userName;
+  }
+
+  get id() {
+    return this._player.id;
+  }
+
   set target(target: string) {
     this._target = target;
   }
