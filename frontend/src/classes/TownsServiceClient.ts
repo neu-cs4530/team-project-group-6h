@@ -3,6 +3,7 @@ import assert from 'assert';
 import { ServerPlayer } from './Player';
 import { ServerConversationArea } from './ConversationArea';
 import { ServerRecreationArea } from './RecreationArea'; 
+import { StringMappingType } from 'typescript';
 
 
 /**
@@ -103,6 +104,13 @@ export interface GameLobbyJoinRequest {
   playerID: string; 
 }
 
+export interface GameStartRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  recreationAreaLabel: string;
+  playerStartID: string;
+}
+
 /**
  * Envelope that wraps any response from the server
  */
@@ -189,6 +197,12 @@ export default class TownsServiceClient {
   // Join Game Lobby
   async joinGameLobby(requestData: GameLobbyJoinRequest) : Promise<void> {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/joinLobby`, requestData); 
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
+  // Start Game
+  async startGame(requestData: GameStartRequest) : Promise<void> {
+    const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/startGame`, requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 

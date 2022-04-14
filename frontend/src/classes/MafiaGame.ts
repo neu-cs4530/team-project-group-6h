@@ -216,8 +216,27 @@ export default class MafiaGame {
   /**
    * Starts the game by setting the phase to discussion during the day time.
    */
-  gameStart(): void {
+  gameStart(playerRoles: GamePlayer[]): void {
+    
     this._phase = Phase.day_discussion;
+
+    this._mafiaPlayers = playerRoles.filter(player => 
+      player.team === Team.Mafia );
+
+    this._townPlayers = playerRoles.filter(player => {
+      player.team === Team.Town
+    });
+    
+
+    /*
+    export enum Role {
+      'Unassigned',
+      'Detective',
+      'Doctor',
+      'Hypnotist',
+      'Godfather',
+    }
+    */
 
     // Current Assumption: Min # of Players = Num of Players that can fill all the following roles at least once:
     /** MAFIA SIDE:
@@ -229,9 +248,12 @@ export default class MafiaGame {
      * Hypnotist
      * MIN_PLAYERS = 4
     */
+   /*
     if (this._players.length >= this.MIN_PLAYERS) {
       this.assignRoles();
     } 
+    */
+
   }
 
   /**

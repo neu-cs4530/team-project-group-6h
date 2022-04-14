@@ -1,7 +1,8 @@
-import MafiaGame from './MafiaGame';
+import MafiaGame, { Phase } from './MafiaGame';
 import BoundingBox from './BoundingBox';
 import ConversationArea, {ServerConversationArea, ConversationAreaListener} from './ConversationArea';
 import Player from './Player';
+import GamePlayer from './GamePlayer';
 
 
 /**
@@ -107,6 +108,20 @@ export default class RecreationArea extends ConversationArea {
 
     }
 
+    /**
+     * Starts this Recreation Area's Mafia Game
+     * @param playerRoles Roles assigned to players
+     */
+    startGame(playerRoles: GamePlayer[]): void {
+        if (this._mafiaGame && this._mafiaGame.phase === Phase.lobby) {
+            this._mafiaGame.gameStart(playerRoles);
+            if (this._mafiaGame) {
+                const game = this._mafiaGame;
+                this._recListeners.forEach(listener => listener.onMafiaGameStarted?.(game));
+            }
+        }
+    }
+
     notifyPlayerAdded() {
         console.log('Notify player added to game');
         const game = this.mafiaGame;
@@ -114,5 +129,7 @@ export default class RecreationArea extends ConversationArea {
             this._recListeners.forEach(listener => listener.onMafiaGameUpdated?.(game));
         }
     }
+
+    
 
 }
