@@ -60,6 +60,10 @@ export default class CoveyTownController {
     return this._recreationAreas;
   }
 
+  get mafiaGames(): MafiaGame[] {
+    return this._mafiaGames;
+  }
+
   /** The list of players currently in the town * */
   private _players: Player[] = [];
 
