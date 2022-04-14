@@ -1,7 +1,8 @@
-import MafiaGame from './MafiaGame';
+import MafiaGame, { Phase } from './MafiaGame';
 import BoundingBox from './BoundingBox';
 import ConversationArea, {ServerConversationArea, ConversationAreaListener} from './ConversationArea';
 import Player from './Player';
+import GamePlayer from './GamePlayer';
 
 
 /**
@@ -16,7 +17,6 @@ export type RecreationAreaListener = {
     onMafiaGameUpdated? : (game: MafiaGame) => void; 
     onMafiaGameCreated? : (game: MafiaGame) => void;
     onMafiaGameStarted? : (game: MafiaGame) => void;
-    onMafiaGameFinished? : (game: MafiaGame, winner: string) => void;
 } & ConversationAreaListener;
 
 export default class RecreationArea extends ConversationArea {
@@ -65,10 +65,12 @@ export default class RecreationArea extends ConversationArea {
 
     addRecListener(listener: RecreationAreaListener) {
         this._recListeners.push(listener);
+        this._listeners.push(listener);
     }
 
     removeRecListener(listener: RecreationAreaListener) {
         this._recListeners = this._recListeners.filter(eachListener => eachListener !== listener);
+        this._listeners = this._listeners.filter(eachListener => eachListener !== listener);
     }
 
     static fromServerRecreationArea(serverArea: ServerRecreationArea): RecreationArea {
@@ -106,6 +108,20 @@ export default class RecreationArea extends ConversationArea {
 
     }
 
+    /**
+     * Starts this Recreation Area's Mafia Game
+     * @param playerRoles Roles assigned to players
+     */
+    startGame(playerRoles: GamePlayer[]): void {
+        if (this._mafiaGame && this._mafiaGame.phase === Phase.lobby) {
+            this._mafiaGame.gameStart(playerRoles);
+            if (this._mafiaGame) {
+                const game = this._mafiaGame;
+                this._recListeners.forEach(listener => listener.onMafiaGameStarted?.(game));
+            }
+        }
+    }
+
     notifyPlayerAdded() {
         console.log('Notify player added to game');
         const game = this.mafiaGame;
@@ -113,5 +129,7 @@ export default class RecreationArea extends ConversationArea {
             this._recListeners.forEach(listener => listener.onMafiaGameUpdated?.(game));
         }
     }
+
+    
 
 }

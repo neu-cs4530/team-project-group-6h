@@ -1,7 +1,7 @@
 import assert from 'assert';
 import { useContext } from 'react';
-import RecreationArea from '../classes/ConversationArea';
-import RecreationAreasContext from '../contexts/ConversationAreasContext';
+import RecreationArea from '../classes/RecreationArea';
+import RecreationAreasContext from '../contexts/RecreationAreasContext';
 
 export default function useRecreationAreas(): RecreationArea[] {
   const ctx = useContext(RecreationAreasContext);

@@ -23,7 +23,7 @@ export enum Role {
  * Contains general functionality necessary for a player in a mafiaGame. 
  */
 export default class GamePlayer {
-  _player: Player; // the player
+  _player: Player; // the associated player
 
   _isAlive: boolean; // Is the player currently alive within the game?
 

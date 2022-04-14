@@ -38,6 +38,7 @@ import { CoveyAppState } from './CoveyTypes';
 import RecreationArea, { ServerRecreationArea } from './classes/RecreationArea'
 import MafiaGame from './classes/MafiaGame'
 import RecreationAreasContext from './contexts/RecreationAreasContext';
+import GamePlayer from './classes/GamePlayer';
 
 export const MOVEMENT_UPDATE_DELAY_MS = 0;
 export const CALCULATE_NEARBY_PLAYERS_MOVING_DELAY_MS = 300;
@@ -313,7 +314,13 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             existingRecArea.notifyPlayerAdded(); 
           };
         }
-      })
+      });
+      socket.on('mafiaGameStarted', (_recAreaLabel: string, _playerRoles: GamePlayer[]) => {
+        const recArea = recreationAreas.find(rec => rec.label === _recAreaLabel);
+        if (recArea) {
+          recArea.startGame(_playerRoles);
+        }
+      });
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);
         if(existingArea){

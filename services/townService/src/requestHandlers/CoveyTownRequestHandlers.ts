@@ -4,11 +4,13 @@ import {
   ConversationAreaCreateRequest,
   GameLobbyCreateRequest,
   GameLobbyJoinRequest,
+  GameStartRequest,
   ServerConversationArea,
 } from '../client/TownsServiceClient';
 import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownController from '../lib/CoveyTownController';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
+import GamePlayer from '../lib/mafia_lib/GamePlayer';
 import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
@@ -333,6 +335,32 @@ export function mafiaGameLobbyJoinHandler(
       : undefined,
   };
 }
+export function mafiaGameStartHandler(
+  _requestData: GameStartRequest,
+): ResponseEnvelope<Record<string, null>> {
+  const townController = getTownController(_requestData.coveyTownID);
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
+    console.log('Invalid session/token');
+    return {
+      isOK: false,
+      response: {},
+      message: `Unable to start mafia game lobby in ${_requestData.recreationAreaLabel}.`,
+    };
+  }
+
+  const success = townController.startMafiaGame(
+    _requestData.recreationAreaLabel,
+    _requestData.playerStartID,
+  );
+  console.log(`Success: ${success}`);
+  return {
+    isOK: success,
+    response: {},
+    message: !success
+      ? `Unable to start mafia game lobby in ${_requestData.recreationAreaLabel}.`
+      : undefined,
+  };
+}
 
 /**
  * An adapter between CoveyTownController's event interface (CoveyTownListener)
@@ -372,6 +400,9 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     },
     onPlayerJoinedGame(recreationAreaLabel: string, playerID: string) {
       socket.emit('playerJoinedGame', recreationAreaLabel, playerID);
+    },
+    onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]) {
+      socket.emit('mafiaGameStarted', recAreaLabel, playerRoles);
     },
     onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);
