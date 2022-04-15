@@ -59,6 +59,10 @@ export default class MafiaGame {
     return this._winner;
   }
 
+  set mafiaPlayers(players: GamePlayer[]) {
+    this._mafiaPlayers = players;
+  }
+
   /**
    * Return the number of players currently in the game (for lobby logic).
    */

@@ -323,6 +323,13 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           recArea.startGame(_playerRoles);
         }
       });
+      socket.on('mafiaGameUpdated', (_mafiaGameID: string, _phase: string, _gamePlayers: GamePlayer[]) => {
+        const mafiaGame = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID)?.mafiaGame; 
+        if (mafiaGame) {
+          mafiaGame.mafiaPlayers = _gamePlayers; 
+          mafiaGame.updatePhase(); 
+        }
+      });
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);
         if(existingArea){

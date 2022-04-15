@@ -143,6 +143,15 @@ export interface GameStartRequest {
 }
 
 /**
+ * Payload sent by the client to advance to the next mafia game phase 
+ */
+export interface NextPhaseRequest {
+  coveyTownID: string;
+  sessionToken: string; 
+  mafiaGameID: string; 
+}
+
+/**
  * Envelope that wraps any response from the server
  */
 export interface ResponseEnvelope<T> {
