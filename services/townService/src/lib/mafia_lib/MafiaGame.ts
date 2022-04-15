@@ -1,6 +1,6 @@
-import GamePlayer, { Role, Team } from './GamePlayer';
-import Player from '../../types/Player';
 import { nanoid } from 'nanoid';
+import Player from '../../types/Player';
+import GamePlayer, { Role, Team } from './GamePlayer';
 
 /**
  * Represents all the possible phases of a Mafia game.
@@ -34,7 +34,7 @@ export default class MafiaGame {
   private MIN_PLAYERS: number = Object.keys(Role).length / 2 - 1;
 
   constructor(host: Player) {
-    this._id = nanoid(); 
+    this._id = nanoid();
     this._host = host;
     this._players = [host];
     this._gamePlayers = [];
@@ -52,12 +52,12 @@ export default class MafiaGame {
     return this._winner;
   }
 
-  get minPlayers() {
+  get minPlayers(): number {
     return this.MIN_PLAYERS;
   }
-  
+
   get id() {
-    return this._id; 
+    return this._id;
   }
 
   get host() {
@@ -69,12 +69,12 @@ export default class MafiaGame {
   }
 
   /**
-   * Gets the role of the given player. 
+   * Gets the role of the given player.
    * @param playerID The player that we want to find the role of
    * @returns The role of the given player, or undefined if this player does not exist
    */
   public playerRole(playerID: string): Role | undefined {
-    const gamePlayer = this._gamePlayers.find((player) => player.playerID === playerID);
+    const gamePlayer = this._gamePlayers.find(player => player.playerID === playerID);
 
     if (gamePlayer) {
       return gamePlayer.role;
@@ -93,25 +93,24 @@ export default class MafiaGame {
   /**
    * Returns all of the eliminated players to render in the UI.
    */
-  get deadPlayers(): GamePlayer[] { 
-
+  get deadPlayers(): GamePlayer[] {
     // console.log(`${[...mafiaNames, ...townNames]}`);
-    return [...this._gamePlayers].filter((player) => player.isAlive === false);
+    return [...this._gamePlayers].filter(player => player.isAlive === false);
   }
 
   /**
-   * Returns all players still alive within the game. 
+   * Returns all players still alive within the game.
    */
   get alivePlayers(): GamePlayer[] {
-    return [...this._gamePlayers].filter((player) => player.isAlive === false);
+    return [...this._gamePlayers].filter(player => player.isAlive === false);
   }
 
   get mafiaPlayers(): GamePlayer[] {
-    return [...this._gamePlayers].filter((player) => player.team === Team.Mafia);
+    return [...this._gamePlayers].filter(player => player.team === Team.Mafia);
   }
 
   get townPlayers(): GamePlayer[] {
-    return [...this._gamePlayers].filter((player) => player.team === Team.Town);
+    return [...this._gamePlayers].filter(player => player.team === Team.Town);
   }
 
   /**
@@ -124,7 +123,7 @@ export default class MafiaGame {
       this._players.push(player);
       return true;
     }
-    return false; 
+    return false;
   }
 
   /**
@@ -223,7 +222,7 @@ export default class MafiaGame {
   /**
    * Eliminates the given player in the game.
    * @param playerName The id of the player to eliminate
-   * @throws Exception if the playerName does not exist or player is not on given team.
+   * @throws Exception if the playerID does not exist.
    */
   public eliminatePlayer(playerID: string): void {
     const playerIndex = this._gamePlayers.findIndex(player => playerID === player.playerID);
@@ -234,11 +233,9 @@ export default class MafiaGame {
       if (gamePlayer.isAlive) {
         this._gamePlayers[playerIndex].eliminate();
       }
-    }
-    else {
+    } else {
       throw 'This player does not exist';
     }
-    
   }
 
   /**
@@ -256,11 +253,15 @@ export default class MafiaGame {
      * 3. Assign one first person in Mafia array to [GODFATHER]
      * 4. Assign one first person in each of the following arrays to DOCTOR, HYPNOTIST, DETECTIVE
      * 5. Add players of the arrays to gamePlayers.
-     * MIN CASE: No players w/ unassigned roles (Every role is filled). 
+     * MIN CASE: No players w/ unassigned roles (Every role is filled).
      * Any number > min case will have unassigned, "vanilla" Mafia/Town players.
      */
-    const [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] =
-      this.partition(gamePlayers);
+    const [
+      godfatherList,
+      doctorList,
+      hypnotistList,
+      detectiveList,
+    ]: GamePlayer[][] = this.partition(gamePlayers);
 
     godfatherList.forEach(mafia => {
       mafia.team = Team.Mafia;
@@ -274,7 +275,7 @@ export default class MafiaGame {
     });
     doctorList[0].role = Role.Doctor;
 
-    hypnotistList.forEach((town) => {
+    hypnotistList.forEach(town => {
       town.team = Team.Town;
       town.role = Role.Unassigned;
     });
@@ -287,7 +288,6 @@ export default class MafiaGame {
     detectiveList[0].role = Role.Detective;
 
     this._gamePlayers = [...godfatherList, ...doctorList, ...hypnotistList, ...detectiveList];
-
   }
 
   /**
@@ -296,7 +296,7 @@ export default class MafiaGame {
    * @param targetID The ID of the player that this player is voting for
    */
   public votePlayer(voterID: string, targetID: string): void {
-    const playerIndex = this._gamePlayers.findIndex((player) => player.playerID === voterID);
+    const playerIndex = this._gamePlayers.findIndex(player => player.playerID === voterID);
 
     // give the ID of the person that this player has voted for
     this._gamePlayers[playerIndex].votedPlayer = targetID;
@@ -308,7 +308,7 @@ export default class MafiaGame {
    * @param targetID The ID of the player that this player is performing the action on.
    */
   public setTarget(roleID: string, targetID: string): void {
-    const playerIndex = this._gamePlayers.findIndex((player) => player.playerID === roleID);
+    const playerIndex = this._gamePlayers.findIndex(player => player.playerID === roleID);
 
     // give the ID of the person that this player has voted for
     this._gamePlayers[playerIndex].targetPlayer = targetID;
@@ -329,7 +329,7 @@ export default class MafiaGame {
      * Doctor
      * Hypnotist
      * MIN_PLAYERS = 4
-    */
+     */
     if (this.numPlayers() >= this.MIN_PLAYERS) {
       this.assignRoles();
     }

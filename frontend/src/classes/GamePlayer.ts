@@ -36,7 +36,7 @@ export default class GamePlayer {
 
   private _target: string | undefined; // the target player to perform role actions on
 
-  private _voteTally = 0;
+  _voteTally = 0; 
 
   /**
    * Default constructor; input isAlive = false to create as spectator
@@ -69,17 +69,19 @@ export default class GamePlayer {
     return this._team;
   }
 
-  set votedPlayer(currentVote: string) {
-    this._currentVote = currentVote;
+  set votedPlayer(player: string) {
+    this._currentVote = player;
   }
 
-  get currentVote(): string | undefined {
-    return this._currentVote;
+  get userName() {
+    return this._player.userName;
   }
 
+  get id() {
+    return this._player.id;
+  }
 
-
-  set targetPlayer(target: string) {
+  set targetPlayer(target: string | undefined) {
     this._target = target;
   }
 

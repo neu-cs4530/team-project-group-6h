@@ -1,6 +1,4 @@
 import { nanoid } from 'nanoid';
-import { T } from 'ramda';
-import { ThisMonthInstance } from 'twilio/lib/rest/api/v2010/account/usage/record/thisMonth';
 import GamePlayer, { Role, Team } from './GamePlayer';
 import Player from './Player';
 
@@ -31,6 +29,14 @@ export default class MafiaGame {
 
   private _winner = Team.Unassigned;
 
+  _deadPlayers: GamePlayer[];
+
+  _alivePlayers: GamePlayer[];
+
+  _townPlayers: GamePlayer[];
+
+  _mafiaPlayers: GamePlayer[];
+
   // Equal to the number of roles we currently have.
   // Currently, should be 4 (minus the Unassigned Role)
   private MIN_PLAYERS: number = Object.keys(Role).length / 2 - 1;
@@ -40,6 +46,10 @@ export default class MafiaGame {
     this._host = host;
     this._players = [host];
     this._gamePlayers = [];
+    this._deadPlayers = [];
+    this._alivePlayers = [];
+    this._townPlayers = [];
+    this._mafiaPlayers = [];
   }
 
   set changePhase(phase: Phase) {
@@ -70,20 +80,6 @@ export default class MafiaGame {
     return this._gamePlayers;
   }
 
-  /**
-   * Gets the role of the given player. 
-   * @param playerID The player that we want to find the role of
-   * @returns The role of the given player, or undefined if this player does not exist
-   */
-  public playerRole(playerID: string): Role | undefined {
-    const gamePlayer = this._gamePlayers.find((player) => player.playerID === playerID);
-
-    if (gamePlayer) {
-      return gamePlayer.role;
-    }
-
-    return undefined;
-  }
 
   /**
    * Return the number of players currently in the game (for lobby logic).
@@ -107,20 +103,29 @@ export default class MafiaGame {
     return this.MIN_PLAYERS === this._players.length;
   }
 
-  /**
-   * Returns all of the eliminated players to render in the UI.
-   */
-  get deadPlayers(): GamePlayer[] { 
+  public playerRole(playerID: string): Role | undefined {
 
-    // console.log(`${[...mafiaNames, ...townNames]}`);
-    return [...this._gamePlayers].filter((player) => player.isAlive === false);
+    const getPlayer = (p : GamePlayer) => (p.id === playerID);
+    const townPlayerIDs = this._townPlayers.map(gPlayer => gPlayer.id);
+    const mafiaPlayerIDs = this._mafiaPlayers.map(gPlayer => gPlayer.id);
+
+    if (townPlayerIDs.includes(playerID)) {
+      return this._townPlayers.find(getPlayer)?.role;
+    }
+    if (mafiaPlayerIDs.includes(playerID)) {
+      return this._mafiaPlayers.find(getPlayer)?.role;
+    }
+    return undefined;
   }
 
-  /**
-   * Returns all players still alive within the game. 
-   */
   get alivePlayers(): GamePlayer[] {
-    return [...this._gamePlayers].filter((player) => player.isAlive === false);
+    const aliveTown = this._townPlayers.filter((player) => (!this._deadPlayers.includes(player)));
+    const aliveMafia = this._mafiaPlayers.filter((player) => (!this._deadPlayers.includes(player)));
+    return aliveTown.concat(aliveMafia);
+  }
+
+  get deadPlayers(): GamePlayer[] {
+    return this._deadPlayers;
   }
 
   get mafiaPlayers(): GamePlayer[] {
@@ -245,7 +250,39 @@ export default class MafiaGame {
   public gameStart(playerRoles: GamePlayer[]): void {
     this._phase = Phase.day_discussion;
 
-    this._gamePlayers = playerRoles;
+    this._mafiaPlayers = playerRoles.filter(player => 
+      player.team === Team.Mafia );
+
+    this._townPlayers = playerRoles.filter(player => 
+      player.team === Team.Town
+    );
+    
+
+    /*
+    export enum Role {
+      'Unassigned',
+      'Detective',
+      'Doctor',
+      'Hypnotist',
+      'Godfather',
+    }
+    */
+
+    // Current Assumption: Min # of Players = Num of Players that can fill all the following roles at least once:
+    /** MAFIA SIDE:
+     * Godfather
+     * 
+     * TOWN SIDE:
+     * Detective
+     * Doctor
+     * Hypnotist
+     * MIN_PLAYERS = 4
+    */
+   /*
+    if (this._players.length >= this.MIN_PLAYERS) {
+      this.assignRoles();
+    } 
+    */
 
   }
 

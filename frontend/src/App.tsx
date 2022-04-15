@@ -36,7 +36,7 @@ import PlayersInTownContext from './contexts/PlayersInTownContext';
 import VideoContext from './contexts/VideoContext';
 import { CoveyAppState } from './CoveyTypes';
 import RecreationArea, { ServerRecreationArea } from './classes/RecreationArea'
-import MafiaGame from './classes/MafiaGame';
+import MafiaGame from './classes/MafiaGame'
 import RecreationAreasContext from './contexts/RecreationAreasContext';
 import GamePlayer from './classes/GamePlayer';
 
@@ -192,7 +192,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
         recalculateNearbyPlayers();
       });
-      
       socket.on('playerMoved', (player: ServerPlayer) => {
         if (player._id !== gamePlayerID) {
           const now = Date.now();
@@ -407,7 +406,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
               <NearbyPlayersContext.Provider value={nearbyPlayers}>
                 <ConversationAreasContext.Provider value={conversationAreas}>
                   <RecreationAreasContext.Provider value={recreationAreas}>
-                  {page}
+                    {page}
                   </RecreationAreasContext.Provider>
                 </ConversationAreasContext.Provider>
               </NearbyPlayersContext.Provider>

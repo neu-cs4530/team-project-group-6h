@@ -1,21 +1,19 @@
 import assert from 'assert';
 import { Socket } from 'socket.io';
-import Player from '../types/Player';
-import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
-import CoveyTownListener from '../types/CoveyTownListener';
-import CoveyTownsStore from '../lib/CoveyTownsStore';
 import {
   ConversationAreaCreateRequest,
   ServerConversationArea,
-  ServerRecreationArea,
   GameLobbyCreateRequest,
   GameLobbyJoinRequest,
   GameStartRequest,
+  ServerRecreationArea,
 } from '../client/TownsServiceClient';
-
+import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownController from '../lib/CoveyTownController';
-import MafiaGame from '../lib/mafia_lib/MafiaGame';
+import CoveyTownsStore from '../lib/CoveyTownsStore';
 import GamePlayer from '../lib/mafia_lib/GamePlayer';
+import CoveyTownListener from '../types/CoveyTownListener';
+import Player from '../types/Player';
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -282,8 +280,8 @@ export function recreationAreaCreateHandler(
  * * Fetch the town controller for the specified town ID
  * * Validate that the sessionToken is valid for that town
  * * Ask the TownController to create the mafia game lobby
- * @param _requestData GameLobbyCreate request data 
- * @returns Status of request 
+ * @param _requestData GameLobbyCreate request data
+ * @returns Status of request
  */
 export function mafiaGameLobbyCreateHandler(
   _requestData: GameLobbyCreateRequest,
@@ -297,12 +295,17 @@ export function mafiaGameLobbyCreateHandler(
     };
   }
 
-  const success = townController.createMafiaGameLobby(_requestData.recreationAreaLabel, _requestData.hostID);
+  const success = townController.createMafiaGameLobby(
+    _requestData.recreationAreaLabel,
+    _requestData.hostID,
+  );
 
   return {
     isOK: success,
     response: {},
-    message: !success ? `Unable to create mafia game lobby in ${_requestData.recreationAreaLabel}.` : undefined,
+    message: !success
+      ? `Unable to create mafia game lobby in ${_requestData.recreationAreaLabel}.`
+      : undefined,
   };
 }
 
@@ -319,12 +322,17 @@ export function mafiaGameLobbyJoinHandler(
     };
   }
 
-  const success = townController.joinMafiaGameLobby(_requestData.recreationAreaLabel, _requestData.playerID);
+  const success = townController.joinMafiaGameLobby(
+    _requestData.recreationAreaLabel,
+    _requestData.playerID,
+  );
   console.log(`Success: ${success}`);
   return {
-    isOK: success, 
+    isOK: success,
     response: {},
-    message: !success ? `Unable to join mafia game lobby in ${_requestData.recreationAreaLabel}.` : undefined,
+    message: !success
+      ? `Unable to join mafia game lobby in ${_requestData.recreationAreaLabel}.`
+      : undefined,
   };
 }
 export function mafiaGameStartHandler(
@@ -340,15 +348,19 @@ export function mafiaGameStartHandler(
     };
   }
 
-  const success = townController.startMafiaGame(_requestData.recreationAreaLabel, _requestData.playerStartID);
+  const success = townController.startMafiaGame(
+    _requestData.recreationAreaLabel,
+    _requestData.playerStartID,
+  );
   console.log(`Success: ${success}`);
   return {
-    isOK: success, 
+    isOK: success,
     response: {},
-    message: !success ? `Unable to start mafia game lobby in ${_requestData.recreationAreaLabel}.` : undefined,
+    message: !success
+      ? `Unable to start mafia game lobby in ${_requestData.recreationAreaLabel}.`
+      : undefined,
   };
 }
-
 
 /**
  * An adapter between CoveyTownController's event interface (CoveyTownListener)
@@ -390,7 +402,7 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
       socket.emit('playerJoinedGame', recreationAreaLabel, playerID);
     },
     onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]) {
-      socket.emit('mafiaGameStarted', playerRoles);
+      socket.emit('mafiaGameStarted', recAreaLabel, playerRoles);
     },
     onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);
