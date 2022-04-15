@@ -1,34 +1,47 @@
-import { Box, ListItem, UnorderedList } from '@chakra-ui/react';
+import { Box, Heading, ListItem, UnorderedList } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react'
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
+import CreateGameButton from './CreateGameButton';
 import LobbyButton from './LobbyButton';
 import PlayerName from './PlayerName';
 
 
 type GameLobbyProps = {
-    area: RecreationArea,
+    area: RecreationArea | undefined,
     playerID: string,
 };
 
-function GameLobby({area, playerID}: GameLobbyProps): JSX.Element {
+function GameLobby( { area, playerID }: GameLobbyProps): JSX.Element {
 
-    const [mafiaGame, setMafiaGame] = useState<MafiaGame | undefined>(area.mafiaGame);
+    // for those with an undefined area state, this will be undefined
+    const [occupants, setOccupants] = useState(area?.occupants);
+
+    // tracks mafia game
+    const [mafiaGame, setMafiaGame] = useState<MafiaGame | undefined>(area?.mafiaGame);
+
+    // tracks list of game players
     const [gamePlayers, setGamePlayers] = useState<Player[]>(mafiaGame?._players || []);
 
+    // checks if my player is in a game
     const isPlayerInGame = (): boolean => {
       const foundPlayer = gamePlayers.find(p => p.id === playerID);
       return foundPlayer !== undefined; 
     }
+
+    // keeps track of my player's game state
     const [playerInGame, setPlayerInGame] = useState(isPlayerInGame());
 
-    const isPlayerInArea = (occupants: string[]): boolean => {
-      const found = occupants.includes(playerID);
+    const isPlayerInArea = (_occupants: string[] | undefined): boolean => {
+      if (_occupants === undefined) {
+        return false;
+      }
+      const found = _occupants.includes(playerID);
       return found;
     };
     
-    const [playerInArea, setPlayerInArea] = useState((isPlayerInArea(area.occupants)));
+    // const [playerInArea, setPlayerInArea] = useState((isPlayerInArea(area?.occupants)));
 
     useEffect(() => {
         const updateListener: RecreationAreaListener = {
@@ -44,15 +57,17 @@ function GameLobby({area, playerID}: GameLobbyProps): JSX.Element {
               setGamePlayers(game._players);
               setPlayerInGame(isPlayerInGame());
             },
-            onOccupantsChange(newOccupants: string[]) {
-              setPlayerInArea(isPlayerInArea(newOccupants));
-            }
+
+          onOccupantsChange(newOccupants: string[]) {
+            setOccupants(newOccupants);
+          }
+          
         };
-        area.addRecListener(updateListener);
+        area?.addRecListener(updateListener);
         return () => {
-            area.removeRecListener(updateListener);
+            area?.removeRecListener(updateListener);
         }; 
-    }, [mafiaGame, setMafiaGame, area, gamePlayers, setGamePlayers, playerInGame, setPlayerInGame, playerInArea, setPlayerInArea]); 
+    }, [mafiaGame, setMafiaGame, area, gamePlayers, setGamePlayers, isPlayerInGame]); 
 
     /*
     return (
@@ -73,15 +88,22 @@ function GameLobby({area, playerID}: GameLobbyProps): JSX.Element {
     */
    return (
      <Box>
-       {playerInArea && !playerInGame ? <LobbyButton area={area} mafiaGame={mafiaGame} playerID={playerID}/>: <></>}
-       {playerInArea && playerInGame ? <p>Waiting message/start button here</p>: <></>}
-       {playerInArea ? 
-        <>
-          <h2>Players in Game:</h2>
-          <UnorderedList>
-            {gamePlayers.map(player => <ListItem key={player.id}><PlayerName player={player}/></ListItem>)}
-          </UnorderedList>
-        </>: <></>}
+       {area && isPlayerInArea(occupants) && !playerInGame &&
+       <LobbyButton 
+       area={area} 
+       mafiaGame={mafiaGame} 
+       playerID={playerID}/>}
+
+       {/* {occupants?.includes(playerID) && playerInGame ? <p>Waiting message/start button here</p>: <></>} */}
+       
+       {isPlayerInArea(occupants) && 
+        <div>
+            <Heading as='h2' fontSize='l'>Players in Game:</Heading>
+            <UnorderedList>
+              {gamePlayers.map(player => 
+              <ListItem key={player.id}><PlayerName player={player} /></ListItem>)}
+            </UnorderedList>
+        </div>}
      </Box>
    )
 }
