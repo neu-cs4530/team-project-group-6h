@@ -38,6 +38,6 @@ export default function JoinGameButton({ hostID, myPlayerID, area }: JoinGamePro
   }, [apiClient, currentTownID, sessionToken, area.label, myPlayerID, toast]); 
 
   return (
-    <div>{hostID === myPlayerID ? 'Start game button should go here' : <Button onClick={joinGameLobby}>Join Game</Button>} </div>
+    <div>{hostID === myPlayerID ? 'You are currently the host and can start the game' : <Button onClick={joinGameLobby}>Join Game</Button>} </div>
   )
 }

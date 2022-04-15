@@ -1,63 +1,47 @@
-import { Box, ListItem, UnorderedList } from '@chakra-ui/react';
-import React, { useEffect, useState, useCallback } from 'react'
+import { Box, Heading, ListItem, UnorderedList } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react'
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
+import CreateGameButton from './CreateGameButton';
 import LobbyButton from './LobbyButton';
 import PlayerName from './PlayerName';
 
 
 type GameLobbyProps = {
-    area: RecreationArea,
+    area: RecreationArea | undefined,
     playerID: string,
 };
 
-function GameLobby({area, playerID}: GameLobbyProps): JSX.Element {
+function GameLobby( { area, playerID }: GameLobbyProps): JSX.Element {
 
-    // Should update when:
-    // 1. Players enter the recreationArea
-    // 2. Players leave the recreationArea
-    const [occupants, setOccupants] = useState(area.occupants);
-    // check if the current player is in the Recreation Area.
-    // False if the current player is not in the recreation area
+    // for those with an undefined area state, this will be undefined
+    const [occupants, setOccupants] = useState(area?.occupants);
 
-    const isPlayerInArea = useCallback((): boolean => {
-      const found = occupants.includes(playerID);
-      return found;
-    }, [occupants, playerID]);
+    // tracks mafia game
+    const [mafiaGame, setMafiaGame] = useState<MafiaGame | undefined>(area?.mafiaGame);
 
-    // Should update when the current player:
-    // 1. Enters the recreation area: true
-    // 2. Leaves the recreation area: false
-    const [playerInArea, setPlayerInArea] = useState((isPlayerInArea()));
-
-    // the mafia game in the recreation area
-    // Undefined if it hasn't been created yet
-    // Should update when:
-    // 1. Mafia Game has been created
-    // 2. Host leaves mafia game (by exiting the recreation area)
-    const [mafiaGame, setMafiaGame] = useState<MafiaGame | undefined>(area.mafiaGame);
-    
-    // The players that have JOINED a mafia Game that has been created in a recreation area. 
-    // Empty if the game has not yet been created.
-    // Should update when:
-    // 1. A new player has joined the mafiaGame
-    // 2. The host leaves the MafiaGame (should be set back to empty)
+    // tracks list of game players
     const [gamePlayers, setGamePlayers] = useState<Player[]>(mafiaGame?.players || []);
-    
-    // Checking if the current player is in the mafiaGame. 
-    // False if current player is not in the MafiaGame. 
-    // List of players in the game should not render on the current player's screen if they are not in the game. 
-    const isPlayerInGame = useCallback((): boolean => {
+
+    // checks if my player is in a game
+    const isPlayerInGame = (): boolean => {
       const foundPlayer = gamePlayers.find(p => p.id === playerID);
       return foundPlayer !== undefined; 
-    }, [gamePlayers, playerID]);
+    }
 
-    // Should update when the current player:
-    // 1. Joins a Mafia Game in the recreation area: true
-    // 2. Leaves the recreation area: false
+    // keeps track of my player's game state
     const [playerInGame, setPlayerInGame] = useState(isPlayerInGame());
+
+    const isPlayerInArea = (_occupants: string[] | undefined): boolean => {
+      if (_occupants === undefined) {
+        return false;
+      }
+      const found = _occupants.includes(playerID);
+      return found;
+    };
     
+    // const [playerInArea, setPlayerInArea] = useState((isPlayerInArea(area?.occupants)));
 
     useEffect(() => {
         const updateListener: RecreationAreaListener = {
@@ -72,19 +56,17 @@ function GameLobby({area, playerID}: GameLobbyProps): JSX.Element {
               setGamePlayers(game.players);
               setPlayerInGame(isPlayerInGame());
             },
-            onOccupantsChange(newOccupants: string[]) {
-              setPlayerInArea(isPlayerInArea());
 
-              if (isPlayerInArea()) {
-                setOccupants(newOccupants);
-              }
-            }
+          onOccupantsChange(newOccupants: string[]) {
+            setOccupants(newOccupants);
+          }
+          
         };
-        area.addRecListener(updateListener);
+        area?.addRecListener(updateListener);
         return () => {
-            area.removeRecListener(updateListener);
+            area?.removeRecListener(updateListener);
         }; 
-    }, [mafiaGame, area, gamePlayers, isPlayerInArea, isPlayerInGame]); 
+    }, [mafiaGame, setMafiaGame, area, gamePlayers, setGamePlayers, isPlayerInGame]); 
 
     /*
     return (
@@ -105,15 +87,22 @@ function GameLobby({area, playerID}: GameLobbyProps): JSX.Element {
     */
    return (
      <Box>
-       {playerInArea && !playerInGame ? <LobbyButton area={area} mafiaGame={mafiaGame} playerID={playerID}/>: <></>}
-       {playerInArea && playerInGame ? <p>Waiting message/start button here</p>: <></>}
-       {playerInArea ? 
-        <>
-          <h2>Players in Game:</h2>
-          <UnorderedList>
-            {gamePlayers.map(player => <ListItem key={player.id}><PlayerName player={player}/></ListItem>)}
-          </UnorderedList>
-        </>: <></>}
+       {area && isPlayerInArea(occupants) && !playerInGame &&
+       <LobbyButton 
+       area={area} 
+       mafiaGame={mafiaGame} 
+       playerID={playerID}/>}
+
+       {/* {occupants?.includes(playerID) && playerInGame ? <p>Waiting message/start button here</p>: <></>} */}
+       
+       {isPlayerInArea(occupants) && 
+        <div>
+            <Heading as='h2' fontSize='l'>Players in Game:</Heading>
+            <UnorderedList>
+              {gamePlayers.map(player => 
+              <ListItem key={player.id}><PlayerName player={player} /></ListItem>)}
+            </UnorderedList>
+        </div>}
      </Box>
    )
 }

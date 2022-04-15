@@ -71,6 +71,7 @@ export default function CreateGameButton({ area, myPlayerID }: ConversationAreaP
             onMafiaGameUpdated: (game: MafiaGame) => {
                 setMafiaGame(game);
             }
+            
         };
         area.addRecListener(updateListener);
         return () => {

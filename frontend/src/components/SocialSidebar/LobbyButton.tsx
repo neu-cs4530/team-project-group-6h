@@ -1,3 +1,4 @@
+import { Heading } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
 import MafiaGame from '../../classes/MafiaGame'
 import RecreationArea from '../../classes/RecreationArea'
@@ -10,7 +11,7 @@ type LobbyButtonProps = {
     playerID: string,
 }
 
-const LobbyButton = ({area, mafiaGame, playerID}: LobbyButtonProps): JSX.Element => { 
+const LobbyButton = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Element => { 
    
     const playerInMafiaGame = (): boolean => {
         const gamePlayer = mafiaGame?._players.find(p => p.id === playerID); 
@@ -27,15 +28,18 @@ const LobbyButton = ({area, mafiaGame, playerID}: LobbyButtonProps): JSX.Element
         console.log(`Mafia game updated in LobbyButton, num occupants = ${mafiaGame?._players.length}`)
     }, [mafiaGame]); 
 
-
-
-
   return (
     <>
+        <Heading as='h2' fontSize='l'>Mafia Game Lobby</Heading>
         {mafiaGame ? 
-            <JoinGameButton hostID={mafiaGame._host.id} myPlayerID={playerID} area={area}/>
+            <JoinGameButton 
+            hostID={mafiaGame._host.id} 
+            myPlayerID={playerID} 
+            area={area}/>
         :
-            <CreateGameButton area={area} myPlayerID={playerID}/>}
+            <CreateGameButton 
+            area={area} 
+            myPlayerID={playerID}/>}
     </>
   )
 }
