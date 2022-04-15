@@ -17,21 +17,15 @@ export default function SocialSidebar(): JSX.Element {
   const recAreas = useRecreationAreas();
   const coveyApp = useCoveyAppState();
   // get my player's id
-  const { myPlayerID }= coveyApp;
-
- 
-  const players = usePlayersInTown();
-  const myPlayer = players.find(p => p.id === myPlayerID);
+  const { myPlayerID } = coveyApp;
    
-  const [myPlayerLocation, setMyPlayerLocation] = useState(myPlayer?.location);
-  const [myPlayerRecArea, setMyPlayerRecArea] = useState(recAreas.find(rec => rec.label === myPlayerLocation?.conversationLabel));
+  // const [myPlayerRecArea, setMyPlayerRecArea] = useState(recAreas.find(rec => 
+  //   rec.containsPlayerID(myPlayerID)));
   
-  useEffect(() => {
-    setMyPlayerLocation(myPlayer?.location);
-    setMyPlayerRecArea(recAreas.find(rec => rec.label === myPlayer?.location?.conversationLabel));
-  }, [myPlayer?.location?.conversationLabel, recAreas])
-  
-
+  // useEffect(() => {
+  //   setMyPlayerRecArea(recAreas.find(rec => rec.label === myPlayer?.location?.conversationLabel));
+  // })
+  // }, [recAreas])
 
   // find the recreation area my player is located in
  
@@ -47,8 +41,6 @@ export default function SocialSidebar(): JSX.Element {
   }, [recAreas, myPlayer?.location]); 
   */
 
-
-
     return (
       <VStack align="left"
         spacing={2}
@@ -62,17 +54,15 @@ export default function SocialSidebar(): JSX.Element {
         >
         <Heading fontSize='xl' as='h1'>Players In This Town</Heading>
         <PlayersList /> 
+        
         <ConversationAreasList />
       
-        {/* start button to show for player if they are in a recreation area */}
-        
-        { myPlayerRecArea !== undefined  && myPlayerRecArea.isRecreationArea ? 
-          <GameLobby area={myPlayerRecArea} playerID={myPlayerID}/> 
-         : <p>Your player is not in a recreation area!</p>
-      }
-
- 
-   
+        {recAreas.map((area) => 
+          <GameLobby
+            key={area.label}
+            area={area}
+            playerID={myPlayerID} /> 
+        )}
         
       </VStack>
     );

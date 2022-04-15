@@ -4,6 +4,7 @@ import ConversationArea, { ConversationAreaListener, NO_TOPIC_STRING } from '../
 import RecreationArea from '../../classes/RecreationArea';
 import useConversationAreas from '../../hooks/useConversationAreas';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
+import useRecreationAreas from '../../hooks/useRecreationAreas';
 import PlayerName from './PlayerName';
 
 /**
@@ -18,9 +19,11 @@ import PlayerName from './PlayerName';
 type ConversationAreaViewProps = {
   area: ConversationArea;
 };
-function ConversationAreaView({ area }: ConversationAreaViewProps): JSX.Element {
+function ConversationAreaView({ area } : ConversationAreaViewProps): JSX.Element {
   const [occupants, setOccupants] = useState<string[]>(area.occupants);
   const players = usePlayersInTown();
+
+  console.log('rerendered');
 
   useEffect(() => {
     const updateListener: ConversationAreaListener = {
@@ -58,11 +61,14 @@ type ConversationAreasListProps = {
 export default function ConversationAreasList(): JSX.Element {
   // get the conversation areas
   const conversationAreas = useConversationAreas();
+  
   // get the active conversation areas only
   const activeAreas = conversationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
 
   const activeConversationAreas = activeAreas.filter(area => !area.isRecreationArea);
   const activeRecreationAreas = activeAreas.filter(area => area.isRecreationArea);
+
+
   return (
     <Box>
       <Heading as='h2' fontSize='l'>Active Conversation Areas:</Heading>

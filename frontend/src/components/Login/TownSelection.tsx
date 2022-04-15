@@ -78,7 +78,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       console.log(initData ? 'video setup' : 'video not setup');
 
       console.log(`Conversation Areas: ${initData.conversationAreas.length}`);
-      console.log(`Recreation Areas: ${initData.recreationAreas}`);
+      console.log(`Recreation Areas: ${initData.recreationAreas.length}`);
       const loggedIn = await doLogin(initData);
       console.log(initData ? 'log in success' : 'log in fail');
 

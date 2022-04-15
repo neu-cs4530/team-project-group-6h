@@ -15,8 +15,19 @@ type GameUIProps = {
 
 // this UI container just needs a hook for whether game has begun, time of day
 export default function GameUI({myID, recArea} : GameUIProps): JSX.Element {
+    // for those with an undefined area state, this will be undefined
+    const [occupants, setOccupants] = useState(recArea?.occupants);
+
     const [gameInstance, setGameInstance] = useState<MafiaGame | undefined>(recArea?.mafiaGame);
     const players = Array.from(usePlayersInTown());
+
+    const isPlayerInArea = (_occupants: string[] | undefined): boolean => {
+        if (_occupants === undefined) {
+            return false;
+        }
+        const found = _occupants.includes(myID);
+        return found;
+    };
 
     useEffect(() => {
         const updateListener: RecreationAreaListener = {
@@ -25,7 +36,7 @@ export default function GameUI({myID, recArea} : GameUIProps): JSX.Element {
             },
             onMafiaGameUpdated: (game: MafiaGame) => {
                 setGameInstance(game);
-            }
+            },
         };
         recArea?.addRecListener(updateListener);
         return () => {
