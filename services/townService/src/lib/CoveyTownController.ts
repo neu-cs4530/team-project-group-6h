@@ -425,6 +425,31 @@ export default class CoveyTownController {
   }
 
   /**
+   * Advances the given mafia game to the next phase 
+   * @param mafiaGameID 
+   */
+  nextGamePhase(mafiaGameID: string): boolean {
+    // Ensure the game exists and is not in the lobby phase
+    const mafiaGame = this._mafiaGames.find(game => game.id === mafiaGameID);
+    if (!mafiaGame || mafiaGame.phase === 'lobby') {
+      return false; 
+    }
+
+    // Update phase 
+    try {
+      mafiaGame.updatePhase(); 
+      this._listeners.forEach(listener => listener.onMafiaGameUpdated(mafiaGameID, mafiaGame.phase, mafiaGame.gamePlayers)); 
+
+      // this._listeners.on
+    } catch (err) {
+      return false; 
+    }
+
+    return true; 
+
+  }
+
+  /**
    * Detects whether two bounding boxes overlap and share any points
    *
    * @param box1

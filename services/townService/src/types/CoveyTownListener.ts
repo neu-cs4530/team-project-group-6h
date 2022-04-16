@@ -76,6 +76,14 @@ export default interface CoveyTownListener {
    */
   onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]): void;
 
+ /**
+  * Called when a mafia game phase is updated 
+  * @param mafiaGameID the game being updated 
+  * @param phase The new game phase
+  * @param gamePlayers Updated list of players
+  */
+  onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: GamePlayer[]): void; 
+
   /**
    * Called when a chat message is received from a user
    * @param message the new chat message

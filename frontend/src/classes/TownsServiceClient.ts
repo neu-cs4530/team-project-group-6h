@@ -111,6 +111,12 @@ export interface GameStartRequest {
   playerStartID: string;
 }
 
+export interface NextPhaseRequest {
+  coveyTownID: string;
+  sessionToken: string; 
+  mafiaGameID: string; 
+}
+
 /**
  * Envelope that wraps any response from the server
  */
@@ -203,6 +209,12 @@ export default class TownsServiceClient {
   // Start Game
   async startGame(requestData: GameStartRequest) : Promise<void> {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/startGame`, requestData);
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
+  // Advance game to next phase 
+  async nextPhase(requestData: NextPhaseRequest) : Promise<void> {
+    const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/nextPhase`, requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 

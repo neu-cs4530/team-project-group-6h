@@ -6,6 +6,7 @@ import {
   conversationAreaCreateHandler,
   mafiaGameLobbyCreateHandler,
   mafiaGameLobbyJoinHandler,
+  mafiaGameNextPhaseHandler,
   mafiaGameStartHandler,
   recreationAreaCreateHandler,
   townCreateHandler,
@@ -188,6 +189,22 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
       });
     }
   });
+
+  // Advance Mafia Game to Next Phase
+  app.post('/towns/:townID/nextPhase', express.json(), async (req, res) => {
+    try {
+      const result = await mafiaGameNextPhaseHandler({
+        coveyTownID: req.params.townID,
+        sessionToken: req.body.sessionToken,
+        mafiaGameID: req.body.mafiaGameID,
+      });
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error, please see log in server for more details',
+      });
+    }
+  }); 
 
   const socketServer = new io.Server(http, { cors: { origin: '*' } });
   socketServer.on('connection', townSubscriptionHandler);
