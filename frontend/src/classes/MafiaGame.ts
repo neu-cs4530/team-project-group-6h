@@ -80,6 +80,10 @@ export default class MafiaGame {
     return this._gamePlayers;
   }
 
+  set gamePlayers(gamePlayers: GamePlayer[]) {
+    this.gamePlayers = gamePlayers;
+  }
+
   /**
    * Return the number of players currently in the game (for lobby logic).
    */
@@ -128,9 +132,6 @@ export default class MafiaGame {
     return this._deadPlayers;
   }
 
-  get players(): Player[] {
-    return this._players;
-  }
   get mafiaPlayers(): GamePlayer[] {
     return [...this._gamePlayers].filter((player) => player.team === Team.Mafia);
   }

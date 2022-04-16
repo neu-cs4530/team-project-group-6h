@@ -326,8 +326,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       socket.on('mafiaGameUpdated', (_mafiaGameID: string, _phase: string, _gamePlayers: GamePlayer[]) => {
         const mafiaGame = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID)?.mafiaGame; 
         if (mafiaGame) {
-          mafiaGame.townPlayers = _gamePlayers.filter(player => player.team === Team.Town); 
-          mafiaGame.mafiaPlayers = _gamePlayers.filter(player => player.team === Team.Mafia); 
+          mafiaGame.gamePlayers = _gamePlayers; 
           mafiaGame.updatePhase(); 
         }
       });
