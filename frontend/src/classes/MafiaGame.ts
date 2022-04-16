@@ -63,6 +63,10 @@ export default class MafiaGame {
     this._mafiaPlayers = players;
   }
 
+  set townPlayers(players: GamePlayer[]) {
+    this._mafiaPlayers = players; 
+  }
+
   /**
    * Return the number of players currently in the game (for lobby logic).
    */
@@ -95,6 +99,9 @@ export default class MafiaGame {
     return this._deadPlayers;
   }
 
+  get players(): Player[] {
+    return this._players;
+  }
   get mafiaPlayers(): GamePlayer[] {
     return this._mafiaPlayers;
   }
@@ -165,6 +172,7 @@ export default class MafiaGame {
 
     return false;
   }
+
 
   updateDeadPlayers(player: GamePlayer): void {
     this._deadPlayers.push(player);
