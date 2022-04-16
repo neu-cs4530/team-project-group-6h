@@ -39,6 +39,9 @@ function mockCoveyListener(): CoveyTownListener {
     onPlayerJoinedGame(_recreationAreaLabel: string, playerID: string): void {
       mockCoveyListenerOtherFns(_recreationAreaLabel, playerID);
     },
+    onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: GamePlayer[]): void {
+      mockCoveyListenerOtherFns(mafiaGameID, phase, gamePlayers);
+    },
     onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]): void {
       mockCoveyListenerOtherFns(recAreaLabel, playerRoles);
     },

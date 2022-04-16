@@ -25,7 +25,7 @@ export default class RecreationArea extends ConversationArea {
     
     private _recListeners: RecreationAreaListener[] = []; 
     
-    // public isRecreationArea = true; 
+    public isRecreationArea = true; 
     
     constructor(label: string, boundingBox: BoundingBox, mafiaGame?: MafiaGame, topic?: string) {
         super(label, boundingBox, topic); 

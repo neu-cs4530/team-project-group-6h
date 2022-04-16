@@ -52,21 +52,16 @@ function ConversationAreaView({ area } : ConversationAreaViewProps): JSX.Element
   );
 }
 
-/*
-type ConversationAreasListProps = {
-  type: string;
-};
-*/
-
 export default function ConversationAreasList(): JSX.Element {
   // get the conversation areas
   const conversationAreas = useConversationAreas();
-  
+  const recreationAreas = useRecreationAreas();
   // get the active conversation areas only
-  const activeAreas = conversationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
+  const activeConvAreas = conversationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
+  const activeRecAreas = recreationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
 
-  const activeConversationAreas = activeAreas.filter(area => !area.isRecreationArea);
-  const activeRecreationAreas = activeAreas.filter(area => area.isRecreationArea);
+  const activeConversationAreas = activeConvAreas.filter(area => !area.isRecreationArea);
+  const activeRecreationAreas = activeRecAreas.filter(area => area.isRecreationArea);
 
 
   return (

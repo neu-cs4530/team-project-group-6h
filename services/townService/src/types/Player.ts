@@ -51,8 +51,8 @@ export default class Player {
    * 
    * This method is resilient to floating point errors that could arise if any of the coordinates of
    * `this.location` are dramatically smaller than those of the conversation area's bounding box.
-   * @param conversation 
-   * @returns 
+   * @param conversation The conversation Area that the player is in
+   * @returns If the player is within this conversationArea or not
    */
   isWithin(conversation: ServerArea) : boolean {
     return (

@@ -74,7 +74,7 @@ export default function StartGameButton({ area, myPlayerID }: StartGameProps ): 
         // otherwise show "join game" or "spectate game"
         // TODO: Render GameUI component
         <div>
-            <Button colorScheme='red' onClick={startGame}>Start Game</Button>
+            <Button colorScheme='blue' onClick={startGame}>Start Game</Button>
         </div>
     );
 }

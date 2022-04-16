@@ -7,6 +7,8 @@ import RecreationArea, { RecreationAreaListener } from '../../classes/Recreation
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import useRecreationAreas from '../../hooks/useRecreationAreas';
 import { GameUIHeader, GameUITimer, GameUIRoleDescription, GameUIRoleList, GameUIVideoOverlay, GameUIAlivePlayerList, GameUIDeadPlayerList, GameUILobbyHeader, GameUILobbyRoles, GameUILobbyRules, GameUILobbyPlayersList } from './GameUIComponents';
+import StartGameButton from '../SocialSidebar/StartGameButton'
+
 
 type GameUIProps = {
     myID: string;
@@ -35,8 +37,10 @@ export default function GameUI({myID, recArea} : GameUIProps): JSX.Element {
                 setGameInstance(game); 
             },
             onMafiaGameUpdated: (game: MafiaGame) => {
+                console.log('In onMafiaGameUpdated')
                 setGameInstance(game);
             },
+            
         };
         recArea?.addRecListener(updateListener);
         return () => {
@@ -72,7 +76,9 @@ export default function GameUI({myID, recArea} : GameUIProps): JSX.Element {
                             <GameUILobbyPlayersList players={playersInRecArea}/>
                         </HStack>
                         <HStack>
-                            <Button colorScheme='blue'>Start Game</Button>   
+                            {gameInstance && gameInstance.canStart() ?
+                                <StartGameButton area={recArea} myPlayerID={myID}/>
+                                : <> </>}
                             <Button colorScheme='red'>Disband Lobby</Button>
                         </HStack>
                     </VStack>
