@@ -2,17 +2,19 @@ import assert from 'assert';
 import { Socket } from 'socket.io';
 import {
   ConversationAreaCreateRequest,
+  ServerConversationArea,
   GameLobbyCreateRequest,
   GameLobbyJoinRequest,
   GameStartRequest,
   NextPhaseRequest,
   ServerConversationArea,
+  ServerRecreationArea,
+
 } from '../client/TownsServiceClient';
 import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownController from '../lib/CoveyTownController';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
 import GamePlayer from '../lib/mafia_lib/GamePlayer';
-import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 

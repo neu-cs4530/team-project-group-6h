@@ -1,8 +1,7 @@
-import { ServerConversationArea } from '../client/TownsServiceClient';
+import { ServerConversationArea, ServerRecreationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
 import GamePlayer from '../lib/mafia_lib/GamePlayer';
 import MafiaGame from '../lib/mafia_lib/MafiaGame';
-import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 import Player from './Player';
 
 /**

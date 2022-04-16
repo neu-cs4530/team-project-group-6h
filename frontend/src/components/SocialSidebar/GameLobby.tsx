@@ -1,9 +1,8 @@
 import { Box, Heading, ListItem, UnorderedList } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
-import CreateGameButton from './CreateGameButton';
 import LobbyButton from './LobbyButton';
 import PlayerName from './PlayerName';
 
@@ -22,13 +21,13 @@ function GameLobby( { area, playerID }: GameLobbyProps): JSX.Element {
     const [mafiaGame, setMafiaGame] = useState<MafiaGame | undefined>(area?.mafiaGame);
 
     // tracks list of game players
-    const [gamePlayers, setGamePlayers] = useState<Player[]>(mafiaGame?._players || []);
+    const [gamePlayers, setGamePlayers] = useState<Player[]>(mafiaGame?.players || []);
 
     // checks if my player is in a game
-    const isPlayerInGame = (): boolean => {
+    const isPlayerInGame = useCallback((): boolean => {
       const foundPlayer = gamePlayers.find(p => p.id === playerID);
       return foundPlayer !== undefined; 
-    }
+    }, [gamePlayers, playerID]);
 
     // keeps track of my player's game state
     const [playerInGame, setPlayerInGame] = useState(isPlayerInGame());
@@ -41,20 +40,18 @@ function GameLobby( { area, playerID }: GameLobbyProps): JSX.Element {
       return found;
     };
     
-    // const [playerInArea, setPlayerInArea] = useState((isPlayerInArea(area?.occupants)));
 
     useEffect(() => {
         const updateListener: RecreationAreaListener = {
             onMafiaGameUpdated: (game: MafiaGame) => {
                 console.log('In onMafiaGameUpdated (GameLobby)');
-                // console.log(`Occupants before: ${}`)
                 setMafiaGame(game);
-                setGamePlayers(game._players);
                 setPlayerInGame(isPlayerInGame());
+                setGamePlayers(game.players);
             },
             onMafiaGameCreated: (game: MafiaGame) => {
               setMafiaGame(game);
-              setGamePlayers(game._players);
+              setGamePlayers(game.players);
               setPlayerInGame(isPlayerInGame());
             },
 
@@ -69,23 +66,6 @@ function GameLobby( { area, playerID }: GameLobbyProps): JSX.Element {
         }; 
     }, [mafiaGame, setMafiaGame, area, gamePlayers, setGamePlayers, isPlayerInGame]); 
 
-    /*
-    return (
-        <>
-        {playerInGame ? <></> : <LobbyButton area={area} mafiaGame={mafiaGame} playerID={playerID}/>}
-        {mafiaGame && mafiaGame._players ? 
-        <>
-        {playerID === mafiaGame?._host.id ? <p>Host Start Button Goes Here</p>:<p>Waiting for game to start...</p>}
-        <h2>Players in Game:</h2>
-        <UnorderedList>
-          {gamePlayers.map(player => <ListItem key={player.id}><PlayerName player={player}/></ListItem>)}
-        </UnorderedList> 
-        </>
-        : <></>
-        }
-      </>
-    )
-    */
    return (
      <Box>
        {area && isPlayerInArea(occupants) && !playerInGame &&
@@ -104,6 +84,8 @@ function GameLobby( { area, playerID }: GameLobbyProps): JSX.Element {
               <ListItem key={player.id}><PlayerName player={player} /></ListItem>)}
             </UnorderedList>
         </div>}
+
+        
      </Box>
    )
 }

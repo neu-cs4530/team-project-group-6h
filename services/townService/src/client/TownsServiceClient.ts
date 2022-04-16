@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
 import { UserLocation } from '../CoveyTypes';
-import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 
 
 export type ServerPlayer = { _id: string, _userName: string, location: UserLocation };
@@ -24,6 +23,12 @@ export type ServerConversationArea = {
   occupantsByID: string[];
   boundingBox: BoundingBox;
 };
+
+// Moved from ServerRecreationArea.ts because of dependency inversion error. ServerConversationArea is also defined here, so it made sense. 
+export type ServerRecreationArea = {
+  _mafiaGameID: string | undefined; // undefined if not yet started
+
+} & ServerConversationArea;
 
 export type ServerArea = ServerConversationArea | ServerRecreationArea; 
 

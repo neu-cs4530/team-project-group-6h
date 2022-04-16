@@ -12,12 +12,13 @@ export enum Phase {
     'win',
 }
 
-type ConversationAreaProps = {
+
+type StartGameProps = {
     area: RecreationArea,
     myPlayerID: string,
 };
 
-export default function CreateGameButton({ area, myPlayerID }: ConversationAreaProps ): JSX.Element {
+export default function StartGameButton({ area, myPlayerID }: StartGameProps ): JSX.Element {
     const [mafiaGame, setMafiaGame] = useState<MafiaGame | undefined>(area.mafiaGame);
 
     const {apiClient, sessionToken, currentTownID} = useCoveyAppState();
@@ -25,16 +26,16 @@ export default function CreateGameButton({ area, myPlayerID }: ConversationAreaP
     const toast = useToast();
 
 
-    const createGameLobby = useCallback(async () => {
+    const startGame = useCallback(async () => {
         try {
-            await apiClient.createGameLobby({
+            await apiClient.startGame({
                 coveyTownID: currentTownID,
                 sessionToken,
                 recreationAreaLabel: area.label,
-                hostID: myPlayerID,
+                playerStartID: myPlayerID,
             });
             toast({
-                title: 'Mafia Game Lobby Created!',
+                title: 'Mafia Game Started!',
                 status: 'success',
             });
             if (!mafiaGame) {
@@ -44,7 +45,7 @@ export default function CreateGameButton({ area, myPlayerID }: ConversationAreaP
         } catch (err: unknown) {
             if (err instanceof Error) {
                 toast({
-                    title: 'Unable to create Mafia Game Lobby',
+                    title: 'Unable to start Mafia Game',
                     description: err.toString(),
                     status: 'error',
                 })
@@ -55,13 +56,10 @@ export default function CreateGameButton({ area, myPlayerID }: ConversationAreaP
     useEffect(() => {
         console.log('IN USE EFFECT');
         const updateListener: RecreationAreaListener = {
-            onMafiaGameCreated: (game: MafiaGame) => {
-                console.log(`In Listener, on Mafia Game Created! Phase: ${game.phase}, HOST: ${game._host.userName}, NUM PLAYERS: ${game.players.length}`);
+            onMafiaGameStarted: (game: MafiaGame) => {
+                console.log(`In Listener, on Mafia Game Started! Phase: ${game.phase}, HOST: ${game._host.userName}, NUM PLAYERS: ${game.players.length}`);
                 setMafiaGame(game); 
             },
-            onMafiaGameUpdated: (game: MafiaGame) => {
-                setMafiaGame(game);
-            }
             
         };
         area.addRecListener(updateListener);
@@ -74,8 +72,9 @@ export default function CreateGameButton({ area, myPlayerID }: ConversationAreaP
         // if player has not started game in this recreation area yet, then show "start game"
         // once start game button is clicked, then mafia overlay should show
         // otherwise show "join game" or "spectate game"
+        // TODO: Render GameUI component
         <div>
-            <Button colorScheme='teal' onClick={createGameLobby}>Create Game</Button>
+            <Button colorScheme='red' onClick={startGame}>Start Game</Button>
         </div>
     );
 }

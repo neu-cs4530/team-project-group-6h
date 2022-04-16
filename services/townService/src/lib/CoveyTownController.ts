@@ -1,12 +1,11 @@
 import { customAlphabet, nanoid } from 'nanoid';
-import { BoundingBox, ServerArea, ServerConversationArea } from '../client/TownsServiceClient';
+import { BoundingBox, ServerArea, ServerConversationArea, ServerRecreationArea } from '../client/TownsServiceClient';
 import { ChatMessage, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 import PlayerSession from '../types/PlayerSession';
 import IVideoClient from './IVideoClient';
 import MafiaGame from './mafia_lib/MafiaGame';
-import { ServerRecreationArea } from './mafia_lib/ServerRecreationArea';
 import TwilioVideo from './TwilioVideo';
 
 const friendlyNanoID = customAlphabet('1234567890ABCDEF', 8);
@@ -215,6 +214,7 @@ export default class CoveyTownController {
       this._listeners.forEach(listener => listener.onConversationAreaUpdated(conversation));
     }
   }
+  
 
   /**
    * Determines if the given conversation area is valid for this town
@@ -409,26 +409,19 @@ export default class CoveyTownController {
     if (!gameID || !mafiaGame || mafiaGame.phase !== 'lobby') {
       return false;
     }
-
+    
     // Ensure the given player is the host of the game lobby
     const player = this.players.find(p => p.id === playerStartID);
-    if (
-      !player ||
-      !player.activeConversationArea ||
-      player.activeConversationArea.label !== recAreaLabel ||
-      player !== mafiaGame.host
-    ) {
+    if (!player || !player.activeConversationArea || player.activeConversationArea.label !== recAreaLabel || player !== mafiaGame.host) {
       return false;
     }
 
-    // Start game
-    mafiaGame.gameStart();
+    // Start game 
+    mafiaGame.gameStart(); 
 
-    this._listeners.forEach(listener =>
-      listener.onMafiaGameStarted(recAreaLabel, mafiaGame.gamePlayers),
-    );
+    this._listeners.forEach(listener => listener.onMafiaGameStarted(recAreaLabel, mafiaGame.gamePlayers)); 
 
-    return true;
+    return true; 
   }
 
   /**

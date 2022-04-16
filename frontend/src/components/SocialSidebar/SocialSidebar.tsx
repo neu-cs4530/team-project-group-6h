@@ -1,18 +1,13 @@
 import { Heading, StackDivider, VStack } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
-import useConversationAreas from '../../hooks/useConversationAreas';
+import React from 'react';
 import ConversationAreasList from './ConversationAreasList';
 import PlayersList from './PlayersList';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
-import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
-import ConversationArea from '../../classes/ConversationArea';
 import useRecreationAreas from '../../hooks/useRecreationAreas';
 import GameLobby from './GameLobby';
-import usePlayersInTown from '../../hooks/usePlayersInTown';
 
 export default function SocialSidebar(): JSX.Element {
-  // get all the conversation areas of this town
-  const convoAreas = useConversationAreas();
+ 
   // get all the recreation areas of this town
   const recAreas = useRecreationAreas();
   const coveyApp = useCoveyAppState();
