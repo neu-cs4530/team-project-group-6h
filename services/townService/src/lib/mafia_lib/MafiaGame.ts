@@ -56,15 +56,15 @@ export default class MafiaGame {
     return this.MIN_PLAYERS;
   }
 
-  get id() {
+  get id(): string {
     return this._id;
   }
 
-  get host() {
+  get host(): Player {
     return this._host;
   }
 
-  get gamePlayers() {
+  get gamePlayers(): GamePlayer[] {
     return this._gamePlayers;
   }
 
@@ -222,7 +222,7 @@ export default class MafiaGame {
   /**
    * Eliminates the given player in the game.
    * @param playerName The id of the player to eliminate
-   * @throws Exception if the playerID does not exist.
+   * @throws Error if the playerID does not exist.
    */
   public eliminatePlayer(playerID: string): void {
     const playerIndex = this._gamePlayers.findIndex(player => playerID === player.playerID);
@@ -234,7 +234,7 @@ export default class MafiaGame {
         this._gamePlayers[playerIndex].eliminate();
       }
     } else {
-      throw 'This player does not exist';
+      throw new Error('This player does not exist');
     }
   }
 
