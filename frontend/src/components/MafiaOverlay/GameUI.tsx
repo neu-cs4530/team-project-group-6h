@@ -45,7 +45,7 @@ export default function GameUI({myID, recArea} : GameUIProps): JSX.Element {
     }, [gameInstance, setGameInstance, recArea]);
 
     if (recArea && gameInstance) {
-        const inLobby = (gameInstance.phase === Phase.lobby);
+        const inLobby = (gameInstance._phase === Phase.lobby);
 
         const playersInRecArea = recArea.occupants.map((id) => (players.find((player) => player.id === id))?.userName);
 
@@ -79,7 +79,7 @@ export default function GameUI({myID, recArea} : GameUIProps): JSX.Element {
                 </Container>  
             );
         }
-        const isDay = (gameInstance.phase.toString() === 'day_discussion' || gameInstance.phase.toString() === 'day_voting');
+        const isDay = (gameInstance.phase === 'day_discussion' || gameInstance.phase === 'day_voting');
         return (
             <Container
                 align='left'
