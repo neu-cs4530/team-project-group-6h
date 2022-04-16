@@ -2,9 +2,9 @@ import { nanoid } from 'nanoid';
 import CoveyTownsStore from './CoveyTownsStore';
 import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
-import { ServerConversationArea } from '../client/TownsServiceClient';
+import { ServerConversationArea, ServerRecreationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
-import { ServerRecreationArea } from './mafia_lib/ServerRecreationArea';
+import GamePlayer from './mafia_lib/GamePlayer';
 
 const mockCoveyListenerTownDestroyed = jest.fn();
 const mockCoveyListenerOtherFns = jest.fn();
@@ -17,20 +17,32 @@ function mockCoveyListener(): CoveyTownListener {
     onPlayerMoved(movedPlayer: Player): void {
       mockCoveyListenerOtherFns(movedPlayer);
     },
-    onTownDestroyed() {
+    onTownDestroyed(): void {
       mockCoveyListenerTownDestroyed();
     },
-    onPlayerJoined(newPlayer: Player) {
+    onPlayerJoined(newPlayer: Player): void {
       mockCoveyListenerOtherFns(newPlayer);
-    }, onConversationAreaDestroyed(_conversationArea : ServerConversationArea){
+    }, onConversationAreaDestroyed(_conversationArea : ServerConversationArea): void {
       mockCoveyListenerOtherFns(_conversationArea);
-    }, onConversationAreaUpdated(_conversationArea: ServerConversationArea){
+    }, onConversationAreaUpdated(_conversationArea: ServerConversationArea): void {
       mockCoveyListenerOtherFns(_conversationArea);
     },
-    onRecreationAreaUpdated(_recreationArea: ServerRecreationArea){
+    onRecreationAreaUpdated(_recreationArea: ServerRecreationArea): void {
       mockCoveyListenerOtherFns(_recreationArea);
     },
-    onChatMessage(message: ChatMessage){
+    onRecreationAreaDestroyed(_recreationArea: ServerRecreationArea): void {
+      mockCoveyListenerOtherFns(_recreationArea);
+    },
+    onLobbyCreated(_recreationArea: ServerRecreationArea, _hostID: string, mafiaGameID: string): void {
+      mockCoveyListenerOtherFns(_recreationArea, _hostID, mafiaGameID);
+    },
+    onPlayerJoinedGame(_recreationAreaLabel: string, playerID: string): void {
+      mockCoveyListenerOtherFns(_recreationAreaLabel, playerID);
+    },
+    onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]): void {
+      mockCoveyListenerOtherFns(recAreaLabel, playerRoles);
+    },
+    onChatMessage(message: ChatMessage): void {
       mockCoveyListenerOtherFns(message);
     },
   };

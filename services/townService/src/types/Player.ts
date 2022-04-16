@@ -1,7 +1,6 @@
 import { nanoid } from 'nanoid';
-import { ServerArea, ServerConversationArea } from '../client/TownsServiceClient';
+import { ServerArea } from '../client/TownsServiceClient';
 import { UserLocation } from '../CoveyTypes';
-// import { ServerRecreationArea } from '../lib/mafia_lib/ServerRecreationArea';
 
 /**
  * Each user who is connected to a town is represented by a Player object
