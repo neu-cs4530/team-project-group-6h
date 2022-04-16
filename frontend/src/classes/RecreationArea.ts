@@ -110,11 +110,12 @@ export default class RecreationArea extends ConversationArea {
     
     /**
     * Starts this Recreation Area's Mafia Game
+    * @param playerRoles Roles assigned to players.
     */
-    startGame(): void {
+    startGame(playerRoles: GamePlayer[]): void {
         if (this._mafiaGame) {
-            if (this._mafiaGame.phase === Phase[Phase.lobby] && this._mafiaGame.canStart()) {
-                this._mafiaGame.gameStart();
+            if (this._mafiaGame.canStart()) {
+                this._mafiaGame.gameStart(playerRoles);
                 const game = this._mafiaGame;
                 this._recListeners.forEach(listener => listener.onMafiaGameStarted?.(game));
             }

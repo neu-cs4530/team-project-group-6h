@@ -1,9 +1,10 @@
 import { Heading } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import MafiaGame from '../../classes/MafiaGame'
 import RecreationArea from '../../classes/RecreationArea'
 import CreateGameButton from './CreateGameButton'
 import JoinGameButton from './JoinGameButton'
+import StartGameButton from './StartGameButton'
 
 type LobbyButtonProps = {
     area: RecreationArea, 
@@ -13,25 +14,17 @@ type LobbyButtonProps = {
 
 const LobbyButton = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Element => { 
    
-    const playerInMafiaGame = (): boolean => {
-        const gamePlayer = mafiaGame?._players.find(p => p.id === playerID); 
-        if (gamePlayer) {
-            return true;
-        }
-        return false; 
-    }
-
-    const [playerInGame, setPlayerInGame] = useState(playerInMafiaGame());
+    
     
 
     useEffect(() => {
-        console.log(`Mafia game updated in LobbyButton, num occupants = ${mafiaGame?._players.length}`)
+        console.log(`Mafia game updated in LobbyButton, num occupants = ${mafiaGame?.players.length}`)
     }, [mafiaGame]); 
 
   return (
     <>
         <Heading as='h2' fontSize='l'>Mafia Game Lobby</Heading>
-        {mafiaGame ? 
+        {mafiaGame && !mafiaGame.canStart() ? 
             <JoinGameButton 
             hostID={mafiaGame._host.id} 
             myPlayerID={playerID} 
@@ -40,6 +33,13 @@ const LobbyButton = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Eleme
             <CreateGameButton 
             area={area} 
             myPlayerID={playerID}/>}
+
+        {mafiaGame && mafiaGame.canStart() ?
+            // TODO: Update startGame parameter once I figure out how backend is sending playerRoles
+            <StartGameButton 
+            area={area}
+            myPlayerID={playerID}/>
+            : <> </>}
     </>
   )
 }

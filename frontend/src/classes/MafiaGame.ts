@@ -21,13 +21,13 @@ export default class MafiaGame {
 
   private _players: Player[]; // players in the game lobby
 
-  private _host: Player; // the id of the host
-
   private _gamePlayers: GamePlayer[]; // all players in the mafia game
 
-  private _phase = Phase.lobby;
-
   private _winner = Team.Unassigned;
+
+  _phase = Phase.lobby;
+
+  _host: Player; // the id of the host
 
   _deadPlayers: GamePlayer[];
 
@@ -41,8 +41,8 @@ export default class MafiaGame {
   // Currently, should be 4 (minus the Unassigned Role)
   private MIN_PLAYERS: number = Object.keys(Role).length / 2 - 1;
 
-  constructor(host: Player) {
-    this._id = nanoid(); 
+  constructor(mafiaGameID: string, host: Player) {
+    this._id = mafiaGameID; 
     this._host = host;
     this._players = [host];
     this._gamePlayers = [];
@@ -100,7 +100,8 @@ export default class MafiaGame {
    * @returns True if game can start, false if otherwise.
    */
   public canStart(): boolean {
-    return this.MIN_PLAYERS === this._players.length;
+    return this._phase === Phase.lobby &&
+    this.MIN_PLAYERS === this._players.length;
   }
 
   public playerRole(playerID: string): Role | undefined {
@@ -214,8 +215,12 @@ export default class MafiaGame {
       const gamePlayer = this._gamePlayers[playerIndex];
       if (gamePlayer.isAlive) {
         this._gamePlayers[playerIndex].eliminate();
+        this._deadPlayers.push(gamePlayer);
+
       }
+
     }
+
     
   }
 
