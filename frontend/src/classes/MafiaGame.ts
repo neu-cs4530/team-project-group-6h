@@ -198,7 +198,7 @@ export default class MafiaGame {
     }
 
     // Doctor heal
-    let healTarget: GamePlayer | undefined = undefined;
+    let healTarget: GamePlayer | undefined;
     const doctor = this._gamePlayers.find((player) => player.role === Role.Doctor);
     if (doctor?.target === targetPlayer?.id) {
       healTarget = this._gamePlayers.find((player) => player === overrideTarget);
@@ -231,20 +231,20 @@ export default class MafiaGame {
             this._gamePlayers[detectiveIndex].result = undefined;
             break;
           case Role.Doctor:
-            targetPlayer === overrideTarget;
+            targetPlayer = overrideTarget;
             break;
           case Role.Godfather:
-            targetPlayer === undefined;
+            targetPlayer = undefined;
             break;
           default:
             if (target.team === Team.Mafia) {
-              targetPlayer === undefined;
+              targetPlayer = undefined;
             }
             // Town members don't get to do anything at night, so nothing should happen.
         }
       
         this._gamePlayers[hypnotistIndex].result = `${target.userName} was hypnotised. `;
-
+      }
     }
     if (targetPlayer) {
       this.eliminatePlayer(targetPlayer.id);
@@ -261,7 +261,7 @@ export default class MafiaGame {
     }
 
     this.updatePhase();
-
+    
   }
 
   /**
@@ -269,18 +269,20 @@ export default class MafiaGame {
    * @throws Error if the game is either in the 'lobby' or 'win' state.
    */
   public updatePhase(): void {
-    switch (this._phase) {
-      case Phase.day_discussion:
-        this._phase = Phase.day_voting;
-        break;
-      case Phase.day_voting:
-        this._phase = Phase.night;
-        break;
-      case Phase.night:
-        this._phase = Phase.day_discussion;
-        break;
-      default:
-        throw Error(`Game is currently in phase: ${Phase[this._phase]}`);
+    if (!this.isGameOver()) {
+      switch (this._phase) {
+        case Phase.day_discussion:
+          this._phase = Phase.day_voting;
+          break;
+        case Phase.day_voting:
+          this._phase = Phase.night;
+          break;
+        case Phase.night:
+          this._phase = Phase.day_discussion;
+          break;
+        default:
+          throw Error(`Game is currently in phase: ${Phase[this._phase]}`);
+      }
     }
   }
 
