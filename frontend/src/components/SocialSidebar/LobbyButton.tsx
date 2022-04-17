@@ -34,12 +34,7 @@ const LobbyButton = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Eleme
             area={area} 
             myPlayerID={playerID}/>}
 
-        {mafiaGame && mafiaGame.canStart() ?
-            // TODO: Update startGame parameter once I figure out how backend is sending playerRoles
-            <StartGameButton 
-            area={area}
-            myPlayerID={playerID}/>
-            : <> </>}
+        
     </>
   )
 }

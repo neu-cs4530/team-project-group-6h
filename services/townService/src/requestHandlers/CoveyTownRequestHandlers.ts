@@ -2,7 +2,6 @@ import assert from 'assert';
 import { Socket } from 'socket.io';
 import {
   ConversationAreaCreateRequest,
-  ServerConversationArea,
   GameLobbyCreateRequest,
   GameLobbyJoinRequest,
   GameStartRequest,
@@ -394,7 +393,7 @@ export function mafiaGameNextPhaseHandler(
       ? `Unable to update phase in Mafia Game:${_requestData.mafiaGameID}.`
       : undefined,
   };
-}; 
+}
 
 
 /**

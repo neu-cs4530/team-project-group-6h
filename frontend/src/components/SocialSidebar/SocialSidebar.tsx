@@ -14,27 +14,7 @@ export default function SocialSidebar(): JSX.Element {
   // get my player's id
   const { myPlayerID } = coveyApp;
    
-  // const [myPlayerRecArea, setMyPlayerRecArea] = useState(recAreas.find(rec => 
-  //   rec.containsPlayerID(myPlayerID)));
-  
-  // useEffect(() => {
-  //   setMyPlayerRecArea(recAreas.find(rec => rec.label === myPlayer?.location?.conversationLabel));
-  // })
-  // }, [recAreas])
 
-  // find the recreation area my player is located in
- 
-  /*
-  const getMyPlayerRecArea = function(): RecreationArea | undefined {
-    return recAreas.find((area => area.occupants.includes(myPlayerID))); 
-  }
-  const [myPlayerRecArea, setMyPlayerRecArea] = useState(getMyPlayerRecArea()); 
-
-  useEffect(() => {
-    console.log('SOCIAL SIDEBAR USE EFFECT');
-    setMyPlayerRecArea(getMyPlayerRecArea());
-  }, [recAreas, myPlayer?.location]); 
-  */
 
     return (
       <VStack align="left"

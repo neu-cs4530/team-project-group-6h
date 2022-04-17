@@ -1,7 +1,6 @@
 import { ServerConversationArea, ServerRecreationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
 import GamePlayer from '../lib/mafia_lib/GamePlayer';
-import MafiaGame from '../lib/mafia_lib/MafiaGame';
 import Player from './Player';
 
 /**
@@ -76,12 +75,12 @@ export default interface CoveyTownListener {
    */
   onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]): void;
 
- /**
-  * Called when a mafia game phase is updated 
-  * @param mafiaGameID the game being updated 
-  * @param phase The new game phase
-  * @param gamePlayers Updated list of players
-  */
+  /**
+   * Called when a mafia game phase is updated 
+   * @param mafiaGameID the game being updated 
+   * @param phase The new game phase
+   * @param gamePlayers Updated list of players
+   */
   onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: GamePlayer[]): void; 
 
   /**

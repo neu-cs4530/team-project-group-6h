@@ -3,7 +3,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
-import LobbyButton from './LobbyButton';
+import LobbyButtons from './LobbyButton';
 import PlayerName from './PlayerName';
 
 
@@ -69,7 +69,7 @@ function GameLobby( { area, playerID }: GameLobbyProps): JSX.Element {
    return (
      <Box>
        {area && isPlayerInArea(occupants) && !playerInGame &&
-       <LobbyButton 
+       <LobbyButtons
        area={area} 
        mafiaGame={mafiaGame} 
        playerID={playerID}/>}

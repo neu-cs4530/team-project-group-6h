@@ -28,12 +28,14 @@ export default function JoinGameButton({ hostID, myPlayerID, area }: JoinGamePro
         title: 'Mafia Game Lobby Joined!',
         status: 'success',
       });
-    } catch (err) {
-      toast({
-        title: 'Unable to join Mafia Game Lobby',
-        description: err.toString(),
-        status: 'error',
-      })
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+          toast({
+              title: 'Unable to join Mafia Game',
+              description: err.toString(),
+              status: 'error',
+          })
+      }
     }
   }, [apiClient, currentTownID, sessionToken, area.label, myPlayerID, toast]); 
 
