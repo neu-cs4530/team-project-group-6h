@@ -1,7 +1,6 @@
 import { Container, Heading, StackDivider, VStack, HStack, Button } from '@chakra-ui/react';
 import React, { useEffect, useReducer, useState } from 'react';
 import { Socket } from 'socket.io-client';
-// import MafiaGame, { Phase } from '../../../../services/townService/src/lib/mafia_lib/MafiaGame';
 import MafiaGame, { Phase } from '../../classes/MafiaGame';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import usePlayersInTown from '../../hooks/usePlayersInTown';

@@ -1,7 +1,7 @@
 import { Box, Button, Heading, ListItem, UnorderedList } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import ConversationArea, { ConversationAreaListener, NO_TOPIC_STRING } from '../../classes/ConversationArea';
-import RecreationArea from '../../classes/RecreationArea';
+import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import useConversationAreas from '../../hooks/useConversationAreas';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import useRecreationAreas from '../../hooks/useRecreationAreas';

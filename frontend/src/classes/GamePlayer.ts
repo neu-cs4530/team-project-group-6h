@@ -34,7 +34,9 @@ export default class GamePlayer {
 
   private _roleInfo: string; // Information about the player's given role
 
-  private _target: string | undefined; // the target player to perform role actions on
+  private _target: string | undefined; // the ID of the target player to perform role actions on
+
+  private _result: string | undefined // The result of what happened to thos player at the end of a phase.
 
   _voteTally = 0; 
 
@@ -47,15 +49,9 @@ export default class GamePlayer {
     this._currentVote = undefined;
     this._roleInfo = '';
     this._target = undefined;
+    this._result = undefined;
   }
 
-  get playerID(): string {
-    return this._player.id;
-  }
-
-  get playerUserName(): string {
-    return this._player.userName;
-  }
 
   get playerLocation(): UserLocation | undefined {
     return this._player.location;
@@ -69,8 +65,20 @@ export default class GamePlayer {
     return this._team;
   }
 
-  set votedPlayer(player: string) {
+  set votedPlayer(player: string | undefined) {
     this._currentVote = player;
+  }
+
+  get currentVote(): string | undefined {
+    return this._currentVote;
+  }
+
+  set result(result: string | undefined) {
+    this._result = result;
+  }
+
+  get result(): string | undefined {
+    return this._result;
   }
 
   get userName() {

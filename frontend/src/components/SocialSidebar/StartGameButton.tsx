@@ -48,7 +48,7 @@ export default function StartGameButton({ area, myPlayerID }: StartGameProps ): 
                     title: 'Unable to start Mafia Game',
                     description: err.toString(),
                     status: 'error',
-                })
+                });
             }
         }
     }, [apiClient, sessionToken, currentTownID, toast, area, mafiaGame, myPlayerID]); 
