@@ -5,7 +5,7 @@ import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 import PlayerSession from '../types/PlayerSession';
 import IVideoClient from './IVideoClient';
-import MafiaGame from './mafia_lib/MafiaGame';
+import MafiaGame, { Phase } from './mafia_lib/MafiaGame';
 import TwilioVideo from './TwilioVideo';
 
 const friendlyNanoID = customAlphabet('1234567890ABCDEF', 8);
@@ -436,6 +436,12 @@ export default class CoveyTownController {
 
     // Update phase 
     try {
+      if (mafiaGame.phase === Phase[Phase.day_discussion]) {
+        mafiaGame.endDay();
+      }
+      if (mafiaGame.phase === Phase[Phase.night]) {
+        mafiaGame.endNight();
+      }
       mafiaGame.updatePhase(); 
       this._listeners.forEach(listener => listener.onMafiaGameUpdated(mafiaGameID, mafiaGame.phase, mafiaGame.gamePlayers)); 
 
