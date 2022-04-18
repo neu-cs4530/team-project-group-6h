@@ -48,10 +48,8 @@ export default function GameUI({ myID, recArea }: GameUIProps): JSX.Element {
         setIsPlayerHost(game.host.id === myID);
       },
       onMafiaGameUpdated: (game: MafiaGame) => {
-        console.log('In onMafiaGameUpdated');
         setGameInstance(game);
         setGameCanStart(game.canStart());
-        console.log(`Game Can Start = ${gameCanStart}`);
       },
     };
     recArea?.addRecListener(updateListener);
