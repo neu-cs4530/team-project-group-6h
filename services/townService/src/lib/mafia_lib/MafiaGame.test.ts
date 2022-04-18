@@ -1,14 +1,13 @@
 import { nanoid } from 'nanoid';
-import MafiaGame, { Phase } from './MafiaGame';
 import Player from '../../types/Player';
-
+import MafiaGame, { Phase } from './MafiaGame';
 
 describe('MafiaGame', () => {
   const recPlayer1 = new Player(nanoid());
   const recPlayer2 = new Player(nanoid());
   const recPlayer3 = new Player(nanoid());
   const recPlayer4 = new Player(nanoid());
-  const newMafiaGame = new MafiaGame(recPlayer1); 
+  const newMafiaGame = new MafiaGame(recPlayer1);
   newMafiaGame.addPlayer(recPlayer2);
   newMafiaGame.addPlayer(recPlayer3);
   newMafiaGame.addPlayer(recPlayer4);
@@ -22,15 +21,13 @@ describe('MafiaGame', () => {
   console.log(`RecPlayer3 ID: ${recPlayer3.id}`);
   console.log(`RecPlayer3 username: ${recPlayer3.userName}`);
   console.log(`RecPlayer3 ID: ${recPlayer3.id}`); */
-  
+
   it('Partitions player list and randomly assigns roles correctly', () => {
     newMafiaGame.gameStart();
 
-    
     expect(newMafiaGame.minPlayers).toBe(4);
     expect(newMafiaGame.townPlayers.length).toBe(3);
     expect(newMafiaGame.mafiaPlayers.length).toBe(1);
-
   });
   it('Adds players that have been voted out from the game to the deadPlayers list', () => {
     newMafiaGame.eliminatePlayer(recPlayer2.id);
@@ -40,9 +37,9 @@ describe('MafiaGame', () => {
     expect(newMafiaGame.townPlayers.length).toBe(3);
     expect(newMafiaGame.mafiaPlayers.length).toBe(1);
     expect(newMafiaGame.deadPlayers.length).toBe(1);
-    expect(newMafiaGame.deadPlayers[0]).toBeDefined(); 
-    expect(newMafiaGame.deadPlayers[0].playerUserName).toBe(recPlayer2.userName); 
-    expect(newMafiaGame.deadPlayers[0].playerID).toBe(recPlayer2.id);
+    expect(newMafiaGame.deadPlayers[0]).toBeDefined();
+    expect(newMafiaGame.deadPlayers[0].userName).toBe(recPlayer2.userName);
+    expect(newMafiaGame.deadPlayers[0].id).toBe(recPlayer2.id);
     expect(newMafiaGame.deadPlayers[0].isAlive).toBe(false);
 
     // no duplicate eliminations
@@ -57,7 +54,6 @@ describe('MafiaGame', () => {
     expect(newMafiaGame.mafiaPlayers.length).toBe(1);
     expect(newMafiaGame.deadPlayers.length).toBe(2);
     expect(newMafiaGame.deadPlayers[1]).toBeDefined();
-
   });
 
   it('Cycles through the phases after the game has started', () => {
@@ -70,11 +66,13 @@ describe('MafiaGame', () => {
     expect(newMafiaGame.phase).toBe(Phase[Phase.day_discussion]);
   });
   it('Throws error if game phase is updated before or after the game', () => {
-    
     newMafiaGame.changePhase = Phase.win;
-    expect(() => newMafiaGame.updatePhase()).toThrow(`Game is currently in phase: ${Phase[Phase.win]}`);
+    expect(() => newMafiaGame.updatePhase()).toThrow(
+      `Game is currently in phase: ${Phase[Phase.win]}`,
+    );
     newMafiaGame.changePhase = Phase.lobby;
-    expect(() => newMafiaGame.updatePhase()).toThrow(`Game is currently in phase: ${Phase[Phase.lobby]}`);
-    
+    expect(() => newMafiaGame.updatePhase()).toThrow(
+      `Game is currently in phase: ${Phase[Phase.lobby]}`,
+    );
   });
 });
