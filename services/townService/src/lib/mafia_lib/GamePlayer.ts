@@ -37,6 +37,8 @@ export default class GamePlayer {
 
   private _target: string | undefined; // the target player to perform role actions on
 
+  private _result: string | undefined; // The result of what happened to thos player at the end of a phase.
+
   _voteTally = 0;
 
   /**
@@ -48,13 +50,15 @@ export default class GamePlayer {
     this._currentVote = undefined;
     this._roleInfo = '';
     this._target = undefined;
+    this._result = undefined;
+
   }
 
-  get playerID(): string {
+  get id(): string {
     return this._player.id;
   }
 
-  get playerUserName(): string {
+  get userName(): string {
     return this._player.userName;
   }
 
@@ -78,7 +82,7 @@ export default class GamePlayer {
     return this._voteTally;
   }
 
-  set votedPlayer(currentVote: string) {
+  set votedPlayer(currentVote: string | undefined) {
     this._currentVote = currentVote;
   }
 
@@ -86,13 +90,22 @@ export default class GamePlayer {
     return this._currentVote;
   }
 
-  set targetPlayer(target: string) {
+  set targetPlayer(target: string | undefined) {
     this._target = target;
   }
 
   get target(): string | undefined {
     return this._target;
   }
+
+  set result(result: string | undefined) {
+    this._result = result;
+  }
+
+  get result(): string | undefined {
+    return this._result;
+  }
+
 
   get isAlive(): boolean {
     return this._isAlive;

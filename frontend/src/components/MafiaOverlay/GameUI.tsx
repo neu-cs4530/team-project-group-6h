@@ -7,7 +7,7 @@ import usePlayersInTown from '../../hooks/usePlayersInTown';
 import useRecreationAreas from '../../hooks/useRecreationAreas';
 import { GameUIHeader, GameUITimer, GameUIRoleDescription, GameUIRoleList, GameUIVideoOverlay, GameUIAlivePlayerList, GameUIDeadPlayerList, GameUILobbyHeader, GameUILobbyRoles, GameUILobbyRules, GameUILobbyPlayersList } from './GameUIComponents';
 import StartGameButton from '../SocialSidebar/StartGameButton'
-
+import NextPhaseButton from './NextPhaseButton'
 
 type GameUIProps = {
     myID: string;
@@ -118,6 +118,9 @@ export default function GameUI({myID, recArea} : GameUIProps): JSX.Element {
                                 <GameUIAlivePlayerList players={gameInstance.alivePlayers.map((player) => (player.userName))}/>
                                 <GameUIDeadPlayerList players={gameInstance.deadPlayers.map((player) => (player.userName))} />
                             </VStack>
+                        </HStack>
+                        <HStack>
+                            <NextPhaseButton area={recArea}/>
                         </HStack>
                     </VStack>
                 </Container>

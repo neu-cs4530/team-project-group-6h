@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import GamePlayer, { Role, Team } from './GamePlayer';
 import Player from './Player';
 
@@ -154,7 +153,7 @@ export default class MafiaGame {
   }
 
   /**
-   * Determines who is elimiated at the end of a day voting phase, and advances the phase.
+   * Determines who is elimiated at the end of a day voting phase.
    */
   public endDay(): void {
     if (this._phase === Phase.day_voting) {
@@ -163,15 +162,14 @@ export default class MafiaGame {
 
       this.eliminatePlayer(votedPlayer.id);
 
-      this.updatePhase();
     }
   }
 
   /**
-   * Resets all the gamePlayer fields after the end of a phase. 
+   * Resets all the gamePlayer fields.
    * Should be called after rendering result information from the players after endDay() or endNight()
    */
-  public resetFields() {
+  public resetFields(): void {
     this._gamePlayers.forEach((player) => {
       if (player.isAlive) {
         player.votedPlayer = undefined; // _currentVote
@@ -252,15 +250,14 @@ export default class MafiaGame {
     else {
       this._gamePlayers.forEach((player) => {
         if (!player.result) {
-          player.result = "No one was eliminated."
+          player.result = 'No one was eliminated.';
         }
         else {
-          player.result += "No one was eliminated."
+          player.result += 'No one was eliminated.';
         }
       });
     }
 
-    this.updatePhase();
     
   }
 

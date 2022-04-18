@@ -69,10 +69,6 @@ export default function StartGameButton({ area, myPlayerID }: StartGameProps ): 
     }, [mafiaGame, setMafiaGame, area]);
 
     return (
-        // if player has not started game in this recreation area yet, then show "start game"
-        // once start game button is clicked, then mafia overlay should show
-        // otherwise show "join game" or "spectate game"
-        // TODO: Render GameUI component
         <div>
             <Button colorScheme='blue' onClick={startGame}>Start Game</Button>
         </div>
