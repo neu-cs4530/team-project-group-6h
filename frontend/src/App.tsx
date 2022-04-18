@@ -38,7 +38,7 @@ import { CoveyAppState } from './CoveyTypes';
 import RecreationArea, { ServerRecreationArea } from './classes/RecreationArea'
 import MafiaGame from './classes/MafiaGame'
 import RecreationAreasContext from './contexts/RecreationAreasContext';
-import GamePlayer, { Team } from './classes/GamePlayer';
+import GamePlayer from './classes/GamePlayer';
 
 export const MOVEMENT_UPDATE_DELAY_MS = 0;
 export const CALCULATE_NEARBY_PLAYERS_MOVING_DELAY_MS = 300;

@@ -4,7 +4,6 @@ import MafiaGame from '../../classes/MafiaGame'
 import RecreationArea from '../../classes/RecreationArea'
 import CreateGameButton from './CreateGameButton'
 import JoinGameButton from './JoinGameButton'
-import StartGameButton from './StartGameButton'
 
 type LobbyButtonProps = {
     area: RecreationArea, 
@@ -12,10 +11,7 @@ type LobbyButtonProps = {
     playerID: string,
 }
 
-const LobbyButton = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Element => { 
-   
-    
-    
+const LobbyButtons = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Element => { 
 
     useEffect(() => {
         console.log(`Mafia game updated in LobbyButton, num occupants = ${mafiaGame?.players.length}`)
@@ -33,10 +29,9 @@ const LobbyButton = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Eleme
             <CreateGameButton 
             area={area} 
             myPlayerID={playerID}/>}
-
         
     </>
   )
 }
 
-export default LobbyButton
+export default LobbyButtons

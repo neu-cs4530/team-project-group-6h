@@ -29,8 +29,8 @@ export default function NewConversationModal({ isOpen, closeModal, newConversati
   const [topic, setTopic] = useState<string>('');
   const { apiClient, sessionToken, currentTownID } = useCoveyAppState();
 
-  const toast = useToast()
-  const video = useMaybeVideo()
+  const toast = useToast();
+  const video = useMaybeVideo();
 
   const [isRecreationArea, setIsRecreationArea] = useState(false);
   const toggleIsRecreationArea = () => {
@@ -67,12 +67,14 @@ export default function NewConversationModal({ isOpen, closeModal, newConversati
         });
         video?.unPauseGame();
         closeModal();
-      } catch (err) {
-        toast({
-          title: `Unable to create ${areaType}`,
-          description: err.toString(),
-          status: 'error',
-        });
+      } catch (err: unknown) {
+          if (err instanceof Error) {
+            toast({
+              title: `Unable to create ${areaType}`,
+              description: err.toString(),
+              status: 'error',
+            });
+        }
       }
     }
   }, [isRecreationArea, topic, apiClient, newConversation, closeModal, currentTownID, sessionToken, toast, video]);
