@@ -13,8 +13,6 @@ export default function SocialSidebar(): JSX.Element {
   const coveyApp = useCoveyAppState();
   // get my player's id
   const { myPlayerID } = coveyApp;
-   
-
 
     return (
       <VStack align="left"
