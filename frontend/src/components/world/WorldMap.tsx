@@ -740,16 +740,24 @@ export default function WorldMap(): JSX.Element {
     return <></>;
   }, [video, newConversation, setNewConversation]);
 
-  const recAreas = useRecreationAreas() as RecreationArea[];
-  const findCurrentRecArea = (rec: RecreationArea) => (rec.occupants.find((id) => (id === myPlayerID)) !== undefined);
-  const currentRecArea = recAreas.find(findCurrentRecArea);
+  // const recAreas = useRecreationAreas() as RecreationArea[];
+  // const findCurrentRecArea = (rec: RecreationArea) => (rec.occupants.find((id) => (id === myPlayerID)) !== undefined);
+  // const currentRecArea = recAreas.find(findCurrentRecArea);
+
+  const recAreas = useRecreationAreas();
+  const playersInTown = usePlayersInTown();
 
   return (
     <div id='app-container'>
       {newConversationModal}
       <div id='map-container'>
         <div id='game-ui-container'>
-          <GameUI myID={myPlayerID} recArea={currentRecArea} />
+          {recAreas.map((area) => 
+          <GameUI 
+          key={area.label}
+          myID={myPlayerID} 
+          recArea={area}/>)}
+          {/* <GameUI myID={myPlayerID} recArea={currentRecArea} /> */}
         </div>
       </div>
       <div id='social-container'><SocialSidebar /></div>

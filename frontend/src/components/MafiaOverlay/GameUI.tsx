@@ -1,5 +1,5 @@
 import { Button, Container, Heading, HStack, StackDivider, VStack } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import MafiaGame, { Phase } from '../../classes/MafiaGame';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
@@ -24,16 +24,24 @@ type GameUIProps = {
 };
 
 // this UI container just needs a hook for whether game has begun, time of day
-export default function GameUI({ myID, recArea }: GameUIProps): JSX.Element {
-  // for those with an undefined area state, this will be undefined
-  const [occupants, setOccupants] = useState(recArea?.occupants);
+export default function GameUI({ myID, recArea } : GameUIProps): JSX.Element {
+    const [gameInstance, setGameInstance] = useState<MafiaGame | undefined>(recArea?.mafiaGame);
+    // tracks list of game players
+    const [gamePlayers, setGamePlayers] = useState<Player[]>(recArea?.mafiaGame?.players || []);
+    const [gameCanStart, setGameCanStart] = useState<boolean>(gameInstance?.canStart() || false);
+    const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
+    const players = usePlayersInTown();
 
-  const [gameInstance, setGameInstance] = useState<MafiaGame | undefined>(recArea?.mafiaGame);
-  const [gameCanStart, setGameCanStart] = useState<boolean>(gameInstance?.canStart() || false);
-  const players = Array.from(usePlayersInTown());
-  const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
+    // checks if my player is in a game
+    const isPlayerInGame = useCallback((): boolean => {
+        const foundPlayer = gamePlayers.find(p => p.id === myID);
+        return foundPlayer !== undefined;
+    }, [gamePlayers, myID]);
 
-  const isPlayerInArea = (_occupants: string[] | undefined): boolean => {
+    // keeps track of my player's game state
+    const [playerInGame, setPlayerInGame] = useState(isPlayerInGame());
+
+    const isPlayerInArea = (_occupants: string[] | undefined): boolean => {
     if (_occupants === undefined) {
       return false;
     }
@@ -41,29 +49,31 @@ export default function GameUI({ myID, recArea }: GameUIProps): JSX.Element {
     return found;
   };
 
-  useEffect(() => {
-    const updateListener: RecreationAreaListener = {
-      onMafiaGameCreated: (game: MafiaGame) => {
-        setGameInstance(game);
-        setIsPlayerHost(game.host.id === myID);
-      },
-      onMafiaGameUpdated: (game: MafiaGame) => {
-        setGameInstance(game);
-        setGameCanStart(game.canStart());
-      },
-    };
-    recArea?.addRecListener(updateListener);
-    return () => {
-      recArea?.removeListener(updateListener);
-    };
-  }, [gameInstance, setGameInstance, recArea]);
+    useEffect(() => {
+        const updateListener: RecreationAreaListener = {
+            onMafiaGameCreated: (game: MafiaGame) => {
+                setGameInstance(game); 
+                setGamePlayers(game.players);
+                setPlayerInGame(isPlayerInGame());
+                setIsPlayerHost(game.host.id === myID);
+            },
+            onMafiaGameUpdated: (game: MafiaGame) => {
+                console.log('In onMafiaGameUpdated')
+                setGameInstance(game);
+                setGamePlayers(game.players);
+                setPlayerInGame(isPlayerInGame());
+                setGameCanStart(game.canStart());
+            },
+            
+        };
+        recArea?.addRecListener(updateListener);
+        return () => {
+            recArea?.removeListener(updateListener);
+        };
+    }, [gameInstance, setGameInstance, recArea, gamePlayers, isPlayerInGame]);
 
-  if (recArea && gameInstance) {
-    const inLobby = gameInstance._phase === Phase.lobby;
-
-    const playersInRecArea = recArea.occupants.map(
-      id => players.find(player => player.id === id)?.userName,
-    );
+    if (recArea && gameInstance && isPlayerInGame()) {
+        const inLobby = (gameInstance._phase === Phase.lobby);
 
     if (inLobby) {
       return (
@@ -87,7 +97,7 @@ export default function GameUI({ myID, recArea }: GameUIProps): JSX.Element {
               divider={<StackDivider borderColor='black' />}>
               <GameUILobbyRoles />
               <GameUILobbyRules />
-              <GameUILobbyPlayersList players={playersInRecArea} />
+              {/* <GameUILobbyPlayersList players={playersInRecArea} /> */}
             </HStack>
             <HStack>
               {gameInstance && isPlayerHost && gameCanStart ? (
