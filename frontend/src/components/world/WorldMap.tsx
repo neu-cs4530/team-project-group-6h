@@ -13,7 +13,9 @@ import usePlayersInTown from '../../hooks/usePlayersInTown';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import GameUI from '../MafiaOverlay/GameUI';
 import useRecreationAreas from '../../hooks/useRecreationAreas';
-import RecreationArea from '../../classes/RecreationArea';
+import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
+import useCurrentRecreationArea from '../../hooks/useCurrentRecreationArea';
+import MafiaGame from '../../classes/MafiaGame';
 
 // Original inspiration and code from:
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
@@ -659,6 +661,8 @@ export default function WorldMap(): JSX.Element {
   const [newConversation, setNewConversation] = useState<ConversationArea>();
   const playerMovementCallbacks = usePlayerMovement();
   const players = usePlayersInTown();
+  const currentRecArea = useCurrentRecreationArea();
+  const [inMafia, setInMafia] = useState<boolean>();
 
   useEffect(() => {
     const config = {
@@ -714,14 +718,32 @@ export default function WorldMap(): JSX.Element {
     gameScene?.updateConversationAreas(conversationAreas);
   }, [conversationAreas, gameScene]);
 
-  const newConversationModalOpen = newConversation !== undefined;
   useEffect(() => {
-    if (newConversationModalOpen) {
+    const updateListener: RecreationAreaListener = {
+      onMafiaGameUpdated: (game: MafiaGame) => {
+        setInMafia(game.players.map(p=>p.id).includes(myPlayerID));
+      },
+      onMafiaGameCreated: (game: MafiaGame) => {
+        setInMafia(game.players.map(p=>p.id).includes(myPlayerID));
+      },
+      onMafiaGameDestroyed: () => {
+        setInMafia(false);
+      }
+    };
+    currentRecArea?.addRecListener(updateListener);
+    return () => {
+      currentRecArea?.removeRecListener(updateListener);
+    }; 
+}, [currentRecArea, myPlayerID]);
+
+  const ModalOpen = (newConversation !== undefined || inMafia);
+  useEffect(() => {
+    if (ModalOpen) {
       video?.pauseGame();
     } else {
       video?.unPauseGame();
     }
-  }, [video, newConversationModalOpen]);
+  }, [video, ModalOpen]);
 
   const newConversationModal = useMemo(() => {
     if (newConversation) {
@@ -740,16 +762,12 @@ export default function WorldMap(): JSX.Element {
     return <></>;
   }, [video, newConversation, setNewConversation]);
 
-  const recAreas = useRecreationAreas() as RecreationArea[];
-  const findCurrentRecArea = (rec: RecreationArea) => (rec.occupants.find((id) => (id === myPlayerID)) !== undefined);
-  const currentRecArea = recAreas.find(findCurrentRecArea);
-
   return (
     <div id='app-container'>
       {newConversationModal}
       <div id='map-container'>
         <div id='game-ui-container'>
-          <GameUI myID={myPlayerID} recArea={currentRecArea} />
+        <GameUI recArea={currentRecArea} />
         </div>
       </div>
       <div id='social-container'><SocialSidebar /></div>

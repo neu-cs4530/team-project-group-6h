@@ -96,7 +96,7 @@ export default class MafiaGame {
    * @returns True if game can start, false if otherwise.
    */
   public canStart(): boolean {
-    return this._phase === Phase.lobby && this.MIN_PLAYERS === this._players.length;
+    return this._phase === Phase.lobby && this.MIN_PLAYERS <= this._players.length;
   }
 
   /**
@@ -144,6 +144,7 @@ export default class MafiaGame {
   public addPlayer(player: Player): boolean {
     if (this._phase === Phase.lobby) {
       this._players.push(player);
+      // console.log(`Player ${player.userName} added to game`);
       return true;
     }
     return false;

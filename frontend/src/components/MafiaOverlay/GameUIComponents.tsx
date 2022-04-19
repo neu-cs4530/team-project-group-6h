@@ -1,7 +1,8 @@
 import { Container, Heading, Text } from '@chakra-ui/react';
 import React from 'react';
 import { StringMappingType } from 'typescript';
-import { Role } from '../../../../services/townService/src/lib/mafia_lib/GamePlayer';
+import Player from '../../classes/Player';
+import GamePlayer, { Role } from '../../classes/GamePlayer';
 
 type GameUIHeaderProps = {
     gameName: string
@@ -14,10 +15,6 @@ export function GameUIHeader({gameName, gamePhase}: GameUIHeaderProps): JSX.Elem
     return (
     <Heading fontSize='xl' as='h1' color={isDay ? 'black' : 'white'}>{gameName}: {gamePhase}</Heading>
     );
-}
-
-type GameUITimerProps = {
-    gameTimeLeft: number
 }
 
 export function GameUITimer(): JSX.Element {
@@ -69,7 +66,7 @@ export function GameUIRoleList(): JSX.Element {
 }
 
 type GameUIPlayerListProps = {
-    players: (string | undefined)[]
+    players: GamePlayer[]
 }
 // needs an array map from players to strings
 export function GameUIAlivePlayerList({players}: GameUIPlayerListProps): JSX.Element {
@@ -81,7 +78,7 @@ export function GameUIAlivePlayerList({players}: GameUIPlayerListProps): JSX.Ele
                 >
                     <Heading fontSize='xl' as='h1'>Players</Heading>
                     <ul>
-                    {players.map((player) => (player ? <li key={player}>{player}</li> : (<li />)))}
+                    {players.map((player) => (player ? <li key={player.id}>{player.userName}</li> : (<li />)))}
                     </ul>
                 </Container>
     );
@@ -95,7 +92,9 @@ export function GameUIDeadPlayerList({players}: GameUIPlayerListProps): JSX.Elem
             className='ui-container'
                 >
                     <Heading fontSize='xl' as='h1'>Graveyard</Heading>
-                    <Text fontSize='xs'>{players[0]}</Text>
+                    <ul>
+                    {players.map((player) => (player ? <li key={player.id}>{player.userName}</li> : (<li />)))}
+                    </ul>
                 </Container>
     );
 }
@@ -159,14 +158,18 @@ export function GameUILobbyRules(): JSX.Element {
     );
 }
 
-export function GameUILobbyPlayersList({players}: GameUIPlayerListProps): JSX.Element {
+type GameUILobbyPlayersListProps = {
+    players: Player[];
+}
+
+export function GameUILobbyPlayersList({players}: GameUILobbyPlayersListProps): JSX.Element {
     return (
         <Container 
             width="350px"
             height="550px">
             <Heading>Players</Heading>
             <ul>
-            {players.map((p: string | undefined) => (p ? <li key={p}>{p}</li> : <li />))}
+            {players.map((p: Player) => (<li key={p.id}>{p.userName}</li>))}
             </ul>
         </Container>
     );

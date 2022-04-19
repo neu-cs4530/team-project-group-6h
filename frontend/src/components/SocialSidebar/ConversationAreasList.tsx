@@ -23,7 +23,7 @@ function ConversationAreaView({ area } : ConversationAreaViewProps): JSX.Element
   const [occupants, setOccupants] = useState<string[]>(area.occupants);
   const players = usePlayersInTown();
 
-  console.log('rerendered');
+  // console.log('rerendered');
 
   useEffect(() => {
     const updateListener: ConversationAreaListener = {
@@ -63,6 +63,14 @@ export default function ConversationAreasList(): JSX.Element {
   const activeConversationAreas = activeConvAreas.filter(area => !area.isRecreationArea);
   const activeRecreationAreas = activeRecAreas.filter(area => area.isRecreationArea);
 
+  /*
+  useEffect(() => {
+    console.log(`ConversationAreasList useEffect called.\n
+    New ConvAreas: ${conversationAreas}\n
+    New RecAreas: ${recreationAreas}\n
+    RecAreaGame: ${recreationAreas[0]?.mafiaGame?.phase}`);
+  }, [conversationAreas, recreationAreas]);
+  */
 
   return (
     <Box>

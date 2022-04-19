@@ -18,7 +18,6 @@ type ConversationAreaProps = {
 };
 
 export default function CreateGameButton({ area, myPlayerID }: ConversationAreaProps ): JSX.Element {
-    const [mafiaGame, setMafiaGame] = useState<MafiaGame | undefined>(area.mafiaGame);
 
     const {apiClient, sessionToken, currentTownID} = useCoveyAppState();
 
@@ -37,10 +36,6 @@ export default function CreateGameButton({ area, myPlayerID }: ConversationAreaP
                 title: 'Mafia Game Lobby Created!',
                 status: 'success',
             });
-            if (!mafiaGame) {
-                console.log('Mafia game undefined');
-                console.log(`Area label: ${area.label}`);
-            }
         } catch (err: unknown) {
             if (err instanceof Error) {
                 toast({
@@ -50,25 +45,7 @@ export default function CreateGameButton({ area, myPlayerID }: ConversationAreaP
                 })
             }
         }
-    }, [apiClient, sessionToken, currentTownID, toast, area, mafiaGame, myPlayerID]); 
-
-    useEffect(() => {
-        console.log('IN USE EFFECT');
-        const updateListener: RecreationAreaListener = {
-            onMafiaGameCreated: (game: MafiaGame) => {
-                console.log(`In Listener, on Mafia Game Created! Phase: ${game.phase}, HOST: ${game._host.userName}, NUM PLAYERS: ${game.players.length}`);
-                setMafiaGame(game); 
-            },
-            onMafiaGameUpdated: (game: MafiaGame) => {
-                setMafiaGame(game);
-            }
-            
-        };
-        area.addRecListener(updateListener);
-        return () => {
-            area.removeRecListener(updateListener);
-        };
-    }, [mafiaGame, setMafiaGame, area]);
+    }, [apiClient, sessionToken, currentTownID, toast, area, myPlayerID]); 
 
     return (
         // if player has not started game in this recreation area yet, then show "start game"

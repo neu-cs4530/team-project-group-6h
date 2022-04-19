@@ -5,6 +5,7 @@ import io from 'socket.io';
 import {
   conversationAreaCreateHandler,
   mafiaGameLobbyCreateHandler,
+  mafiaGameLobbyDestroyHandler,
   mafiaGameLobbyJoinHandler,
   mafiaGameNextPhaseHandler,
   mafiaGameStartHandler,
@@ -172,6 +173,23 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
     }
   });
 
+  // Destroy lobby
+  app.post('/towns/:townID/destroyLobby', express.json(), async (req, res) => {
+    try {
+      const result = await mafiaGameLobbyDestroyHandler({
+        coveyTownID: req.params.townID,
+        sessionToken: req.body.sessionToken,
+        recreationAreaLabel: req.body.recreationAreaLabel,
+      });
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error, please see log in server for more details',
+      });
+    }
+  });
+
   // Start Mafia Game
   app.post('/towns/:townID/startGame', express.json(), async (req, res) => {
     try {
@@ -204,7 +222,7 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
         message: 'Internal server error, please see log in server for more details',
       });
     }
-  }); 
+  });
 
   const socketServer = new io.Server(http, { cors: { origin: '*' } });
   socketServer.on('connection', townSubscriptionHandler);

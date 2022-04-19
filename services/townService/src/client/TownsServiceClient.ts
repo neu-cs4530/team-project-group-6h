@@ -137,6 +137,13 @@ export interface GameLobbyJoinRequest {
   playerID: string;
 }
 
+export interface GameLobbyDestroyRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  recreationAreaLabel: string; 
+}
+
+
 /**
  * Payload sent by the client to start a mafia game
  */

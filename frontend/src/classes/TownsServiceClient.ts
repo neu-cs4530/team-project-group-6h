@@ -97,6 +97,12 @@ export interface GameLobbyCreateRequest {
   hostID: string;
 }
 
+export interface GameLobbyDestroyRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  recreationAreaLabel: string; 
+}
+
 export interface GameLobbyJoinRequest {
   coveyTownID: string;
   sessionToken: string;
@@ -203,6 +209,11 @@ export default class TownsServiceClient {
   // Join Game Lobby
   async joinGameLobby(requestData: GameLobbyJoinRequest) : Promise<void> {
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/joinLobby`, requestData); 
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
+  async destroyGameLobby(requestData: GameLobbyDestroyRequest) : Promise<void> {
+    const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/destroyLobby`, requestData); 
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 

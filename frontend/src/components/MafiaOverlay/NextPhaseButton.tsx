@@ -41,17 +41,20 @@ export default function NextPhaseButton({ area }: NextPhaseProps ): JSX.Element 
           }
       });
     } else {
-      console.log('Mafia game phase not updated');
-      console.log(`Area label: ${area.label}`);
+      // console.log('Mafia game phase not updated');
+      // console.log(`Area label: ${area.label}`);
     }
 
     useEffect(() => {
-        console.log('IN USE EFFECT');
+        // console.log('IN USE EFFECT');
         const updateListener: RecreationAreaListener = {
             onMafiaGameUpdated: (game: MafiaGame) => {
-                console.log(`In Listener, on Mafia Game Started! Phase: ${game.phase}, HOST: ${game._host.userName}, NUM PLAYERS: ${game.players.length}`);
-                setMafiaGame(game); 
+                // console.log(`In Listener, on Mafia Game Started! Phase: ${game.phase}, HOST: ${game._host.userName}, NUM PLAYERS: ${game.players.length}`);
+                setMafiaGame(game);
             },
+            onMafiaGameDestroyed: () => {
+                setMafiaGame(undefined);
+            }
             
         };
         area.addRecListener(updateListener);

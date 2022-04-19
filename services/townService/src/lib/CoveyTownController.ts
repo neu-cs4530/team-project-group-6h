@@ -1,5 +1,10 @@
 import { customAlphabet, nanoid } from 'nanoid';
-import { BoundingBox, ServerArea, ServerConversationArea, ServerRecreationArea } from '../client/TownsServiceClient';
+import {
+  BoundingBox,
+  ServerArea,
+  ServerConversationArea,
+  ServerRecreationArea,
+} from '../client/TownsServiceClient';
 import { ChatMessage, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
@@ -154,7 +159,6 @@ export default class CoveyTownController {
    * @param location New location for this player
    */
   updatePlayerLocation(player: Player, location: UserLocation): void {
-    console.log('player moved');
     const conversation = this.conversationAreas.find(
       conv => conv.label === location.conversationLabel,
     );
@@ -164,13 +168,20 @@ export default class CoveyTownController {
     player.activeConversationArea = conversation;
 
     if (conversation !== prevConversation) {
-      console.log('New conversation area');
+      console.log(`Updating ${player.userName}'s area to ${conversation?.label}...`);
       if (prevConversation) {
         this.removePlayerFromConversationArea(player, prevConversation);
       }
       if (conversation) {
         conversation.occupantsByID.push(player.id);
-        this._listeners.forEach(listener => listener.onConversationAreaUpdated(conversation));
+        const recreation = this.recreationAreas.find(
+          rec => rec.label === location.conversationLabel,
+        );
+        if (recreation) {
+          this._listeners.forEach(listener => listener.onRecreationAreaUpdated(recreation));
+        } else {
+          this._listeners.forEach(listener => listener.onConversationAreaUpdated(conversation));
+        }
       }
     }
 
@@ -203,17 +214,25 @@ export default class CoveyTownController {
           1,
         );
         this._listeners.forEach(listener => listener.onRecreationAreaDestroyed(recArea));
+        this._mafiaGames.splice(this.mafiaGames.findIndex(p => p.id === recArea._mafiaGameID));
       } else {
         this._listeners.forEach(listener => listener.onConversationAreaDestroyed(conversation));
       }
+      console.log(
+        `Removed area ${conversation.label}.\nNew this.convAreas: ${this._conversationAreas}\nNew this.recAreas: ${this._recreationAreas}`,
+      );
     } else if (recArea) {
       this._listeners.forEach(listener => listener.onRecreationAreaUpdated(recArea));
-      console.log('Player leaving recreation area');
+      console.log(
+        `Player ${player.userName} leaving recreation area ${recArea.label}. New this.recAreas: ${this._recreationAreas}`,
+      );
     } else {
+      console.log(
+        `Player ${player.userName} leaving convo area ${conversation.label}. New this.convAreas: ${this._recreationAreas}`,
+      );
       this._listeners.forEach(listener => listener.onConversationAreaUpdated(conversation));
     }
   }
-  
 
   /**
    * Determines if the given conversation area is valid for this town
@@ -261,7 +280,6 @@ export default class CoveyTownController {
    * @returns true if the conversation is successfully created, or false if not
    */
   addConversationArea(_conversationArea: ServerConversationArea): boolean {
-    console.log('Inside add recreation area');
     // Ensure the conversation area is valid
     if (!this.isValidArea(_conversationArea)) {
       return false;
@@ -273,9 +291,11 @@ export default class CoveyTownController {
     const playersInThisConversation = this.players.filter(player => player.isWithin(newArea));
     playersInThisConversation.forEach(player => {
       player.activeConversationArea = newArea;
+      console.log(`Player ${player.userName} added to convArea ${newArea.label} on creation.`);
     });
     newArea.occupantsByID = playersInThisConversation.map(player => player.id);
     this._listeners.forEach(listener => listener.onConversationAreaUpdated(newArea));
+    console.log(`Convo area created. New this.convAreas: ${this._conversationAreas}`);
     return true;
   }
 
@@ -293,8 +313,6 @@ export default class CoveyTownController {
    * @returns true if the recreation is successfully created, or false if not
    */
   addRecreationArea(_recreationArea: ServerConversationArea): boolean {
-    console.log('Inside add recreation area');
-
     // Ensure the conversation area is valid
     if (!this.isValidArea(_recreationArea)) {
       return false;
@@ -307,9 +325,11 @@ export default class CoveyTownController {
     const playersInThisConversation = this.players.filter(player => player.isWithin(newArea));
     playersInThisConversation.forEach(player => {
       player.activeConversationArea = newArea;
+      console.log(`Player ${player.userName} added to convArea ${newArea.label} on creation.`);
     });
     newArea.occupantsByID = playersInThisConversation.map(player => player.id);
     this._listeners.forEach(listener => listener.onRecreationAreaUpdated(newArea));
+    console.log(`Recreation area created. New this.recAreas: ${this._recreationAreas}`);
     return true;
   }
 
@@ -340,11 +360,13 @@ export default class CoveyTownController {
     // Create game
     const newGame = new MafiaGame(hostPlayer);
     areaToAddGame._mafiaGameID = newGame.id;
-    console.log(`Mafia game created w/ id: ${newGame.id}`);
     this._mafiaGames.push(newGame);
 
     // Notify listeners
     this._listeners.forEach(listener => listener.onLobbyCreated(areaToAddGame, hostID, newGame.id));
+    console.log(
+      `Mafia game created in ${recAreaLabel} w/ id: ${newGame.id}. New this.mafiaGames: ${this._mafiaGames}`,
+    );
     return true;
   }
 
@@ -358,27 +380,27 @@ export default class CoveyTownController {
     // Ensure the recreation area exists and has a mafia game in lobby phase
     const recArea = this._recreationAreas.find(rec => rec.label === recAreaLabel);
     if (!recArea) {
-      console.log(`Cant join lobby, rec area ${recAreaLabel} doesnt exist`);
+      // console.log(`Cant join lobby, rec area ${recAreaLabel} doesnt exist`);
       return false;
     }
 
     const mafiaGame = this._mafiaGames.find(g => g.id === recArea._mafiaGameID);
     if (mafiaGame?.phase !== 'lobby') {
-      console.log(`Can't join lobby, ${recAreaLabel}'s game has started`);
+      // console.log(`Can't join lobby, ${recAreaLabel}'s game has started`);
       return false;
     }
 
-    console.log(`Joining mafia game with ID: ${mafiaGame.id}`);
-    console.log(`Game Phase: ${mafiaGame.phase}`);
+    // console.log(`Joining mafia game with ID: ${mafiaGame.id}`);
+    // console.log(`Game Phase: ${mafiaGame.phase}`);
 
     // Ensure the player is valid and in the recreation area and not in any games?
     const player = this._players.find(p => p.id === playerID);
     if (!player) {
-      console.log(`Can't find player w/ ID ${playerID}`);
+      // console.log(`Can't find player w/ ID ${playerID}`);
       return false;
     }
     if (!recArea.occupantsByID.includes(playerID)) {
-      console.log(`Player ${playerID} is not in Rec Area ${recAreaLabel}`);
+      // console.log(`Player ${playerID} is not in Rec Area ${recAreaLabel}`);
       return false;
     }
 
@@ -386,11 +408,25 @@ export default class CoveyTownController {
     if (mafiaGame.addPlayer(player)) {
       // Notify listeners that player was added to game
       this._listeners.forEach(listener => listener.onPlayerJoinedGame(recAreaLabel, playerID));
-      console.log('Player successfully added to game');
+      console.log(`Player ${player.id} successfully added to game ${mafiaGame.id}`);
       return true;
     }
 
-    console.log('mafiaGame.addPlayer failed');
+    // console.log('mafiaGame.addPlayer failed');
+    return false;
+  }
+
+  destroyMafiaGameLobby(recAreaLabel: string): boolean {
+    // Ensure the recreation area exists and has a mafia game in lobby phase
+    const recArea = this._recreationAreas.find(rec => rec.label === recAreaLabel);
+    if (recArea) {
+      const mafiaGame = this._mafiaGames.find(g => g.id === recArea._mafiaGameID);
+      if (mafiaGame?.phase === 'lobby') {
+        recArea._mafiaGameID = undefined;
+        this._listeners.forEach(listener => listener.onLobbyDestroyed(recAreaLabel));
+        return true;
+      }
+    }
     return false;
   }
 
@@ -408,33 +444,43 @@ export default class CoveyTownController {
     if (!gameID || !mafiaGame || mafiaGame.phase !== 'lobby') {
       return false;
     }
-    
+
     // Ensure the given player is the host of the game lobby
     const player = this.players.find(p => p.id === playerStartID);
-    if (!player || !player.activeConversationArea || player.activeConversationArea.label !== recAreaLabel || player !== mafiaGame.host) {
+    if (
+      !player ||
+      !player.activeConversationArea ||
+      player.activeConversationArea.label !== recAreaLabel ||
+      player !== mafiaGame.host
+    ) {
       return false;
     }
 
-    // Start game 
-    mafiaGame.gameStart(); 
+    // Start game
+    mafiaGame.gameStart();
 
-    this._listeners.forEach(listener => listener.onMafiaGameStarted(recAreaLabel, mafiaGame.gamePlayers)); 
+    this._listeners.forEach(listener =>
+      listener.onMafiaGameStarted(recAreaLabel, mafiaGame.gamePlayers),
+    );
 
-    return true; 
+    console.log(
+      `Mafia game with id ${mafiaGame.id}/${recArea?._mafiaGameID} in ${recAreaLabel} started. Game phase: ${mafiaGame.phase}`,
+    );
+    return true;
   }
 
   /**
-   * Advances the given mafia game to the next phase 
-   * @param mafiaGameID 
+   * Advances the given mafia game to the next phase
+   * @param mafiaGameID
    */
   nextGamePhase(mafiaGameID: string): boolean {
     // Ensure the game exists and is not in the lobby phase
     const mafiaGame = this._mafiaGames.find(game => game.id === mafiaGameID);
     if (!mafiaGame || mafiaGame.phase === 'lobby') {
-      return false; 
+      return false;
     }
 
-    // Update phase 
+    // Update phase
     try {
       if (mafiaGame.phase === Phase[Phase.day_discussion]) {
         mafiaGame.endDay();
@@ -442,16 +488,18 @@ export default class CoveyTownController {
       if (mafiaGame.phase === Phase[Phase.night]) {
         mafiaGame.endNight();
       }
-      mafiaGame.updatePhase(); 
-      this._listeners.forEach(listener => listener.onMafiaGameUpdated(mafiaGameID, mafiaGame.phase, mafiaGame.gamePlayers)); 
+      mafiaGame.updatePhase();
+      this._listeners.forEach(listener =>
+        listener.onMafiaGameUpdated(mafiaGameID, mafiaGame.phase, mafiaGame.gamePlayers),
+      );
 
       // this._listeners.on
     } catch (err) {
-      return false; 
+      return false;
     }
 
-    return true; 
-
+    console.log(`Mafia game with id ${mafiaGameID} started. Game phase: ${mafiaGame.phase}`);
+    return true;
   }
 
   /**

@@ -17,6 +17,7 @@ export type RecreationAreaListener = {
     onMafiaGameUpdated? : (game: MafiaGame) => void; 
     onMafiaGameCreated? : (game: MafiaGame) => void;
     onMafiaGameStarted? : (game: MafiaGame) => void;
+    onMafiaGameDestroyed? : () => void;
 } & ConversationAreaListener;
 
 export default class RecreationArea extends ConversationArea {
@@ -34,10 +35,10 @@ export default class RecreationArea extends ConversationArea {
     }
     
     set mafiaGame(game: MafiaGame | undefined) {
-        console.log('IN SET MAFIA GAME');
+        // console.log('IN SET MAFIA GAME');
         
         if (!this._mafiaGame && game) {
-            console.log('new game created, notifying listeners'); 
+            // console.log('new game created, notifying listeners'); 
             this.addMafiaGame(game);
             
         }
@@ -51,7 +52,7 @@ export default class RecreationArea extends ConversationArea {
     }
     
     addMafiaGame(game: MafiaGame) {
-        console.log(`In Add Mafia Game: ${game.id}`);
+        // console.log(`Mafia game notifying listeners of creation ${game.id}`);
         this._recListeners.forEach(recListener => recListener.onMafiaGameCreated?.(game));
         this._mafiaGame = game;
         
@@ -124,13 +125,18 @@ export default class RecreationArea extends ConversationArea {
     }
     
     notifyPlayerAdded() {
-        console.log('Notify player added to game');
+        // console.log('Notify player added to game');
         const game = this.mafiaGame;
         if (game) {
             this._recListeners.forEach(listener => listener.onMafiaGameUpdated?.(game));
         }
     }
     
-    
+    endGame() {
+        // console.log(`Notify listeners of game ended`);
+        if (this.mafiaGame) {
+            this._recListeners.forEach(listener => listener.onMafiaGameDestroyed?.());
+        }
+    }
     
 }
