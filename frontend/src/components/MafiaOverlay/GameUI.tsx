@@ -1,10 +1,17 @@
-import { Button, Container, Heading, HStack, StackDivider, useToast, VStack } from '@chakra-ui/react';
+import {
+  Button,
+  Container,
+  Heading,
+  HStack,
+  StackDivider,
+  useToast,
+  VStack,
+} from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import MafiaGame, { Phase } from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
-import usePlayersInTown from '../../hooks/usePlayersInTown';
 import StartGameButton from '../SocialSidebar/StartGameButton';
 import {
   GameUIAlivePlayerList,
@@ -26,10 +33,10 @@ type GameUIProps = {
 
 // this UI container just needs a hook for whether game has begun, time of day
 export default function GameUI({ recArea }: GameUIProps): JSX.Element {
-  
-  const {apiClient, sessionToken, currentTownID, myPlayerID } = useCoveyAppState();
+  const { apiClient, sessionToken, currentTownID, myPlayerID } = useCoveyAppState();
   const [gameInstance, setGameInstance] = useState<MafiaGame | undefined>(recArea?.mafiaGame);
   const [gamePlayers, setGamePlayers] = useState<Player[]>([]);
+  const [numGamePlayers, setNumGamePlayers] = useState<number>(gameInstance?.players.length || 0);
   const [gameCanStart, setGameCanStart] = useState<boolean>(gameInstance?.canStart() || false);
   const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
   let inLobby = false;
@@ -42,7 +49,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         await apiClient.destroyGameLobby({
           coveyTownID: currentTownID,
           sessionToken,
-          recreationAreaLabel: recArea?.label
+          recreationAreaLabel: recArea?.label,
         });
         toast({
           title: 'Mafia Game Lobby Disbanded.',
@@ -50,19 +57,19 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         });
       } catch (err: unknown) {
         if (err instanceof Error) {
-            toast({
-                title: 'Unable to disband lobby',
-                description: err.toString(),
-                status: 'error',
-            })
-          }
+          toast({
+            title: 'Unable to disband lobby',
+            description: err.toString(),
+            status: 'error',
+          });
         }
-      } else {
-        toast({
-          title: `Only the host can disband the lobby.`
-        });
       }
-    }, [apiClient, currentTownID, myPlayerID, recArea, sessionToken, toast]);
+    } else {
+      toast({
+        title: `Only the host can disband the lobby.`,
+      });
+    }
+  }, [apiClient, currentTownID, myPlayerID, recArea, sessionToken, toast]);
 
   useEffect(() => {
     const updateListener: RecreationAreaListener = {
@@ -75,20 +82,30 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGameInstance(game);
         setGameCanStart(game.canStart());
         setGamePlayers(game.players);
+        setNumGamePlayers(game.players.length);
       },
       onMafiaGameDestroyed: () => {
         setGameInstance(undefined);
         setGameCanStart(false);
         setGamePlayers([]);
-      }
+      },
     };
     recArea?.addRecListener(updateListener);
     return () => {
       recArea?.removeListener(updateListener);
     };
-  }, [myPlayerID, gameInstance, setGameInstance, setGamePlayers, recArea]);
+  }, [
+    myPlayerID,
+    gameInstance,
+    setGameInstance,
+    gamePlayers,
+    setGamePlayers,
+    recArea,
+    numGamePlayers,
+    setNumGamePlayers,
+  ]);
 
-  if (recArea && gameInstance && gamePlayers.map(p=>p.id).includes(myPlayerID)) {
+  if (recArea && gameInstance && gamePlayers.map(p => p.id).includes(myPlayerID)) {
     inLobby = gameInstance._phase === Phase.lobby;
     if (inLobby) {
       return (
@@ -120,7 +137,9 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               ) : (
                 <> </>
               )}
-              <Button colorScheme='red' onClick={disbandLobby}>Disband Lobby</Button>
+              <Button colorScheme='red' onClick={disbandLobby}>
+                Disband Lobby
+              </Button>
             </HStack>
           </VStack>
         </Container>
@@ -154,12 +173,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             </VStack>
             <GameUIVideoOverlay />
             <VStack>
-              <GameUIAlivePlayerList
-                players={gameInstance.alivePlayers}
-              />
-              <GameUIDeadPlayerList
-                players={gameInstance.deadPlayers}
-              />
+              <GameUIAlivePlayerList players={gameInstance.alivePlayers} />
+              <GameUIDeadPlayerList players={gameInstance.deadPlayers} />
             </VStack>
           </HStack>
           <HStack>
