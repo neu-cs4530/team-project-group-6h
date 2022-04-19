@@ -8,7 +8,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
-import MafiaGame, { Phase } from '../../classes/MafiaGame';
+import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
@@ -39,7 +39,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const [numGamePlayers, setNumGamePlayers] = useState<number>(gameInstance?.players.length || 0);
   const [gameCanStart, setGameCanStart] = useState<boolean>(gameInstance?.canStart() || false);
   const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
-  let inLobby = false;
+  const [gamePhase, setGamePhase] = useState<string | undefined>(gameInstance?.phase);
+  // let inLobby = false;
 
   const toast = useToast();
 
@@ -77,12 +78,17 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGameInstance(game);
         setIsPlayerHost(game.host.id === myPlayerID);
         setGamePlayers(game.players);
+        setGamePhase(game.phase);
       },
       onMafiaGameUpdated: (game: MafiaGame) => {
         setGameInstance(game);
         setGameCanStart(game.canStart());
         setGamePlayers(game.players);
         setNumGamePlayers(game.players.length);
+        setGamePhase(game.phase);
+      },
+      onMafiaGameStarted: (game: MafiaGame) => {
+        setGamePhase(game.phase);
       },
       onMafiaGameDestroyed: () => {
         setGameInstance(undefined);
@@ -103,11 +109,13 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     recArea,
     numGamePlayers,
     setNumGamePlayers,
+    gamePhase,
+    setGamePhase,
   ]);
 
   if (recArea && gameInstance && gamePlayers.map(p => p.id).includes(myPlayerID)) {
-    inLobby = gameInstance._phase === Phase.lobby;
-    if (inLobby) {
+    // inLobby = gameInstance._phase === Phase.lobby;
+    if (gamePhase === 'lobby') {
       return (
         <Container
           align='left'
@@ -145,7 +153,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         </Container>
       );
     }
-    const isDay = gameInstance.phase === 'day_discussion' || gameInstance.phase === 'day_voting';
+    const isDay = gamePhase === 'day_discussion' || gamePhase === 'day_voting';
+    console.log(`Phase: ${gamePhase}`);
     return (
       <Container
         align='left'

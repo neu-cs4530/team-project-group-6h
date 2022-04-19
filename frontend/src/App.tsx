@@ -275,9 +275,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             // existingRecArea.mafiaGame = new MafiaGame(_mafiaGameID, host);
             existingRecArea.addMafiaGame(new MafiaGame(_mafiaGameID, host));
             setRecreationAreas(localRecreationAreas);
-            console.log(
-              `Created mafia game in recArea ${existingRecArea.label}. Mafia game: ${existingRecArea.mafiaGame}`,
-            );
           }
         },
       );
@@ -285,15 +282,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         const existingRecArea = localRecreationAreas.find(a => a.label === _recreationAreaLabel);
         const player = localPlayers.find(p => p.id === _playerID);
         if (existingRecArea?.mafiaGame && player) {
-          /*
-          if (existingRecArea.mafiaGame.addPlayer(player)) {
-            existingRecArea.notifyPlayerAdded(); 
-            console.log(`Player ${_playerID} joined game in recArea ${_recreationAreaLabel}.`);
-          };
-          */
-          if (existingRecArea.addPlayerToGame(player)) {
-            console.log('player successfully added (in App.tsx)');
-          }
+          existingRecArea.addPlayerToGame(player);
         }
         setRecreationAreas(localRecreationAreas);
       });
@@ -307,12 +296,9 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setRecreationAreas(localRecreationAreas);
       });
       socket.on('mafiaGameStarted', (_recAreaLabel: string, _playerRoles: GamePlayer[]) => {
-        const recArea = recreationAreas.find(rec => rec.label === _recAreaLabel);
+        const recArea = localRecreationAreas.find(rec => rec.label === _recAreaLabel);
         if (recArea) {
           recArea.startGame(_playerRoles);
-          console.log(
-            `Mafia game started in recArea ${_recAreaLabel}. Mafia game id: ${recArea.mafiaGame?.id} Phase: ${recArea.mafiaGame?._phase}`,
-          );
         }
       });
       socket.on(
@@ -323,7 +309,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           if (mafiaGame) {
             mafiaGame.gamePlayers = _gamePlayers;
             mafiaGame.updatePhase();
-            console.log(`Mafia game ${_mafiaGameID}. Mafia game phase: ${mafiaGame._phase}`);
           }
         },
       );
@@ -342,7 +327,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           a => a.label !== _conversationArea.label,
         );
         setConversationAreas(localConversationAreas);
-        console.log(`ConvArea ${_conversationArea.label} destroyed.`);
         recalculateNearbyPlayers();
       });
       socket.on('recreationDestroyed', (_recreationArea: ServerRecreationArea) => {
