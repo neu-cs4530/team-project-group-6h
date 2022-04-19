@@ -202,7 +202,6 @@ describe('Part 1 - Public town listing', () => {
     // All towns are in doc, now make sure they are sorted by occupancy
     let rows = renderData.getAllByRole('row');
     for (let i = 1; i < rows.length; i += 1) { // off-by-one for the header row
-      // console.log(rows[i]);
       const existing = within(rows[i])
         .getByText(expectedTowns1.towns[i - 1].friendlyName);
       expect(existing)

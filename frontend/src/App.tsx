@@ -217,36 +217,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           }
         }
       });
-
-      /*
-      socket.on('playerMoved', (playerID: string) => {
-        const playerObj = localPlayers.find(p => p.id === playerID); 
-        if (!playerObj || !playerObj.location) {
-          return;
-        }
-
-        const player: ServerPlayer = {_id: playerID, _userName: playerObj.userName, location: playerObj.location}
-
-        if (player._id !== gamePlayerID) {
-          const now = Date.now();
-          playerMovementCallbacks.forEach(cb => cb(player));
-          if (
-            !player.location.moving ||
-            now - lastRecalculateNearbyPlayers > CALCULATE_NEARBY_PLAYERS_MOVING_DELAY_MS
-          ) {
-            lastRecalculateNearbyPlayers = now;
-            const updatePlayer = localPlayers.find(p => p.id === player._id);
-            if (updatePlayer) {
-              updatePlayer.location = player.location;
-            } else {
-              localPlayers = localPlayers.concat(Player.fromServerPlayer(player));
-              setPlayersInTown(localPlayers);
-            }
-            recalculateNearbyPlayers();
-          }
-        }
-      });
-      */
       socket.on('playerDisconnect', (disconnectedPlayer: ServerPlayer) => {
         localPlayers = localPlayers.filter(player => player.id !== disconnectedPlayer._id);
         setPlayersInTown(localPlayers);
@@ -264,9 +234,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             ConversationArea.fromServerConversationArea(_conversationArea),
           ]);
         }
-        // conversationAreas.push(ConversationArea.fromServerConversationArea(_conversationArea));
         setConversationAreas(localConversationAreas);
-        console.log(`Updated convArea ${_conversationArea.label}`);
         recalculateNearbyPlayers();
       });
       socket.on('recreationUpdated', (_recreationArea: ServerRecreationArea) => {
@@ -294,9 +262,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setCurrentRecArea(() => localCurrentRecArea);
         setConversationAreas(localConversationAreas);
         setRecreationAreas(localRecreationAreas);
-        console.log(
-          `Updated recArea ${_recreationArea.label}\nrecArea mafiaGame: ${_recreationArea.mafiaGame}`,
-        );
         recalculateNearbyPlayers();
       });
       socket.on(
@@ -395,7 +360,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         );
         setRecreationAreas(localRecreationAreas);
         setConversationAreas(localConversationAreas);
-        console.log(`RecArea ${_recreationArea.label} destroyed.`);
         recalculateNearbyPlayers();
       });
       dispatchAppUpdate({

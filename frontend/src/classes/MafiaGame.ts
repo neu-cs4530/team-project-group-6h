@@ -145,7 +145,6 @@ export default class MafiaGame {
   public addPlayer(player: Player): boolean {
     if (this._phase === Phase.lobby) {
       this._players.push(player);
-      // console.log(`Player ${player.userName} added to game`);
       return true;
     }
     return false;
@@ -319,9 +318,6 @@ export default class MafiaGame {
     // const mafiaAndTown: GamePlayer[] = [...this._mafiaPlayers, ...this._townPlayers];
 
     const playerIndex = this._gamePlayers.findIndex(player => playerID === player.id);
-
-    // console.log(`Index: ${playerIndex}`);
-
     if (playerIndex >= 0) {
       const gamePlayer = this._gamePlayers[playerIndex];
       if (gamePlayer.isAlive) {

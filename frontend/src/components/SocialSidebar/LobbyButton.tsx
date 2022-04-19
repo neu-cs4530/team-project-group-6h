@@ -14,11 +14,6 @@ type LobbyButtonProps = {
 const LobbyButtons = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Element => { 
 
     const a = 1;
-    /*
-    useEffect(() => {
-        // console.log(`Mafia game updated in LobbyButton, num occupants = ${mafiaGame?.players.length}`)
-    }, [mafiaGame]);
-    */
 
   return (
     <>
