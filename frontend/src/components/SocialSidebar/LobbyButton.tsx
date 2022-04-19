@@ -13,14 +13,12 @@ type LobbyButtonProps = {
 
 const LobbyButtons = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Element => { 
 
-    useEffect(() => {
-        console.log(`Mafia game updated in LobbyButton, num occupants = ${mafiaGame?.players.length}`)
-    }, [mafiaGame]); 
+    const a = 1;
 
   return (
     <>
         <Heading as='h2' fontSize='l'>Mafia Game Lobby</Heading>
-        {mafiaGame && !mafiaGame.canStart() ? 
+        {mafiaGame ? 
             <JoinGameButton 
             hostID={mafiaGame._host.id} 
             myPlayerID={playerID} 
@@ -31,7 +29,7 @@ const LobbyButtons = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Elem
             myPlayerID={playerID}/>}
         
     </>
-  )
+  );
 }
 
 export default LobbyButtons

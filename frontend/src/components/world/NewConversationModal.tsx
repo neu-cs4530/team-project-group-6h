@@ -34,7 +34,6 @@ export default function NewConversationModal({ isOpen, closeModal, newConversati
 
   const [isRecreationArea, setIsRecreationArea] = useState(false);
   const toggleIsRecreationArea = () => {
-    console.log(isRecreationArea ? 'Change to Conversation Area' : 'Change to Recreation Area');
     setIsRecreationArea(!isRecreationArea);
   }
 
@@ -47,7 +46,6 @@ export default function NewConversationModal({ isOpen, closeModal, newConversati
       conversationToCreate.topic = topic;
       try {
         if (isRecreationArea) {
-          console.log('create recreation');
           await apiClient.createRecreation({
             sessionToken,
             coveyTownID: currentTownID,

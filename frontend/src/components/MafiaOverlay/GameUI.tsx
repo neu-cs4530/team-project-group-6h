@@ -1,8 +1,17 @@
-import { Button, Container, Heading, HStack, StackDivider, VStack } from '@chakra-ui/react';
+import {
+  Button,
+  Container,
+  Heading,
+  HStack,
+  StackDivider,
+  useToast,
+  VStack,
+} from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import MafiaGame, { Phase } from '../../classes/MafiaGame';
+import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
-import usePlayersInTown from '../../hooks/usePlayersInTown';
+import useCoveyAppState from '../../hooks/useCoveyAppState';
 import StartGameButton from '../SocialSidebar/StartGameButton';
 import {
   GameUIAlivePlayerList,
@@ -19,62 +28,85 @@ import {
 import NextPhaseButton from './NextPhaseButton';
 
 type GameUIProps = {
-  myID: string;
   recArea: RecreationArea | undefined;
 };
 
 // this UI container just needs a hook for whether game has begun, time of day
-export default function GameUI({ myID, recArea } : GameUIProps): JSX.Element {
-    const [gameInstance, setGameInstance] = useState<MafiaGame | undefined>(recArea?.mafiaGame);
-    // tracks list of game players
-    const [gamePlayers, setGamePlayers] = useState<Player[]>(recArea?.mafiaGame?.players || []);
-    const [gameCanStart, setGameCanStart] = useState<boolean>(gameInstance?.canStart() || false);
-    const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
-    const players = usePlayersInTown();
+export default function GameUI({ recArea }: GameUIProps): JSX.Element {
+  const { apiClient, sessionToken, currentTownID, myPlayerID } = useCoveyAppState();
+  const [gameInstance, setGameInstance] = useState<MafiaGame | undefined>(recArea?.mafiaGame);
+  const [gamePlayers, setGamePlayers] = useState<Player[]>([]);
+  const [numGamePlayers, setNumGamePlayers] = useState<number>(gameInstance?.players.length || 0);
+  const [gameCanStart, setGameCanStart] = useState<boolean>(gameInstance?.canStart() || false);
+  const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
+  let inLobby = false;
 
-    // checks if my player is in a game
-    const isPlayerInGame = useCallback((): boolean => {
-        const foundPlayer = gamePlayers.find(p => p.id === myID);
-        return foundPlayer !== undefined;
-    }, [gamePlayers, myID]);
+  const toast = useToast();
 
-    // keeps track of my player's game state
-    const [playerInGame, setPlayerInGame] = useState(isPlayerInGame());
-
-    const isPlayerInArea = (_occupants: string[] | undefined): boolean => {
-    if (_occupants === undefined) {
-      return false;
+  const disbandLobby = useCallback(async () => {
+    if (myPlayerID === recArea?.mafiaGame?.host.id) {
+      try {
+        await apiClient.destroyGameLobby({
+          coveyTownID: currentTownID,
+          sessionToken,
+          recreationAreaLabel: recArea?.label,
+        });
+        toast({
+          title: 'Mafia Game Lobby Disbanded.',
+          status: 'success',
+        });
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          toast({
+            title: 'Unable to disband lobby',
+            description: err.toString(),
+            status: 'error',
+          });
+        }
+      }
+    } else {
+      toast({
+        title: `Only the host can disband the lobby.`,
+      });
     }
-    const found = _occupants.includes(myID);
-    return found;
-  };
+  }, [apiClient, currentTownID, myPlayerID, recArea, sessionToken, toast]);
 
-    useEffect(() => {
-        const updateListener: RecreationAreaListener = {
-            onMafiaGameCreated: (game: MafiaGame) => {
-                setGameInstance(game); 
-                setGamePlayers(game.players);
-                setPlayerInGame(isPlayerInGame());
-                setIsPlayerHost(game.host.id === myID);
-            },
-            onMafiaGameUpdated: (game: MafiaGame) => {
-                console.log('In onMafiaGameUpdated')
-                setGameInstance(game);
-                setGamePlayers(game.players);
-                setPlayerInGame(isPlayerInGame());
-                setGameCanStart(game.canStart());
-            },
-            
-        };
-        recArea?.addRecListener(updateListener);
-        return () => {
-            recArea?.removeListener(updateListener);
-        };
-    }, [gameInstance, setGameInstance, recArea, gamePlayers, isPlayerInGame]);
+  useEffect(() => {
+    const updateListener: RecreationAreaListener = {
+      onMafiaGameCreated: (game: MafiaGame) => {
+        setGameInstance(game);
+        setIsPlayerHost(game.host.id === myPlayerID);
+        setGamePlayers(game.players);
+      },
+      onMafiaGameUpdated: (game: MafiaGame) => {
+        setGameInstance(game);
+        setGameCanStart(game.canStart());
+        setGamePlayers(game.players);
+        setNumGamePlayers(game.players.length);
+      },
+      onMafiaGameDestroyed: () => {
+        setGameInstance(undefined);
+        setGameCanStart(false);
+        setGamePlayers([]);
+      },
+    };
+    recArea?.addRecListener(updateListener);
+    return () => {
+      recArea?.removeListener(updateListener);
+    };
+  }, [
+    myPlayerID,
+    gameInstance,
+    setGameInstance,
+    gamePlayers,
+    setGamePlayers,
+    recArea,
+    numGamePlayers,
+    setNumGamePlayers,
+  ]);
 
-    if (recArea && gameInstance && isPlayerInGame()) {
-        const inLobby = (gameInstance._phase === Phase.lobby);
-
+  if (recArea && gameInstance && gamePlayers.map(p => p.id).includes(myPlayerID)) {
+    inLobby = gameInstance._phase === Phase.lobby;
     if (inLobby) {
       return (
         <Container
@@ -97,15 +129,17 @@ export default function GameUI({ myID, recArea } : GameUIProps): JSX.Element {
               divider={<StackDivider borderColor='black' />}>
               <GameUILobbyRoles />
               <GameUILobbyRules />
-              {/* <GameUILobbyPlayersList players={playersInRecArea} /> */}
+              <GameUILobbyPlayersList players={gamePlayers} />
             </HStack>
             <HStack>
               {gameInstance && isPlayerHost && gameCanStart ? (
-                <StartGameButton area={recArea} myPlayerID={myID} />
+                <StartGameButton area={recArea} myPlayerID={myPlayerID} />
               ) : (
                 <> </>
               )}
-              <Button colorScheme='red'>Disband Lobby</Button>
+              <Button colorScheme='red' onClick={disbandLobby}>
+                Disband Lobby
+              </Button>
             </HStack>
           </VStack>
         </Container>
@@ -134,17 +168,13 @@ export default function GameUI({ myID, recArea } : GameUIProps): JSX.Element {
           </HStack>
           <HStack width='full' alignItems='stretch' align='flex-start'>
             <VStack align='left'>
-              <GameUIRoleDescription playerRole={gameInstance.playerRole(myID)} />
+              <GameUIRoleDescription playerRole={gameInstance.playerRole(myPlayerID)} />
               <GameUIRoleList />
             </VStack>
             <GameUIVideoOverlay />
             <VStack>
-              <GameUIAlivePlayerList
-                players={gameInstance.alivePlayers.map(player => player.userName)}
-              />
-              <GameUIDeadPlayerList
-                players={gameInstance.deadPlayers.map(player => player.userName)}
-              />
+              <GameUIAlivePlayerList players={gameInstance.alivePlayers} />
+              <GameUIDeadPlayerList players={gameInstance.deadPlayers} />
             </VStack>
           </HStack>
           <HStack>

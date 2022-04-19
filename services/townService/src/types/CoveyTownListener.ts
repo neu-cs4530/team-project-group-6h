@@ -34,13 +34,13 @@ export default interface CoveyTownListener {
    * Called when a conversation area is created or updated
    * @param conversationArea the conversation area that is updated or created
    */
-  onConversationAreaUpdated(conversationArea: ServerConversationArea) : void;
+  onConversationAreaUpdated(conversationArea: ServerConversationArea): void;
 
   /**
    * Called when a recreation area is created or updated
    * @param recreationArea the recreation area that is created or updated
    */
-  onRecreationAreaUpdated(recreationArea: ServerRecreationArea) : void; 
+  onRecreationAreaUpdated(recreationArea: ServerRecreationArea): void;
 
   /**
    * Called when a conversation area is destroyed
@@ -57,17 +57,18 @@ export default interface CoveyTownListener {
   /**
    * Called when a new mafia game lobby is created
    * @param recreationArea Rec area where the game is created
-   * @param hostID The host of the game 
+   * @param hostID The host of the game
    */
   onLobbyCreated(recreationArea: ServerRecreationArea, hostID: string, mafiaGameID: string): void;
 
   /**
    * Called when a player joins a mafia game
    * @param recreationAreaLabel Rec area containing the game
-   * @param playerID Player joining the game 
+   * @param playerID Player joining the game
    */
   onPlayerJoinedGame(recreationAreaLabel: string, playerID: string): void;
 
+  onLobbyDestroyed(recreationAreaLabel: string): void;
 
   /**
    * Called when a mafia game is started
@@ -76,12 +77,15 @@ export default interface CoveyTownListener {
   onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]): void;
 
   /**
-   * Called when a mafia game phase is updated 
-   * @param mafiaGameID the game being updated 
+   * Called when a mafia game phase is updated
+   * @param mafiaGameID the game being updated
    * @param phase The new game phase
    * @param gamePlayers Updated list of players
    */
-  onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: GamePlayer[]): void; 
+  onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: GamePlayer[]): void;
+
+  // TODO
+  // onMafiaGameEnded(mafiaGameID: string): void;
 
   /**
    * Called when a chat message is received from a user

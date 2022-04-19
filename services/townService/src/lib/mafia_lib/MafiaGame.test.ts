@@ -12,16 +12,6 @@ describe('MafiaGame', () => {
   newMafiaGame.addPlayer(recPlayer3);
   newMafiaGame.addPlayer(recPlayer4);
 
-  // TODO: We might want to mock this instead.
-  /** console.log(`RecPlayer1 username: ${recPlayer1.userName}`);
-  console.log(`RecPlayer1 ID: ${recPlayer1.id}`);
-  console.log(`RecPlayer2 username: ${recPlayer2.userName}`);
-  console.log(`RecPlayer2 ID: ${recPlayer2.id}`);
-  console.log(`RecPlayer3 username: ${recPlayer3.userName}`);
-  console.log(`RecPlayer3 ID: ${recPlayer3.id}`);
-  console.log(`RecPlayer3 username: ${recPlayer3.userName}`);
-  console.log(`RecPlayer3 ID: ${recPlayer3.id}`); */
-
   it('Partitions player list and randomly assigns roles correctly', () => {
     newMafiaGame.gameStart();
 
@@ -31,8 +21,6 @@ describe('MafiaGame', () => {
   });
   it('Adds players that have been voted out from the game to the deadPlayers list', () => {
     newMafiaGame.eliminatePlayer(recPlayer2.id);
-    // console.log(`townplayers: ${JSON.stringify(newMafiaGame.townPlayers)}`);
-    // console.log(`mafiaPlayers: ${JSON.stringify(newMafiaGame.mafiaPlayers)}`);
 
     expect(newMafiaGame.townPlayers.length).toBe(3);
     expect(newMafiaGame.mafiaPlayers.length).toBe(1);

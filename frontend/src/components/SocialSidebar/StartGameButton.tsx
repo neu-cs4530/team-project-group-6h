@@ -38,10 +38,6 @@ export default function StartGameButton({ area, myPlayerID }: StartGameProps ): 
                 title: 'Mafia Game Started!',
                 status: 'success',
             });
-            if (!mafiaGame) {
-                console.log('Mafia game undefined');
-                console.log(`Area label: ${area.label}`);
-            }
         } catch (err: unknown) {
             if (err instanceof Error) {
                 toast({
@@ -54,12 +50,13 @@ export default function StartGameButton({ area, myPlayerID }: StartGameProps ): 
     }, [apiClient, sessionToken, currentTownID, toast, area, mafiaGame, myPlayerID]); 
 
     useEffect(() => {
-        console.log('IN USE EFFECT');
         const updateListener: RecreationAreaListener = {
             onMafiaGameStarted: (game: MafiaGame) => {
-                console.log(`In Listener, on Mafia Game Started! Phase: ${game.phase}, HOST: ${game._host.userName}, NUM PLAYERS: ${game.players.length}`);
                 setMafiaGame(game); 
             },
+            onMafiaGameDestroyed: () => {
+                setMafiaGame(undefined);
+            }
             
         };
         area.addRecListener(updateListener);

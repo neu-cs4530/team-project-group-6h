@@ -5,14 +5,17 @@ import PlayersList from './PlayersList';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import useRecreationAreas from '../../hooks/useRecreationAreas';
 import GameLobby from './GameLobby';
+import useCurrentRecreationArea from '../../hooks/useCurrentRecreationArea';
 
 export default function SocialSidebar(): JSX.Element {
  
   // get all the recreation areas of this town
-  const recAreas = useRecreationAreas();
+  // const recAreas = useRecreationAreas();
   const coveyApp = useCoveyAppState();
   // get my player's id
   const { myPlayerID } = coveyApp;
+  const currentRecArea = useCurrentRecreationArea();
+
 
     return (
       <VStack align="left"
@@ -29,13 +32,12 @@ export default function SocialSidebar(): JSX.Element {
         <PlayersList /> 
         
         <ConversationAreasList />
-      
-        {recAreas.map((area) => 
-          <GameLobby
-            key={area.label}
-            area={area}
-            playerID={myPlayerID} /> 
-        )}
+        
+        {currentRecArea ? 
+          <GameLobby key={currentRecArea.label} area={currentRecArea} playerID={myPlayerID} />
+          :
+          <></>
+        }
         
       </VStack>
     );

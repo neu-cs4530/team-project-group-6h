@@ -77,9 +77,6 @@ export default class MafiaGame {
     this.gamePlayers = gamePlayers;
   }
 
-  set gamePlayers(gamePlayers: GamePlayer[]) {
-    this.gamePlayers = gamePlayers;
-  }
 
   /**
    * Return the number of players currently in the game (for lobby logic).
@@ -100,7 +97,7 @@ export default class MafiaGame {
    * @returns True if game can start, false if otherwise.
    */
   public canStart(): boolean {
-    return this._phase === Phase.lobby && this.MIN_PLAYERS === this._players.length;
+    return this._phase === Phase.lobby && this.MIN_PLAYERS <= this._players.length;
   }
 
   /**
@@ -321,9 +318,6 @@ export default class MafiaGame {
     // const mafiaAndTown: GamePlayer[] = [...this._mafiaPlayers, ...this._townPlayers];
 
     const playerIndex = this._gamePlayers.findIndex(player => playerID === player.id);
-
-    // console.log(`Index: ${playerIndex}`);
-
     if (playerIndex >= 0) {
       const gamePlayer = this._gamePlayers[playerIndex];
       if (gamePlayer.isAlive) {

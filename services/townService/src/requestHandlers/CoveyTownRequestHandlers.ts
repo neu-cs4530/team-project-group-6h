@@ -3,12 +3,12 @@ import { Socket } from 'socket.io';
 import {
   ConversationAreaCreateRequest,
   GameLobbyCreateRequest,
+  GameLobbyDestroyRequest,
   GameLobbyJoinRequest,
   GameStartRequest,
   NextPhaseRequest,
   ServerConversationArea,
   ServerRecreationArea,
-
 } from '../client/TownsServiceClient';
 import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownController from '../lib/CoveyTownController';
@@ -337,6 +337,31 @@ export function mafiaGameLobbyJoinHandler(
       : undefined,
   };
 }
+
+export function mafiaGameLobbyDestroyHandler(
+  _requestData: GameLobbyDestroyRequest,
+): ResponseEnvelope<Record<string, null>> {
+  const townController = getTownController(_requestData.coveyTownID);
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
+    console.log('Invalid session/token');
+    return {
+      isOK: false,
+      response: {},
+      message: `Unable to join destroy game lobby in ${_requestData.recreationAreaLabel}.`,
+    };
+  }
+
+  const success = townController.destroyMafiaGameLobby(_requestData.recreationAreaLabel);
+  console.log(`Success: ${success}`);
+  return {
+    isOK: success,
+    response: {},
+    message: !success
+      ? `Unable to join mafia game lobby in ${_requestData.recreationAreaLabel}.`
+      : undefined,
+  };
+}
+
 export function mafiaGameStartHandler(
   _requestData: GameStartRequest,
 ): ResponseEnvelope<Record<string, null>> {
@@ -383,7 +408,7 @@ export function mafiaGameNextPhaseHandler(
     _requestData.playerStartID,
   );
   */
-  const success = townController.nextGamePhase(_requestData.mafiaGameID); 
+  const success = townController.nextGamePhase(_requestData.mafiaGameID);
 
   console.log(`Success: ${success}`);
   return {
@@ -394,7 +419,6 @@ export function mafiaGameNextPhaseHandler(
       : undefined,
   };
 }
-
 
 /**
  * An adapter between CoveyTownController's event interface (CoveyTownListener)
@@ -434,6 +458,9 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     },
     onPlayerJoinedGame(recreationAreaLabel: string, playerID: string) {
       socket.emit('playerJoinedGame', recreationAreaLabel, playerID);
+    },
+    onLobbyDestroyed(recreationAreaLabel: string) {
+      socket.emit('lobbyDestroyed', recreationAreaLabel);
     },
     onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]) {
       socket.emit('mafiaGameStarted', recAreaLabel, playerRoles);
@@ -489,7 +516,6 @@ export function townSubscriptionHandler(socket: Socket): void {
   socket.on('playerMovement', (movementData: UserLocation) => {
     townController.updatePlayerLocation(s.player, movementData);
   });
-
 
   // Register an event listener for the client socket: if the client creates a new mafia game,
   // inform the CoveyTownController
