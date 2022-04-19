@@ -77,9 +77,6 @@ export default class MafiaGame {
     this.gamePlayers = gamePlayers;
   }
 
-  set gamePlayers(gamePlayers: GamePlayer[]) {
-    this.gamePlayers = gamePlayers;
-  }
 
   /**
    * Return the number of players currently in the game (for lobby logic).
