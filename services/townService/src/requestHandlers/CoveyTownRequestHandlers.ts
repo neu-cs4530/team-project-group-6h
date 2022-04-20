@@ -328,7 +328,7 @@ export function mafiaGameLobbyJoinHandler(
     _requestData.recreationAreaLabel,
     _requestData.playerID,
   );
-  console.log(`Success: ${success}`);
+
   return {
     isOK: success,
     response: {},
@@ -343,7 +343,6 @@ export function mafiaGameLobbyDestroyHandler(
 ): ResponseEnvelope<Record<string, null>> {
   const townController = getTownController(_requestData.coveyTownID);
   if (!townController?.getSessionByToken(_requestData.sessionToken)) {
-    console.log('Invalid session/token');
     return {
       isOK: false,
       response: {},
@@ -352,7 +351,6 @@ export function mafiaGameLobbyDestroyHandler(
   }
 
   const success = townController.destroyMafiaGameLobby(_requestData.recreationAreaLabel);
-  console.log(`Success: ${success}`);
   return {
     isOK: success,
     response: {},
@@ -367,7 +365,6 @@ export function mafiaGameStartHandler(
 ): ResponseEnvelope<Record<string, null>> {
   const townController = getTownController(_requestData.coveyTownID);
   if (!townController?.getSessionByToken(_requestData.sessionToken)) {
-    console.log('Invalid session/token');
     return {
       isOK: false,
       response: {},
@@ -379,7 +376,6 @@ export function mafiaGameStartHandler(
     _requestData.recreationAreaLabel,
     _requestData.playerStartID,
   );
-  console.log(`Success: ${success}`);
   return {
     isOK: success,
     response: {},
@@ -394,23 +390,13 @@ export function mafiaGameNextPhaseHandler(
 ): ResponseEnvelope<Record<string, null>> {
   const townController = getTownController(_requestData.coveyTownID);
   if (!townController?.getSessionByToken(_requestData.sessionToken)) {
-    console.log('Invalid session/token');
     return {
       isOK: false,
       response: {},
       message: `Unable to update phase in Mafia Game:${_requestData.mafiaGameID}.`,
     };
   }
-
-  /*
-  const success = townController.startMafiaGame(
-    _requestData.recreationAreaLabel,
-    _requestData.playerStartID,
-  );
-  */
   const success = townController.nextGamePhase(_requestData.mafiaGameID);
-
-  console.log(`Success: ${success}`);
   return {
     isOK: success,
     response: {},

@@ -473,8 +473,6 @@ export default class CoveyTownController {
           mafiaGame.gamePlayers.map(p => p.toServerGamePlayer()),
         ),
       );
-
-      // this._listeners.on
     } catch (err) {
       return false;
     }

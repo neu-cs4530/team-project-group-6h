@@ -199,7 +199,15 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             </VStack>
           </HStack>
           <HStack>
-            <NextPhaseButton area={recArea} />
+            {isPlayerHost && gameInstance ? (
+              <NextPhaseButton
+                area={recArea}
+                myPlayerID={myPlayerID}
+                gameInstanceID={gameInstance.id}
+              />
+            ) : (
+              <></>
+            )}
           </HStack>
         </VStack>
       </Container>

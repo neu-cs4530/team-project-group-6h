@@ -216,6 +216,7 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
         sessionToken: req.body.sessionToken,
         mafiaGameID: req.body.mafiaGameID,
       });
+      res.status(StatusCodes.OK).json(result);
     } catch (err) {
       logError(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

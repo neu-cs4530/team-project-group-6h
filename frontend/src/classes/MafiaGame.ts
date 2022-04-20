@@ -74,8 +74,8 @@ export default class MafiaGame {
     return this._gamePlayers;
   }
 
-  set gamePlayers(gamePlayers: GamePlayer[]) {
-    this.gamePlayers = gamePlayers;
+  set gamePlayers(players: GamePlayer[]) {
+    this._gamePlayers = players;
   }
 
   /**
