@@ -465,11 +465,14 @@ export default class CoveyTownController {
         mafiaGame.endNight();
       }
       mafiaGame.updatePhase();
-      /*
+
       this._listeners.forEach(listener =>
-        listener.onMafiaGameUpdated(mafiaGameID, mafiaGame.phase, mafiaGame.gamePlayers),
+        listener.onMafiaGameUpdated(
+          mafiaGameID,
+          mafiaGame.phase,
+          mafiaGame.gamePlayers.map(p => p.toServerGamePlayer()),
+        ),
       );
-      */
 
       // this._listeners.on
     } catch (err) {

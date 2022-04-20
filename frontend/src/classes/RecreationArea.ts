@@ -127,6 +127,13 @@ export default class RecreationArea extends ConversationArea {
     }
   }
 
+  notifyGameUpdated() {
+    const game = this.mafiaGame;
+    if (game) {
+      this._recListeners.forEach(listener => listener.onMafiaGameUpdated?.(game));
+    }
+  }
+
   endGame() {
     if (this.mafiaGame) {
       this._recListeners.forEach(listener => listener.onMafiaGameDestroyed?.());

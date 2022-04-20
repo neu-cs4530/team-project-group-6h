@@ -302,14 +302,26 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           recArea.startGame(_playerRoles);
         }
       });
+      const getNewGamePlayer = function (serverGamePlayer: ServerGamePlayer): void {};
       socket.on(
         'mafiaGameUpdated',
-        (_mafiaGameID: string, _phase: string, _gamePlayers: GamePlayer[]) => {
+        (_mafiaGameID: string, _phase: string, _gamePlayers: ServerGamePlayer[]) => {
           const mafiaGame = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID)
             ?.mafiaGame;
           if (mafiaGame) {
-            mafiaGame.gamePlayers = _gamePlayers;
+            const updatedGamePlayers: GamePlayer[] = [];
+            for (let i = 0; i < _gamePlayers.length; i += 1) {
+              const player = mafiaGame.players.find(p => p.id === _gamePlayers[i].player);
+              if (player) {
+                updatedGamePlayers.push(GamePlayer.fromServerGamePlayer(player, _gamePlayers[i]));
+              }
+            }
+
+            mafiaGame.gamePlayers = updatedGamePlayers;
             mafiaGame.updatePhase();
+
+            const recArea = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID);
+            recArea?.notifyGameUpdated();
           }
         },
       );

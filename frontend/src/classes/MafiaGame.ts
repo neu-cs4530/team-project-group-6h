@@ -377,6 +377,20 @@ export default class MafiaGame {
     return false;
   }
 
+  /*
+  private updateGamePlayers(serverGamePlayers: ServerGamePlayer[]) {
+    for (let i = 0; i < serverGamePlayers.length; i++) {
+      const currServerGamePlayer = serverGamePlayers[i];
+      const currGamePlayer = this.players.find(p => p.id === currServerGamePlayer.player);
+      if (currGamePlayer) {
+
+      } else {
+
+      }
+    }
+  }
+  */
+
   /**
    * Starts the game by setting the phase to discussion during the day time.
    */
