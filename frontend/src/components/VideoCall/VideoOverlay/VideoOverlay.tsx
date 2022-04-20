@@ -16,6 +16,7 @@ import useLocalVideoToggle from '../VideoFrontend/hooks/useLocalVideoToggle/useL
 import './VideoGrid.scss';
 import MediaErrorSnackbar from '../VideoFrontend/components/PreJoinScreens/MediaErrorSnackbar/MediaErrorSnackbar';
 import useMaybeVideo from '../../../hooks/useMaybeVideo';
+import MafiaGame from '../../../classes/MafiaGame';
 
 const Container = styled('div')({
   display: 'grid',
@@ -36,6 +37,7 @@ interface Props {
   hexColour?: string;
   preferredMode: 'sidebar' | 'fullwidth';
   onPresentingChanged?(presenting: boolean): void;
+
 }
 
 export default function VideoGrid(props: Props) {

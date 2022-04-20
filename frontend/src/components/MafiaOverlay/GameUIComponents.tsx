@@ -1,7 +1,11 @@
 import { Container, Heading, Text } from '@chakra-ui/react';
 import React from 'react';
-import GamePlayer from '../../classes/GamePlayer';
+import GamePlayer, { Role } from '../../classes/GamePlayer';
+import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
+import ParticipantList from '../VideoCall/VideoFrontend/components/ParticipantList/ParticipantList';
+import VideoOverlay from '../VideoCall/VideoOverlay/VideoOverlay';
+import GameUIVideo from './GameUIVideo';
 
 type GameUIHeaderProps = {
   gameName: string;
@@ -103,9 +107,14 @@ export function GameUIDeadPlayerList({ players }: GameUIPlayerListProps): JSX.El
   );
 }
 
+type GameVideoProps = {
+  game: MafiaGame;
+  gamePhase: string | undefined;
+}
+
 // needs integration with Twilio API
 // does not need background color, since entire screen will be video
-export function GameUIVideoOverlay(): JSX.Element {
+export function GameUIVideoOverlay( {game, gamePhase} : GameVideoProps): JSX.Element {
   return (
     <Container
       borderWidth='3px'
@@ -115,7 +124,7 @@ export function GameUIVideoOverlay(): JSX.Element {
       borderColor='black'
       backgroundColor='#fafafa'>
       <Heading fontSize='xl' as='h1'>
-        VIDEO CALL
+        <GameUIVideo game={game} gamePhase={gamePhase} />
       </Heading>
     </Container>
   );

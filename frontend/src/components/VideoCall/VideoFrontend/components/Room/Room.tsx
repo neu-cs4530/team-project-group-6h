@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import clsx from 'clsx';
 import { makeStyles, Theme } from '@material-ui/core';
 import ChatWindow from '../ChatWindow/ChatWindow';
@@ -7,6 +7,11 @@ import MainParticipant from '../MainParticipant/MainParticipant';
 import BackgroundSelectionDialog from '../BackgroundSelectionDialog/BackgroundSelectionDialog';
 import useChatContext from '../../hooks/useChatContext/useChatContext';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
+import { Game } from 'phaser';
+import MafiaGame from '../../../../../classes/MafiaGame';
+import useCurrentRecreationArea from '../../../../../hooks/useCurrentRecreationArea';
+import { useEffect } from 'react';
+import { RecreationAreaListener } from '../../../../../classes/RecreationArea';
 
 const useStyles = makeStyles((theme: Theme) => {
   const totalMobileSidebarHeight = `${theme.sidebarMobileHeight +
@@ -44,6 +49,37 @@ export default function Room() {
   const classes = useStyles();
   const { isChatWindowOpen } = useChatContext();
   const { isBackgroundSelectionOpen } = useVideoContext();
+  const recArea = useCurrentRecreationArea();
+  const [mafiaGame, setMafiaGame] = useState(recArea?.mafiaGame);
+  const [gamePhase, setGamePhase] = useState<string | undefined>(mafiaGame?.phase);
+
+  useEffect(() => {
+    const updateListener: RecreationAreaListener = {
+      onMafiaGameCreated: (game: MafiaGame) => {
+        setMafiaGame(game);
+        setGamePhase(game.phase);
+      },
+      onMafiaGameUpdated: (game: MafiaGame) => {
+        setMafiaGame(game);
+        setGamePhase(game.phase);
+      },
+      onMafiaGameStarted: (game: MafiaGame) => {
+        setMafiaGame(game);
+        setGamePhase(game.phase);
+      },
+      onMafiaGameDestroyed: () => {
+        setMafiaGame(undefined);
+        setGamePhase(undefined);
+      },
+    };
+
+      recArea?.addRecListener(updateListener);
+    return() => {
+      recArea?.removeListener(updateListener);
+    };
+
+  }, [recArea, setMafiaGame])
+
   return (
     <div
       className={clsx(classes.container, {
@@ -51,7 +87,8 @@ export default function Room() {
       })}
     >
       {/* <MainParticipant /> */}
-      <ParticipantList />
+      {/* if a game is going on, don't show the participant list below */}
+      {mafiaGame && gamePhase !== 'lobby' ? <></> : <ParticipantList />}
       <ChatWindow />
       <BackgroundSelectionDialog />
     </div>
