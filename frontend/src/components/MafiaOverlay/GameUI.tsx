@@ -42,6 +42,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
   const [gamePhase, setGamePhase] = useState<string | undefined>(gameInstance?.phase);
   const [playerRole, setPlayerRole] = useState<Role | undefined>(Role.Unassigned);
+  const [playerRoleInfo, setPlayerRoleInfo] = useState<string | undefined>();
   // let inLobby = false;
 
   const toast = useToast();
@@ -89,10 +90,12 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setNumGamePlayers(game.players.length);
         setGamePhase(game.phase);
         setPlayerRole(game.playerRole(myPlayerID));
+        setPlayerRoleInfo(game.gamePlayers.find(p => p.id === myPlayerID)?.roleInfo);
       },
       onMafiaGameStarted: (game: MafiaGame) => {
         setGamePhase(game.phase);
         setPlayerRole(game.playerRole(myPlayerID));
+        setPlayerRoleInfo(game.gamePlayers.find(p => p.id === myPlayerID)?.roleInfo);
         // console.log(`Game Started, player role: ${playerRole}`);
       },
       onMafiaGameDestroyed: () => {
@@ -183,7 +186,10 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
           </HStack>
           <HStack width='full' alignItems='stretch' align='flex-start'>
             <VStack align='left'>
-              <GameUIRoleDescription playerRole={playerRole} />
+              <GameUIRoleDescription
+                playerRole={playerRole}
+                playerRoleInfo={playerRoleInfo || 'Error: no role info'}
+              />
               <GameUIRoleList />
             </VStack>
             <GameUIVideoOverlay />

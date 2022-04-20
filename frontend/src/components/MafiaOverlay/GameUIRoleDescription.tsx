@@ -4,20 +4,23 @@ import { Role } from '../../classes/GamePlayer';
 
 type GameUIRoleDescriptionProps = {
   playerRole: Role | undefined;
+  playerRoleInfo: string;
 };
 
-function GameUIRoleDescription({ playerRole }: GameUIRoleDescriptionProps): JSX.Element {
+function GameUIRoleDescription({
+  playerRole,
+  playerRoleInfo,
+}: GameUIRoleDescriptionProps): JSX.Element {
   return (
     <Container width='200px' height='296px' className='ui-container'>
       <Heading fontSize='xl' as='h1'>
         My Role:
         <br />
-        {playerRole ? playerRole.toString() : 'undefined'}
+        {playerRole ? Role[playerRole] : 'undefined'}
       </Heading>
       <Text fontSize='md'>
         <br />
-        Abilities: <br />- can do this
-        <br />- can also do this
+        Abilities: <br /> {playerRoleInfo}
       </Text>
     </Container>
   );
