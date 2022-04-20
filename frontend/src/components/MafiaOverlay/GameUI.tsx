@@ -8,6 +8,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
+import { Role } from '../../classes/GamePlayer';
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
@@ -20,11 +21,11 @@ import {
   GameUILobbyPlayersList,
   GameUILobbyRoles,
   GameUILobbyRules,
-  GameUIRoleDescription,
   GameUIRoleList,
   GameUITimer,
   GameUIVideoOverlay,
 } from './GameUIComponents';
+import GameUIRoleDescription from './GameUIRoleDescription';
 import NextPhaseButton from './NextPhaseButton';
 
 type GameUIProps = {
@@ -40,6 +41,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const [gameCanStart, setGameCanStart] = useState<boolean>(gameInstance?.canStart() || false);
   const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
   const [gamePhase, setGamePhase] = useState<string | undefined>(gameInstance?.phase);
+  const [playerRole, setPlayerRole] = useState<Role | undefined>(Role.Unassigned);
   // let inLobby = false;
 
   const toast = useToast();
@@ -86,9 +88,12 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGamePlayers(game.players);
         setNumGamePlayers(game.players.length);
         setGamePhase(game.phase);
+        setPlayerRole(game.playerRole(myPlayerID));
       },
       onMafiaGameStarted: (game: MafiaGame) => {
         setGamePhase(game.phase);
+        setPlayerRole(game.playerRole(myPlayerID));
+        // console.log(`Game Started, player role: ${playerRole}`);
       },
       onMafiaGameDestroyed: () => {
         setGameInstance(undefined);
@@ -111,6 +116,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     setNumGamePlayers,
     gamePhase,
     setGamePhase,
+    playerRole,
+    setPlayerRole,
   ]);
 
   if (recArea && gameInstance && gamePlayers.map(p => p.id).includes(myPlayerID)) {
@@ -154,7 +161,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
       );
     }
     const isDay = gamePhase === 'day_discussion' || gamePhase === 'day_voting';
-    console.log(`Phase: ${gamePhase}`);
     return (
       <Container
         align='left'
@@ -177,7 +183,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
           </HStack>
           <HStack width='full' alignItems='stretch' align='flex-start'>
             <VStack align='left'>
-              <GameUIRoleDescription playerRole={gameInstance.playerRole(myPlayerID)} />
+              <GameUIRoleDescription playerRole={playerRole} />
               <GameUIRoleList />
             </VStack>
             <GameUIVideoOverlay />

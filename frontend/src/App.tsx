@@ -14,7 +14,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import './App.css';
 import ConversationArea, { ServerConversationArea } from './classes/ConversationArea';
-import GamePlayer from './classes/GamePlayer';
+import GamePlayer, { ServerGamePlayer } from './classes/GamePlayer';
 import MafiaGame from './classes/MafiaGame';
 import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import RecreationArea, { ServerRecreationArea } from './classes/RecreationArea';
@@ -295,8 +295,9 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         }
         setRecreationAreas(localRecreationAreas);
       });
-      socket.on('mafiaGameStarted', (_recAreaLabel: string, _playerRoles: GamePlayer[]) => {
+      socket.on('mafiaGameStarted', (_recAreaLabel: string, _playerRoles: ServerGamePlayer[]) => {
         const recArea = localRecreationAreas.find(rec => rec.label === _recAreaLabel);
+
         if (recArea) {
           recArea.startGame(_playerRoles);
         }

@@ -1,6 +1,6 @@
-import Player from '../../types/Player';
-import { UserLocation } from '../../CoveyTypes';
 import { ServerArea } from '../../client/TownsServiceClient';
+import { UserLocation } from '../../CoveyTypes';
+import Player from '../../types/Player';
 
 /**
  * Represents two possible teams that a GamePlayer can be a part of within the Mafia Game.
@@ -20,7 +20,22 @@ export enum Role {
 }
 
 /**
- * Contains general functionality necessary for a player in a mafiaGame. 
+ * Contains information about Game Player to be sent to client
+ */
+export type ServerGamePlayer = {
+  player: string;
+  isAlive: boolean;
+  currentVote: string | undefined;
+  team: Team;
+  role: Role;
+  roleInfo: string;
+  target: string | undefined;
+  result: string | undefined;
+  voteTally: number;
+};
+
+/**
+ * Contains general functionality necessary for a player in a mafiaGame.
  */
 export default class GamePlayer {
   private _player: Player; // the associated player
@@ -51,7 +66,6 @@ export default class GamePlayer {
     this._roleInfo = '';
     this._target = undefined;
     this._result = undefined;
-
   }
 
   get id(): string {
@@ -106,7 +120,6 @@ export default class GamePlayer {
     return this._result;
   }
 
-
   get isAlive(): boolean {
     return this._isAlive;
   }
@@ -118,7 +131,6 @@ export default class GamePlayer {
   public eliminate(): void {
     this._isAlive = false;
   }
-  
 
   /**
    * Sets both the role of a GamePlayer and the role information of the GamePlayer.
@@ -153,9 +165,23 @@ export default class GamePlayer {
   get role(): Role {
     return this._role;
   }
-  
 
   vote(): void {
     this._voteTally += 1;
+  }
+
+  toServerGamePlayer(): ServerGamePlayer {
+    const serverGamePlayer = {
+      player: this.id,
+      isAlive: this.isAlive,
+      currentVote: this.currentVote,
+      team: this.team,
+      role: this.role,
+      roleInfo: this.roleInfo,
+      target: this.target,
+      result: this.result,
+      voteTally: this.voteTally,
+    };
+    return serverGamePlayer;
   }
 }

@@ -1,3 +1,4 @@
+import { ServerGamePlayer } from '../../../services/townService/src/lib/mafia_lib/GamePlayer';
 import GamePlayer, { Role, Team } from './GamePlayer';
 import Player from './Player';
 
@@ -77,7 +78,6 @@ export default class MafiaGame {
     this.gamePlayers = gamePlayers;
   }
 
-
   /**
    * Return the number of players currently in the game (for lobby logic).
    */
@@ -106,6 +106,9 @@ export default class MafiaGame {
    * @returns The player's role, or undefined if the p
    */
   public playerRole(playerID: string): Role | undefined {
+    const role = this.gamePlayers.find(gp => gp.id === playerID)?.role;
+    return role;
+    /*
     const getPlayer = (p: GamePlayer) => p.id === playerID;
     const townPlayerIDs = this.townPlayers.map(gPlayer => gPlayer.id);
     const mafiaPlayerIDs = this.mafiaPlayers.map(gPlayer => gPlayer.id);
@@ -117,6 +120,7 @@ export default class MafiaGame {
       return this.mafiaPlayers.find(getPlayer)?.role;
     }
     return undefined;
+    */
   }
 
   get alivePlayers(): GamePlayer[] {
@@ -358,12 +362,27 @@ export default class MafiaGame {
   }
 
   /**
+   * Adds a new GamePlayer to this MafiaGame
+   * @param serverGamePlayer: The game player
+   * @returns Whether or not the player was successfully added
+   */
+  private addGamePlayer(serverGamePlayer: ServerGamePlayer): boolean {
+    // Check if this player is in the game
+    const recPlayer = this.players.find(p => p.id === serverGamePlayer.player);
+    if (recPlayer) {
+      this.gamePlayers.push(GamePlayer.fromServerGamePlayer(recPlayer, serverGamePlayer));
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Starts the game by setting the phase to discussion during the day time.
    */
-  public gameStart(playerRoles: GamePlayer[]): void {
+  public gameStart(playerRoles: ServerGamePlayer[]): void {
     this._phase = Phase.day_discussion;
-
-    this._gamePlayers = playerRoles;
+    playerRoles.forEach(p => this.addGamePlayer(p));
   }
 
   /**

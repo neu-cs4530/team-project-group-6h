@@ -13,7 +13,7 @@ import {
 import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownController from '../lib/CoveyTownController';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
-import GamePlayer from '../lib/mafia_lib/GamePlayer';
+import { ServerGamePlayer } from '../lib/mafia_lib/GamePlayer';
 import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 
@@ -462,10 +462,10 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onLobbyDestroyed(recreationAreaLabel: string) {
       socket.emit('lobbyDestroyed', recreationAreaLabel);
     },
-    onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]) {
-      socket.emit('mafiaGameStarted', recAreaLabel, playerRoles);
+    onMafiaGameStarted(recAreaLabel: string, playerRoles: ServerGamePlayer[]) {
+      socket.emit('mafiaGameStarted', recAreaLabel, [...playerRoles]);
     },
-    onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: GamePlayer[]) {
+    onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: ServerGamePlayer[]) {
       socket.emit('mafiaGameUpdated', mafiaGameID, phase, gamePlayers);
     },
     onChatMessage(message: ChatMessage) {

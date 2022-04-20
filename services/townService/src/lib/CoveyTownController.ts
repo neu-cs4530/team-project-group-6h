@@ -10,6 +10,7 @@ import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 import PlayerSession from '../types/PlayerSession';
 import IVideoClient from './IVideoClient';
+import { ServerGamePlayer } from './mafia_lib/GamePlayer';
 import MafiaGame, { Phase } from './mafia_lib/MafiaGame';
 import TwilioVideo from './TwilioVideo';
 
@@ -431,9 +432,15 @@ export default class CoveyTownController {
 
     // Start game
     mafiaGame.gameStart();
+    /*
+    console.log(`IN TOWN CONTROLLER: new game roles:`);
+    mafiaGame.gamePlayers.forEach(p => console.log(p.role));
+    */
 
+    const serverGamePlayers: ServerGamePlayer[] = [];
+    mafiaGame.gamePlayers.forEach(gp => serverGamePlayers.push(gp.toServerGamePlayer()));
     this._listeners.forEach(listener =>
-      listener.onMafiaGameStarted(recAreaLabel, mafiaGame.gamePlayers),
+      listener.onMafiaGameStarted(recAreaLabel, serverGamePlayers),
     );
     return true;
   }
@@ -458,9 +465,11 @@ export default class CoveyTownController {
         mafiaGame.endNight();
       }
       mafiaGame.updatePhase();
+      /*
       this._listeners.forEach(listener =>
         listener.onMafiaGameUpdated(mafiaGameID, mafiaGame.phase, mafiaGame.gamePlayers),
       );
+      */
 
       // this._listeners.on
     } catch (err) {
