@@ -3,7 +3,7 @@ import ConversationArea, {
   ConversationAreaListener,
   ServerConversationArea,
 } from './ConversationArea';
-import GamePlayer from './GamePlayer';
+import { ServerGamePlayer } from './GamePlayer';
 import MafiaGame from './MafiaGame';
 import Player from './Player';
 
@@ -36,7 +36,6 @@ export default class RecreationArea extends ConversationArea {
   }
 
   set mafiaGame(game: MafiaGame | undefined) {
-
     if (!this._mafiaGame && game) {
       this.addMafiaGame(game);
     }
@@ -111,7 +110,7 @@ export default class RecreationArea extends ConversationArea {
    * Starts this Recreation Area's Mafia Game
    * @param playerRoles Roles assigned to players.
    */
-  startGame(playerRoles: GamePlayer[]): void {
+  startGame(playerRoles: ServerGamePlayer[]): void {
     if (this._mafiaGame) {
       if (this._mafiaGame.canStart()) {
         this._mafiaGame.gameStart(playerRoles);
@@ -122,6 +121,13 @@ export default class RecreationArea extends ConversationArea {
   }
 
   notifyPlayerAdded() {
+    const game = this.mafiaGame;
+    if (game) {
+      this._recListeners.forEach(listener => listener.onMafiaGameUpdated?.(game));
+    }
+  }
+
+  notifyGameUpdated() {
     const game = this.mafiaGame;
     if (game) {
       this._recListeners.forEach(listener => listener.onMafiaGameUpdated?.(game));

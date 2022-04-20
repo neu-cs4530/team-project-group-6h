@@ -8,7 +8,8 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
-import MafiaGame, { Phase } from '../../classes/MafiaGame';
+import { Role } from '../../classes/GamePlayer';
+import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
@@ -20,11 +21,11 @@ import {
   GameUILobbyPlayersList,
   GameUILobbyRoles,
   GameUILobbyRules,
-  GameUIRoleDescription,
   GameUIRoleList,
   GameUITimer,
   GameUIVideoOverlay,
 } from './GameUIComponents';
+import GameUIRoleDescription from './GameUIRoleDescription';
 import NextPhaseButton from './NextPhaseButton';
 
 type GameUIProps = {
@@ -39,7 +40,10 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const [numGamePlayers, setNumGamePlayers] = useState<number>(gameInstance?.players.length || 0);
   const [gameCanStart, setGameCanStart] = useState<boolean>(gameInstance?.canStart() || false);
   const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
-  let inLobby = false;
+  const [gamePhase, setGamePhase] = useState<string | undefined>(gameInstance?.phase);
+  const [playerRole, setPlayerRole] = useState<Role | undefined>(Role.Unassigned);
+  const [playerRoleInfo, setPlayerRoleInfo] = useState<string | undefined>();
+  // let inLobby = false;
 
   const toast = useToast();
 
@@ -77,12 +81,22 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGameInstance(game);
         setIsPlayerHost(game.host.id === myPlayerID);
         setGamePlayers(game.players);
+        setGamePhase(game.phase);
       },
       onMafiaGameUpdated: (game: MafiaGame) => {
         setGameInstance(game);
         setGameCanStart(game.canStart());
         setGamePlayers(game.players);
         setNumGamePlayers(game.players.length);
+        setGamePhase(game.phase);
+        setPlayerRole(game.playerRole(myPlayerID));
+        setPlayerRoleInfo(game.gamePlayers.find(p => p.id === myPlayerID)?.roleInfo);
+      },
+      onMafiaGameStarted: (game: MafiaGame) => {
+        setGamePhase(game.phase);
+        setPlayerRole(game.playerRole(myPlayerID));
+        setPlayerRoleInfo(game.gamePlayers.find(p => p.id === myPlayerID)?.roleInfo);
+        // console.log(`Game Started, player role: ${playerRole}`);
       },
       onMafiaGameDestroyed: () => {
         setGameInstance(undefined);
@@ -103,11 +117,15 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     recArea,
     numGamePlayers,
     setNumGamePlayers,
+    gamePhase,
+    setGamePhase,
+    playerRole,
+    setPlayerRole,
   ]);
 
   if (recArea && gameInstance && gamePlayers.map(p => p.id).includes(myPlayerID)) {
-    inLobby = gameInstance._phase === Phase.lobby;
-    if (inLobby) {
+    // inLobby = gameInstance._phase === Phase.lobby;
+    if (gamePhase === 'lobby') {
       return (
         <Container
           align='left'
@@ -145,7 +163,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         </Container>
       );
     }
-    const isDay = gameInstance.phase === 'day_discussion' || gameInstance.phase === 'day_voting';
+    const isDay = gamePhase === 'day_discussion' || gamePhase === 'day_voting';
     return (
       <Container
         align='left'
@@ -168,7 +186,10 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
           </HStack>
           <HStack width='full' alignItems='stretch' align='flex-start'>
             <VStack align='left'>
-              <GameUIRoleDescription playerRole={gameInstance.playerRole(myPlayerID)} />
+              <GameUIRoleDescription
+                playerRole={playerRole}
+                playerRoleInfo={playerRoleInfo || 'Error: no role info'}
+              />
               <GameUIRoleList />
             </VStack>
             <GameUIVideoOverlay />

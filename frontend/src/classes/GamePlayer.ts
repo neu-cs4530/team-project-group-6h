@@ -1,10 +1,9 @@
-import Player, { UserLocation } from "./Player";
-
+import Player, { UserLocation } from './Player';
 
 /**
  * Represents two possible teams that a GamePlayer can be a part of within the Mafia Game.
  */
- export enum Team {
+export enum Team {
   'Mafia',
   'Town',
   'Unassigned',
@@ -19,7 +18,22 @@ export enum Role {
 }
 
 /**
- * Contains general functionality necessary for a player in a mafiaGame. 
+ * Contains information about Game Player to be sent from server
+ */
+export type ServerGamePlayer = {
+  player: string;
+  isAlive: boolean;
+  currentVote: string | undefined;
+  team: Team;
+  role: Role;
+  roleInfo: string;
+  target: string | undefined;
+  result: string | undefined;
+  voteTally: number;
+};
+
+/**
+ * Contains general functionality necessary for a player in a mafiaGame.
  */
 export default class GamePlayer {
   private _player: Player; // the associated player
@@ -28,30 +42,31 @@ export default class GamePlayer {
 
   private _currentVote: string | undefined; // ID of the player voted for during this cycle
 
-  private _team = Team.Unassigned; // The team that the GamePlayer is on
+  private _team: Team; // The team that the GamePlayer is on
 
-  private _role = Role.Unassigned; // The currently assigned role that the player has
+  private _role: Role; // The currently assigned role that the player has
 
   private _roleInfo: string; // Information about the player's given role
 
   private _target: string | undefined; // the ID of the target player to perform role actions on
 
-  private _result: string | undefined // The result of what happened to thos player at the end of a phase.
+  private _result: string | undefined; // The result of what happened to thos player at the end of a phase.
 
-  _voteTally = 0; 
+  _voteTally = 0;
 
   /**
    * Default constructor; input isAlive = false to create as spectator
    */
-  constructor(recPlayer: Player) {
+  constructor(recPlayer: Player, gamePlayer: ServerGamePlayer) {
     this._player = recPlayer;
     this._isAlive = true;
     this._currentVote = undefined;
-    this._roleInfo = '';
+    this._team = gamePlayer.team;
+    this._role = gamePlayer.role;
+    this._roleInfo = gamePlayer.roleInfo;
     this._target = undefined;
     this._result = undefined;
   }
-
 
   get playerLocation(): UserLocation | undefined {
     return this._player.location;
@@ -118,7 +133,7 @@ export default class GamePlayer {
    */
   set role(role: Role) {
     this._role = role;
-    
+
     switch (role) {
       case Role.Detective:
         this._roleInfo =
@@ -149,5 +164,10 @@ export default class GamePlayer {
 
   vote(): void {
     this._voteTally += 1;
+  }
+
+  static fromServerGamePlayer(recPlayer: Player, serverGamePlayer: ServerGamePlayer): GamePlayer {
+    const ret = new GamePlayer(recPlayer, serverGamePlayer);
+    return ret;
   }
 }

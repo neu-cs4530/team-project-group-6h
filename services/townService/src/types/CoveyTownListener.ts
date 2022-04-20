@@ -1,6 +1,6 @@
 import { ServerConversationArea, ServerRecreationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
-import GamePlayer from '../lib/mafia_lib/GamePlayer';
+import { ServerGamePlayer } from '../lib/mafia_lib/GamePlayer';
 import Player from './Player';
 
 /**
@@ -74,7 +74,7 @@ export default interface CoveyTownListener {
    * Called when a mafia game is started
    * @param playerRoles Roles assigned to players in the game
    */
-  onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]): void;
+  onMafiaGameStarted(recAreaLabel: string, playerRoles: ServerGamePlayer[]): void;
 
   /**
    * Called when a mafia game phase is updated
@@ -82,7 +82,7 @@ export default interface CoveyTownListener {
    * @param phase The new game phase
    * @param gamePlayers Updated list of players
    */
-  onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: GamePlayer[]): void;
+  onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: ServerGamePlayer[]): void;
 
   // TODO
   // onMafiaGameEnded(mafiaGameID: string): void;

@@ -14,7 +14,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { io, Socket } from 'socket.io-client';
 import './App.css';
 import ConversationArea, { ServerConversationArea } from './classes/ConversationArea';
-import GamePlayer from './classes/GamePlayer';
+import GamePlayer, { ServerGamePlayer } from './classes/GamePlayer';
 import MafiaGame from './classes/MafiaGame';
 import Player, { ServerPlayer, UserLocation } from './classes/Player';
 import RecreationArea, { ServerRecreationArea } from './classes/RecreationArea';
@@ -275,9 +275,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             // existingRecArea.mafiaGame = new MafiaGame(_mafiaGameID, host);
             existingRecArea.addMafiaGame(new MafiaGame(_mafiaGameID, host));
             setRecreationAreas(localRecreationAreas);
-            console.log(
-              `Created mafia game in recArea ${existingRecArea.label}. Mafia game: ${existingRecArea.mafiaGame}`,
-            );
           }
         },
       );
@@ -285,15 +282,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         const existingRecArea = localRecreationAreas.find(a => a.label === _recreationAreaLabel);
         const player = localPlayers.find(p => p.id === _playerID);
         if (existingRecArea?.mafiaGame && player) {
-          /*
-          if (existingRecArea.mafiaGame.addPlayer(player)) {
-            existingRecArea.notifyPlayerAdded(); 
-            console.log(`Player ${_playerID} joined game in recArea ${_recreationAreaLabel}.`);
-          };
-          */
-          if (existingRecArea.addPlayerToGame(player)) {
-            console.log('player successfully added (in App.tsx)');
-          }
+          existingRecArea.addPlayerToGame(player);
         }
         setRecreationAreas(localRecreationAreas);
       });
@@ -306,24 +295,33 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         }
         setRecreationAreas(localRecreationAreas);
       });
-      socket.on('mafiaGameStarted', (_recAreaLabel: string, _playerRoles: GamePlayer[]) => {
-        const recArea = recreationAreas.find(rec => rec.label === _recAreaLabel);
+      socket.on('mafiaGameStarted', (_recAreaLabel: string, _playerRoles: ServerGamePlayer[]) => {
+        const recArea = localRecreationAreas.find(rec => rec.label === _recAreaLabel);
+
         if (recArea) {
           recArea.startGame(_playerRoles);
-          console.log(
-            `Mafia game started in recArea ${_recAreaLabel}. Mafia game id: ${recArea.mafiaGame?.id} Phase: ${recArea.mafiaGame?._phase}`,
-          );
         }
       });
+      const getNewGamePlayer = function (serverGamePlayer: ServerGamePlayer): void {};
       socket.on(
         'mafiaGameUpdated',
-        (_mafiaGameID: string, _phase: string, _gamePlayers: GamePlayer[]) => {
+        (_mafiaGameID: string, _phase: string, _gamePlayers: ServerGamePlayer[]) => {
           const mafiaGame = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID)
             ?.mafiaGame;
           if (mafiaGame) {
-            mafiaGame.gamePlayers = _gamePlayers;
+            const updatedGamePlayers: GamePlayer[] = [];
+            for (let i = 0; i < _gamePlayers.length; i += 1) {
+              const player = mafiaGame.players.find(p => p.id === _gamePlayers[i].player);
+              if (player) {
+                updatedGamePlayers.push(GamePlayer.fromServerGamePlayer(player, _gamePlayers[i]));
+              }
+            }
+
+            mafiaGame.gamePlayers = updatedGamePlayers;
             mafiaGame.updatePhase();
-            console.log(`Mafia game ${_mafiaGameID}. Mafia game phase: ${mafiaGame._phase}`);
+
+            const recArea = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID);
+            recArea?.notifyGameUpdated();
           }
         },
       );
@@ -342,7 +340,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           a => a.label !== _conversationArea.label,
         );
         setConversationAreas(localConversationAreas);
-        console.log(`ConvArea ${_conversationArea.label} destroyed.`);
         recalculateNearbyPlayers();
       });
       socket.on('recreationDestroyed', (_recreationArea: ServerRecreationArea) => {
