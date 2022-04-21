@@ -23,11 +23,11 @@ function GameLobby({ area, playerID }: GameLobbyProps): JSX.Element {
     const updateListener: RecreationAreaListener = {
       onMafiaGameUpdated: (game: MafiaGame) => {
         setMafiaGame(() => game);
-        setGamePlayers(() => game.players);
+        setGamePlayers([...game.players]);
       },
       onMafiaGameCreated: (game: MafiaGame) => {
         setMafiaGame(() => game);
-        setGamePlayers(() => game.players);
+        setGamePlayers([...game.players]);
       },
       onMafiaGameDestroyed: () => {
         setMafiaGame(undefined);

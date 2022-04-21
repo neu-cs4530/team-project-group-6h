@@ -14,6 +14,7 @@ import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import StartGameButton from '../SocialSidebar/StartGameButton';
+
 import {
   GameUIAlivePlayerList,
   GameUIDeadPlayerList,
@@ -141,6 +142,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             <Heading fontSize='xl' as='h1'>
               Welcome to MAFIA - {recArea.label}
             </Heading>
+            <h2>{`Host: ${gameInstance.host.userName}`}</h2>
             <HStack
               width='full'
               borderColor='gray.500'
@@ -192,7 +194,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               />
               <GameUIRoleList />
             </VStack>
-            <GameUIVideoOverlay />
+            <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase}/>
             <VStack>
               <GameUIAlivePlayerList players={gameInstance.alivePlayers} />
               <GameUIDeadPlayerList players={gameInstance.deadPlayers} />

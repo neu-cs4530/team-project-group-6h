@@ -406,7 +406,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     return (
       <div>
         <WorldMap />
-        <VideoOverlay preferredMode='fullwidth' />
+        <VideoOverlay preferredMode='fullwidth'/>
       </div>
     );
   }, [setupGameController, appState.sessionToken, videoInstance]);

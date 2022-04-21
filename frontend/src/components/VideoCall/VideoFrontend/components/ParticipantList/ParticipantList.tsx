@@ -120,7 +120,7 @@ export default function ParticipantList() {
         slot={0}
       />
       {participants
-        .filter((p) => nearbyPlayers.find((player) => player.id == p.participant.identity))
+        .filter((p) => nearbyPlayers.find((player) => player.id === p.participant.identity))
         .sort(participantSorter).map((participantWithSlot) => {
           const { participant } = participantWithSlot;
           const isSelected = participant === selectedParticipant;
@@ -128,7 +128,7 @@ export default function ParticipantList() {
                     && participant !== screenShareParticipant
                     && !isSelected
                     && participants.length > 1;
-          const player = nearbyPlayers.find((p) => p.id == participantWithSlot.participant.identity);
+          const player = nearbyPlayers.find((p) => p.id === participantWithSlot.participant.identity);
           const remoteProfile = { displayName: player ? player.userName : 'unknown', id: participantWithSlot.participant.identity };
           return (
             <Participant
