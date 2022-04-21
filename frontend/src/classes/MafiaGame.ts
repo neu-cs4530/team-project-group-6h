@@ -165,7 +165,7 @@ export default class MafiaGame {
         player.votedPlayer = undefined; // _currentVote
         player.targetPlayer = undefined; // _target
         player.result = undefined; // _result
-        player._voteTally = 0; // _voteTally
+        player.resetTally(); // _voteTally
       }
     });
   }
@@ -330,11 +330,15 @@ export default class MafiaGame {
    * @param voterID The ID of the player that is voting
    * @param targetID The ID of the player that this player is voting for
    */
-  public votePlayer(voterID: string, targetID: string): void {
+   public votePlayer(voterID: string, targetID: string): void {
     const playerIndex = this._gamePlayers.findIndex(player => player.id === voterID);
 
     // give the ID of the person that this player has voted for
     this._gamePlayers[playerIndex].votedPlayer = targetID;
+
+    // increment that player's vote tally
+    const targetIndex = this._gamePlayers.findIndex(player => player.id === targetID);
+    this._gamePlayers[targetIndex].vote();
   }
 
   /**

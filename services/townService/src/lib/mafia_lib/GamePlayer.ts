@@ -54,7 +54,7 @@ export default class GamePlayer {
 
   private _result: string | undefined; // The result of what happened to thos player at the end of a phase.
 
-  _voteTally = 0;
+  private _voteTally = 0;
 
   /**
    * Default constructor; input isAlive = false to create as spectator
@@ -98,6 +98,10 @@ export default class GamePlayer {
 
   get voteTally(): number {
     return this._voteTally;
+  }
+
+  public resetTally(): void {
+    this._voteTally = 0;
   }
 
   set votedPlayer(currentVote: string | undefined) {

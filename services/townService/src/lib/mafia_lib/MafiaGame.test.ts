@@ -19,6 +19,15 @@ describe('MafiaGame', () => {
     expect(newMafiaGame.townPlayers.length).toBe(3);
     expect(newMafiaGame.mafiaPlayers.length).toBe(1);
   });
+  it('Cycles through the phases after the game has started', () => {
+    expect(newMafiaGame.phase).toBe(Phase[Phase.day_discussion]);
+    newMafiaGame.updatePhase();
+    expect(newMafiaGame.phase).toBe(Phase[Phase.day_voting]);
+    newMafiaGame.updatePhase();
+    expect(newMafiaGame.phase).toBe(Phase[Phase.night]);
+    newMafiaGame.updatePhase();
+    expect(newMafiaGame.phase).toBe(Phase[Phase.day_discussion]);
+  });
   it('Adds players that have been voted out from the game to the deadPlayers list', () => {
     newMafiaGame.eliminatePlayer(recPlayer2.id);
 
@@ -43,24 +52,45 @@ describe('MafiaGame', () => {
     expect(newMafiaGame.deadPlayers.length).toBe(2);
     expect(newMafiaGame.deadPlayers[1]).toBeDefined();
   });
-
-  it('Cycles through the phases after the game has started', () => {
-    expect(newMafiaGame.phase).toBe(Phase[Phase.day_discussion]);
-    newMafiaGame.updatePhase();
-    expect(newMafiaGame.phase).toBe(Phase[Phase.day_voting]);
-    newMafiaGame.updatePhase();
-    expect(newMafiaGame.phase).toBe(Phase[Phase.night]);
-    newMafiaGame.updatePhase();
-    expect(newMafiaGame.phase).toBe(Phase[Phase.day_discussion]);
-  });
+  
   it('Throws error if game phase is updated before or after the game', () => {
-    newMafiaGame.changePhase = Phase.win;
-    expect(() => newMafiaGame.updatePhase()).toThrow(
+    const newMafiaGame1 = new MafiaGame(recPlayer1);
+    newMafiaGame1.changePhase = Phase.win;
+    expect(() => newMafiaGame1.updatePhase()).toThrow(
       `Game is currently in phase: ${Phase[Phase.win]}`,
     );
-    newMafiaGame.changePhase = Phase.lobby;
-    expect(() => newMafiaGame.updatePhase()).toThrow(
+    newMafiaGame1.changePhase = Phase.lobby;
+    expect(() => newMafiaGame1.updatePhase()).toThrow(
       `Game is currently in phase: ${Phase[Phase.lobby]}`,
     );
+  });
+  it('Eliminates most voted player at end of day cycle and updates phase', () => {
+    const mafiaGame2 = new MafiaGame(recPlayer1);
+    mafiaGame2.addPlayer(recPlayer2);
+    mafiaGame2.addPlayer(recPlayer3);
+    mafiaGame2.addPlayer(recPlayer4);
+
+    mafiaGame2.gameStart();
+    expect(mafiaGame2.phase).toBe(Phase[Phase.day_discussion]);
+    mafiaGame2.updatePhase();
+    expect(mafiaGame2.phase).toBe(Phase[Phase.day_voting]);
+    mafiaGame2.votePlayer(recPlayer1.id, recPlayer2.id);
+    mafiaGame2.votePlayer(recPlayer3.id, recPlayer2.id);
+    mafiaGame2.votePlayer(recPlayer4.id, recPlayer2.id);
+    mafiaGame2.endDay();
+
+    expect(mafiaGame2.deadPlayers.length).toBe(1);
+    expect(mafiaGame2.alivePlayers.length).toBe(3);
+    expect(mafiaGame2.deadPlayers[0]).toBeDefined();
+    expect(mafiaGame2.deadPlayers[0].id).toBe(recPlayer2.id);
+    expect(mafiaGame2.deadPlayers[0].isAlive).toBe(false);
+
+    // no duplicate eliminations
+    mafiaGame2.eliminatePlayer(recPlayer2.id);
+    expect(mafiaGame2.townPlayers.length).toBe(3);
+    expect(mafiaGame2.mafiaPlayers.length).toBe(1);
+    expect(mafiaGame2.mafiaPlayers.length).toBe(1);
+
+    
   });
 });

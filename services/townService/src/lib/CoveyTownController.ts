@@ -458,7 +458,7 @@ export default class CoveyTownController {
 
     // Update phase
     try {
-      if (mafiaGame.phase === Phase[Phase.day_discussion]) {
+      if (mafiaGame.phase === Phase[Phase.day_voting]) {
         mafiaGame.endDay();
       }
       if (mafiaGame.phase === Phase[Phase.night]) {

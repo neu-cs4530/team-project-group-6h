@@ -101,7 +101,7 @@ export default class MafiaGame {
    * Returns all players still alive within the game.
    */
   get alivePlayers(): GamePlayer[] {
-    return [...this._gamePlayers].filter(player => player.isAlive === false);
+    return [...this._gamePlayers].filter(player => player.isAlive === true);
   }
 
   get mafiaPlayers(): GamePlayer[] {
@@ -130,6 +130,7 @@ export default class MafiaGame {
    */
   public endDay(): void {
     if (this._phase === Phase.day_voting) {
+      
       // find the player with the most votes, and eliminate them
       const votedPlayer = this._gamePlayers.reduce((prevPlayer, currentPlayer) =>
         prevPlayer.voteTally > currentPlayer.voteTally ? prevPlayer : currentPlayer,
@@ -149,7 +150,7 @@ export default class MafiaGame {
         player.votedPlayer = undefined; // _currentVote
         player.targetPlayer = undefined; // _target
         player.result = undefined; // _result
-        player._voteTally = 0; // _voteTally
+        player.resetTally(); // _voteTally
       }
     });
   }
@@ -408,6 +409,10 @@ export default class MafiaGame {
 
     // give the ID of the person that this player has voted for
     this._gamePlayers[playerIndex].votedPlayer = targetID;
+
+    // increment that player's vote tally
+    const targetIndex = this._gamePlayers.findIndex(player => player.id === targetID);
+    this._gamePlayers[targetIndex].vote();
   }
 
   /**
