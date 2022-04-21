@@ -257,4 +257,10 @@ export default class TownsServiceClient {
     );
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
+
+  // send vote/target
+  async sendVote(requestData: SendVoteRequest) : Promise<void> {
+    console.log('vote request sent');
+    const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/sendVote`, requestData);
+  }
 }

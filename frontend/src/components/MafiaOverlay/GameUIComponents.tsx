@@ -1,8 +1,13 @@
-import { Container, Heading, Text } from '@chakra-ui/react';
-import React from 'react';
+import { Button, Container, Heading, Text, useToast } from '@chakra-ui/react';
+import assert from 'assert';
+import React, { useCallback } from 'react';
 import GamePlayer, { Role } from '../../classes/GamePlayer';
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
+import RecreationArea from '../../classes/RecreationArea';
+import useCoveyAppState from '../../hooks/useCoveyAppState';
+import useCurrentRecreationArea from '../../hooks/useCurrentRecreationArea';
+import useRecreationAreas from '../../hooks/useRecreationAreas';
 import ParticipantList from '../VideoCall/VideoFrontend/components/ParticipantList/ParticipantList';
 import VideoOverlay from '../VideoCall/VideoOverlay/VideoOverlay';
 import GameUIVideo from './GameUIVideo';
@@ -77,20 +82,60 @@ export function GameUIRoleList(): JSX.Element {
   );
 }
 
+
+
+type GameUIPlayerListElementProps = {
+  player: GamePlayer
+}
+
+function GameUIAlivePlayerListElement({player}: GameUIPlayerListElementProps): JSX.Element {
+  const { apiClient, sessionToken, currentTownID, myPlayerID } = useCoveyAppState();
+  const currentRecArea = useCurrentRecreationArea();
+  assert(currentRecArea, 'Recreation area must be defined.');
+  const toast = useToast();
+
+  const sendVote = useCallback(async () => {
+      try {
+          await apiClient.sendVote({
+              coveyTownID: currentTownID,
+              sessionToken,
+              recreationAreaLabel: currentRecArea.label,
+              voterID: myPlayerID,
+              votedID: player.id,
+          });
+          toast({
+              title: `Target ${player.userName} selected`,
+              status: 'success',
+          });
+      } catch (err) {
+          toast({
+              title: `Unable to select target ${player.userName}`,
+              description: err.toString(),
+              status: 'error',
+          })
+      }
+  }, [player, apiClient, currentRecArea.label, currentTownID, myPlayerID, sessionToken, toast]);
+
+  return <li key={player.id}>{player.userName} <Button onClick={sendVote}>Vote</Button></li>;
+}
+
+
 type GameUIPlayerListProps = {
   players: GamePlayer[];
 };
 // needs an array map from players to strings
-export function GameUIAlivePlayerList({ players }: GameUIPlayerListProps): JSX.Element {
+export function GameUIAlivePlayerList({players}: GameUIPlayerListProps): JSX.Element {
   return (
-    <Container width='200px' height='296px' className='ui-container'>
-      <Heading fontSize='xl' as='h1'>
-        Players
-      </Heading>
-      <ul>
-        {players.map(player => (player ? <li key={player.id}>{player.userName}</li> : <li />))}
-      </ul>
-    </Container>
+      <Container 
+          width="200px"
+          height="296px"
+          className='ui-container'
+              >
+                  <Heading fontSize='xl' as='h1'>Players</Heading>
+                  <ul>
+                  {players.map((player) => (<GameUIAlivePlayerListElement key={player.id} player={player} />))}
+                  </ul>
+              </Container>
   );
 }
 
