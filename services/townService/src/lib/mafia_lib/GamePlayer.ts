@@ -68,6 +68,10 @@ export default class GamePlayer {
     this._result = undefined;
   }
 
+  get player(): Player {
+    return this._player;
+  }
+
   get id(): string {
     return this._player.id;
   }

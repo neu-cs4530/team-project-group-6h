@@ -8,7 +8,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Role } from '../../classes/GamePlayer';
+import GamePlayer, { Role } from '../../classes/GamePlayer';
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
@@ -39,12 +39,14 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const [gameInstance, setGameInstance] = useState<MafiaGame | undefined>(recArea?.mafiaGame);
   const [gamePlayers, setGamePlayers] = useState<Player[]>([]);
   const [numGamePlayers, setNumGamePlayers] = useState<number>(gameInstance?.players.length || 0);
+  const [alivePlayers, setAlivePlayers] = useState<GamePlayer[]>(gameInstance?.alivePlayers || []);
+  const [deadPlayers, setDeadPlayers] = useState<GamePlayer[]>(gameInstance?.deadPlayers || []);
   const [gameCanStart, setGameCanStart] = useState<boolean>(gameInstance?.canStart() || false);
   const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
+  const [host, setHost] = useState<Player | undefined>(gameInstance?.host);
   const [gamePhase, setGamePhase] = useState<string | undefined>(gameInstance?.phase);
   const [playerRole, setPlayerRole] = useState<Role | undefined>(Role.Unassigned);
   const [playerRoleInfo, setPlayerRoleInfo] = useState<string | undefined>();
-  // let inLobby = false;
 
   const toast = useToast();
 
@@ -87,7 +89,11 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
       onMafiaGameUpdated: (game: MafiaGame) => {
         setGameInstance(game);
         setGameCanStart(game.canStart());
+        setHost(game.host);
+        setIsPlayerHost(game.host.id === myPlayerID);
         setGamePlayers(game.players);
+        setDeadPlayers(game.deadPlayers);
+        setAlivePlayers(game.alivePlayers);
         setNumGamePlayers(game.players.length);
         setGamePhase(game.phase);
         setPlayerRole(game.playerRole(myPlayerID));
@@ -103,6 +109,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGameInstance(undefined);
         setGameCanStart(false);
         setGamePlayers([]);
+        setAlivePlayers([]);
+        setDeadPlayers([]);
       },
     };
     recArea?.addRecListener(updateListener);
@@ -119,6 +127,9 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     numGamePlayers,
     setNumGamePlayers,
     gamePhase,
+    alivePlayers,
+    deadPlayers,
+    host,
     setGamePhase,
     playerRole,
     setPlayerRole,
@@ -142,7 +153,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             <Heading fontSize='xl' as='h1'>
               Welcome to MAFIA - {recArea.label}
             </Heading>
-            <h2>{`Host: ${gameInstance.host.userName}`}</h2>
+            <h2>{`Host: ${host?.userName}`}</h2>
             <HStack
               width='full'
               borderColor='gray.500'
@@ -196,8 +207,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             </VStack>
             <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase}/>
             <VStack>
-              <GameUIAlivePlayerList players={gameInstance.alivePlayers} />
-              <GameUIDeadPlayerList players={gameInstance.deadPlayers} />
+              <GameUIAlivePlayerList players={alivePlayers} />
+              <GameUIDeadPlayerList players={deadPlayers} />
             </VStack>
           </HStack>
           <HStack>

@@ -302,7 +302,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           recArea.startGame(_playerRoles);
         }
       });
-      const getNewGamePlayer = function (serverGamePlayer: ServerGamePlayer): void {};
+      // const getNewGamePlayer = function (serverGamePlayer: ServerGamePlayer): void {};
       socket.on(
         'mafiaGameUpdated',
         (_mafiaGameID: string, _phase: string, _gamePlayers: ServerGamePlayer[]) => {
@@ -382,7 +382,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       setPlayersInTown,
       setNearbyPlayers,
       setConversationAreas,
-      recreationAreas,
     ],
   );
   const videoInstance = Video.instance();

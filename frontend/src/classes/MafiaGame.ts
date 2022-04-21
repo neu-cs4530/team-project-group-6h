@@ -23,11 +23,11 @@ export default class MafiaGame {
 
   private _gamePlayers: GamePlayer[]; // all players in the mafia game
 
-  private _winner = Team.Unassigned;
+  private _winner = Team.Unassigned; // Team that won the game
 
-  _phase = Phase.lobby;
+  _phase = Phase.lobby; // current phase of the game
 
-  _host: Player; // the id of the host
+  _host: Player; 
 
   _deadPlayers: GamePlayer[];
 
@@ -108,19 +108,6 @@ export default class MafiaGame {
   public playerRole(playerID: string): Role | undefined {
     const role = this.gamePlayers.find(gp => gp.id === playerID)?.role;
     return role;
-    /*
-    const getPlayer = (p: GamePlayer) => p.id === playerID;
-    const townPlayerIDs = this.townPlayers.map(gPlayer => gPlayer.id);
-    const mafiaPlayerIDs = this.mafiaPlayers.map(gPlayer => gPlayer.id);
-
-    if (townPlayerIDs.includes(playerID)) {
-      return this.townPlayers.find(getPlayer)?.role;
-    }
-    if (mafiaPlayerIDs.includes(playerID)) {
-      return this.mafiaPlayers.find(getPlayer)?.role;
-    }
-    return undefined;
-    */
   }
 
   get alivePlayers(): GamePlayer[] {
@@ -187,9 +174,7 @@ export default class MafiaGame {
    * Determines who is eliminated at the end of a night phase.
    */
   public endNight(): void {
-    let targetPlayer:
-      | GamePlayer
-      | undefined = this._gamePlayers.reduce((prevPlayer, currentPlayer) =>
+    let targetPlayer: GamePlayer | undefined = this._gamePlayers.reduce((prevPlayer, currentPlayer) => 
       prevPlayer.voteTally > currentPlayer.voteTally ? prevPlayer : currentPlayer,
     );
 
@@ -263,9 +248,10 @@ export default class MafiaGame {
     }
   }
 
+
   /**
-   * Cycles through the phases of the game after the game has started.
-   * @throws Error if the game is either in the 'lobby' or 'win' state.
+   * Cycles through the phases of the game after the game has started. Enters win state if game is over.
+   * @throws Error if the game is either in the 'lobby' state or game is in 'win' state when the game is not over. 
    */
   public updatePhase(): void {
     if (!this.isGameOver()) {
@@ -282,12 +268,13 @@ export default class MafiaGame {
         default:
           throw Error(`Game is currently in phase: ${Phase[this._phase]}`);
       }
+    } else {
+      this._phase = Phase.win;
     }
   }
 
   /**
-   * Determines if the game is over if there are no players remaining in either the Mafia or the town team.
-   *
+   * Determines if the game is over if there are no players remaining in either the Mafia or the town team. If game is over, it sets the winner and returns true.
    * @returns False if the game is not over, true if it is over
    */
   private isGameOver(): boolean {
@@ -297,7 +284,6 @@ export default class MafiaGame {
         !this.townPlayers.every(player => !player.isAlive)
       ) {
         this._winner = Team.Town;
-        this._phase = Phase.win;
         return true;
       }
       if (
@@ -305,7 +291,6 @@ export default class MafiaGame {
         this.townPlayers.every(player => !player.isAlive)
       ) {
         this._winner = Team.Mafia;
-        this._phase = Phase.win;
         return true;
       }
     }
@@ -331,6 +316,9 @@ export default class MafiaGame {
             player.result = `${gamePlayer.userName} has been eliminated!`;
           }
         });
+        if (this._host.id === gamePlayer.id) {
+          this._host = this.alivePlayers[0].player;
+        }
         this._gamePlayers[playerIndex].result = 'You have been eliminated!';
         this._deadPlayers.push(gamePlayer);
       }
@@ -377,20 +365,6 @@ export default class MafiaGame {
     return false;
   }
 
-  /*
-  private updateGamePlayers(serverGamePlayers: ServerGamePlayer[]) {
-    for (let i = 0; i < serverGamePlayers.length; i++) {
-      const currServerGamePlayer = serverGamePlayers[i];
-      const currGamePlayer = this.players.find(p => p.id === currServerGamePlayer.player);
-      if (currGamePlayer) {
-
-      } else {
-
-      }
-    }
-  }
-  */
-
   /**
    * Starts the game by setting the phase to discussion during the day time.
    */
@@ -413,7 +387,7 @@ export default class MafiaGame {
       (this._players.length <= 2 && this._phase !== Phase.lobby)
     ) {
       // end the game
-      this.isGameOver();
+      this._phase = Phase.win;
       // empty the player list of this mafia game
       this._players = [];
     }

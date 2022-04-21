@@ -158,9 +158,7 @@ export default class MafiaGame {
    * Determines who is eliminated at the end of a night phase.
    */
   public endNight(): void {
-    let targetPlayer:
-      | GamePlayer
-      | undefined = this._gamePlayers.reduce((prevPlayer, currentPlayer) =>
+    let targetPlayer: GamePlayer | undefined = this._gamePlayers.reduce((prevPlayer, currentPlayer) =>
       prevPlayer.voteTally > currentPlayer.voteTally ? prevPlayer : currentPlayer,
     );
 
@@ -253,8 +251,11 @@ export default class MafiaGame {
         default:
           throw Error(`Game is currently in phase: ${Phase[this._phase]}`);
       }
+    } else {
+      this._phase = Phase.win;
     }
   }
+
 
   /**
    * Determines if the game is over if there are no players remaining in either the Mafia or the town team.
@@ -268,7 +269,6 @@ export default class MafiaGame {
         !this.townPlayers.every(player => !player.isAlive)
       ) {
         this._winner = Team.Town;
-        this._phase = Phase.win;
         return true;
       }
       if (
@@ -276,7 +276,6 @@ export default class MafiaGame {
         this.townPlayers.every(player => !player.isAlive)
       ) {
         this._winner = Team.Mafia;
-        this._phase = Phase.win;
         return true;
       }
     }
@@ -458,7 +457,7 @@ export default class MafiaGame {
       (this._players.length <= 2 && this._phase !== Phase.lobby)
     ) {
       // end the game
-      this.isGameOver();
+      this._phase = Phase.win;
       // empty the player list of this mafia game
       this._players = [];
     }
