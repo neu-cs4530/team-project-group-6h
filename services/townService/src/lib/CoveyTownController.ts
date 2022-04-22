@@ -438,7 +438,9 @@ export default class CoveyTownController {
     */
 
     const serverGamePlayers: ServerGamePlayer[] = [];
-    mafiaGame.gamePlayers.forEach(gp => serverGamePlayers.push(gp.toServerGamePlayer()));
+    mafiaGame.gamePlayers.forEach(gp => {
+      serverGamePlayers.push(gp.toServerGamePlayer());
+    });
     this._listeners.forEach(listener =>
       listener.onMafiaGameStarted(recAreaLabel, serverGamePlayers),
     );
@@ -476,6 +478,33 @@ export default class CoveyTownController {
     } catch (err) {
       return false;
     }
+    return true;
+  }
+
+  /**
+   * Sets the player's night target to the given target
+   * @param mafiaGameID The game
+   * @param playerID Player choosing a target
+   * @param targetID The target the player chose
+   * @returns Whehter or not the target was successfuly set
+   */
+  setNightTarget(mafiaGameID: string, playerID: string, targetID: string): boolean {
+    // Ensure game exists and is in night phase
+    const mafiaGame = this._mafiaGames.find(g => g.id === mafiaGameID);
+    if (!mafiaGame || mafiaGame.phase !== Phase[Phase.night]) {
+      return false;
+    }
+
+    // Ensure players are both in the game and alive
+    const player = mafiaGame.alivePlayers.find(p => p.id === playerID);
+    const target = mafiaGame.alivePlayers.find(p => p.id === targetID);
+
+    if (!player || !target) {
+      return false;
+    }
+
+    player.targetPlayer = targetID;
+
     return true;
   }
 

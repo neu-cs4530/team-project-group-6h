@@ -14,7 +14,6 @@ import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import StartGameButton from '../SocialSidebar/StartGameButton';
-
 import {
   GameUIAlivePlayerList,
   GameUIDeadPlayerList,
@@ -103,10 +102,10 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
       },
       onMafiaGameStarted: (game: MafiaGame) => {
         setGamePhase(game.phase);
-        setPlayerTeam(game.gamePlayers.find(p => p.id === myPlayerID)?.team);
+        const myGamePlayer = game.gamePlayers.find(p => p.id === myPlayerID);
         setPlayerRole(game.playerRole(myPlayerID));
-        setPlayerRoleInfo(game.gamePlayers.find(p => p.id === myPlayerID)?.roleInfo);
-        // console.log(`Game Started, player role: ${playerRole}`);
+        setPlayerRoleInfo(myGamePlayer?.roleInfo);
+        setPlayerTeam(myGamePlayer?.team);
       },
       onMafiaGameDestroyed: () => {
         setGameInstance(undefined);
@@ -136,6 +135,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     setGamePhase,
     playerRole,
     setPlayerRole,
+    playerTeam,
+    setPlayerTeam,
   ]);
 
   if (recArea && gameInstance && gamePlayers.map(p => p.id).includes(myPlayerID)) {
@@ -206,10 +207,11 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               <GameUIRoleDescription
                 playerRole={playerRole}
                 playerRoleInfo={playerRoleInfo || 'Error: no role info'}
+                playerTeam={playerTeam}
               />
               <GameUIRoleList />
             </VStack>
-            <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase}/>
+            <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase} />
             <VStack>
               <GameUIAlivePlayerList 
               players={alivePlayers} 

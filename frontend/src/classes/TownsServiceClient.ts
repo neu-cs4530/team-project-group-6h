@@ -121,6 +121,14 @@ export interface NextPhaseRequest {
   mafiaGameID: string;
 }
 
+export interface SetNightTargetRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  mafiaGameID: string;
+  playerID: string;
+  targetID: string;
+}
+
 /**
  * Envelope that wraps any response from the server
  */
@@ -253,6 +261,15 @@ export default class TownsServiceClient {
   async nextPhase(requestData: NextPhaseRequest): Promise<void> {
     const responseWrapper = await this._axios.post(
       `/towns/${requestData.coveyTownID}/nextPhase`,
+      requestData,
+    );
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
+  // Set a player's night target
+  async setNightTarget(requestData: SetNightTargetRequest): Promise<void> {
+    const responseWrapper = await this._axios.post(
+      `/towns/${requestData.coveyTownID}/setNightTarget`,
       requestData,
     );
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
