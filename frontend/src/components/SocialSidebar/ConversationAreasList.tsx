@@ -53,13 +53,17 @@ function ConversationAreaView({ area } : ConversationAreaViewProps): JSX.Element
 export default function ConversationAreasList(): JSX.Element {
   // get the conversation areas
   const conversationAreas = useConversationAreas();
+  console.log(conversationAreas)
   const recreationAreas = useRecreationAreas();
   // get the active conversation areas only
   const activeConvAreas = conversationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
   const activeRecAreas = recreationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
 
-  const activeConversationAreas = activeConvAreas.filter(area => !area.isRecreationArea);
+  let activeConversationAreas = activeConvAreas.filter(area => !area.isRecreationArea);
   const activeRecreationAreas = activeRecAreas.filter(area => area.isRecreationArea);
+
+  // makes sure any existing rec areas after the player joins are not shown along with convo areas
+  activeConversationAreas = activeConversationAreas.filter((area) => activeRecreationAreas.forEach((recArea) => area.label !== recArea.label));
 
   return (
     <Box>
