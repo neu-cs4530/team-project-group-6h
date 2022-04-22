@@ -438,7 +438,9 @@ export default class CoveyTownController {
     */
 
     const serverGamePlayers: ServerGamePlayer[] = [];
-    mafiaGame.gamePlayers.forEach(gp => serverGamePlayers.push(gp.toServerGamePlayer()));
+    mafiaGame.gamePlayers.forEach(gp => {
+      serverGamePlayers.push(gp.toServerGamePlayer());
+    });
     this._listeners.forEach(listener =>
       listener.onMafiaGameStarted(recAreaLabel, serverGamePlayers),
     );
