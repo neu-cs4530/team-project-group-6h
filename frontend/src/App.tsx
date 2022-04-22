@@ -302,7 +302,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           recArea.startGame(_playerRoles);
         }
       });
-      const getNewGamePlayer = function (serverGamePlayer: ServerGamePlayer): void {};
       socket.on(
         'mafiaGameUpdated',
         (_mafiaGameID: string, _phase: string, _gamePlayers: ServerGamePlayer[]) => {
@@ -406,7 +405,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     return (
       <div>
         <WorldMap />
-        <VideoOverlay preferredMode='fullwidth'/>
+        <VideoOverlay preferredMode='fullwidth' />
       </div>
     );
   }, [setupGameController, appState.sessionToken, videoInstance]);
