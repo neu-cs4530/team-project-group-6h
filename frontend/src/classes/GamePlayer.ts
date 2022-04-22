@@ -59,7 +59,7 @@ export default class GamePlayer {
    */
   constructor(recPlayer: Player, gamePlayer: ServerGamePlayer) {
     this._player = recPlayer;
-    this._isAlive = true;
+    this._isAlive = gamePlayer.isAlive;
     this._currentVote = undefined;
     this._team = gamePlayer.team;
     this._role = gamePlayer.role;

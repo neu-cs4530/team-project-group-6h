@@ -9,6 +9,7 @@ import {
   mafiaGameLobbyJoinHandler,
   mafiaGameNextPhaseHandler,
   mafiaGameStartHandler,
+  mafiaSendVoteHandler,
   recreationAreaCreateHandler,
   townCreateHandler,
   townDeleteHandler,
@@ -215,6 +216,25 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
         coveyTownID: req.params.townID,
         sessionToken: req.body.sessionToken,
         mafiaGameID: req.body.mafiaGameID,
+      });
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error, please see log in server for more details',
+      });
+    }
+  });
+
+  // Send vote
+  app.post('/towns/:townID/sendVote', express.json(), async (req, res) => {
+    try {
+      const result = await mafiaSendVoteHandler({
+        coveyTownID: req.params.townID,
+        sessionToken: req.body.sessionToken,
+        mafiaGameID: req.body.mafiaGameID,
+        voterID: req.body.voterID,
+        votedID: req.body.votedID,
       });
       res.status(StatusCodes.OK).json(result);
     } catch (err) {

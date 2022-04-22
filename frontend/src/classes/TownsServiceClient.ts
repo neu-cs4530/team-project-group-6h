@@ -121,6 +121,14 @@ export interface NextPhaseRequest {
   mafiaGameID: string;
 }
 
+export interface SendVoteRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  mafiaGameID: string;
+  voterID: string;
+  votedID: string;
+}
+
 /**
  * Envelope that wraps any response from the server
  */
@@ -262,5 +270,6 @@ export default class TownsServiceClient {
   async sendVote(requestData: SendVoteRequest) : Promise<void> {
     console.log('vote request sent');
     const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/sendVote`, requestData);
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 }

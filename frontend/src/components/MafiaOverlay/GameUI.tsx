@@ -23,7 +23,6 @@ import {
   GameUILobbyRoles,
   GameUILobbyRules,
   GameUIRoleList,
-  GameUITimer,
   GameUIVideoOverlay,
 } from './GameUIComponents';
 import GameUIRoleDescription from './GameUIRoleDescription';
@@ -44,9 +43,14 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const [gamePhase, setGamePhase] = useState<string | undefined>(gameInstance?.phase);
   const [playerRole, setPlayerRole] = useState<Role | undefined>(Role.Unassigned);
   const [playerRoleInfo, setPlayerRoleInfo] = useState<string | undefined>();
+  const [hasVoted, setHasVoted] = useState<boolean>(false);
   // let inLobby = false;
 
   const toast = useToast();
+
+  const voteFunc = useCallback(async () => {
+    setHasVoted(true);
+  }, [setHasVoted]);
 
   const disbandLobby = useCallback(async () => {
     if (myPlayerID === recArea?.mafiaGame?.host.id) {
@@ -92,6 +96,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGamePhase(game.phase);
         setPlayerRole(game.playerRole(myPlayerID));
         setPlayerRoleInfo(game.gamePlayers.find(p => p.id === myPlayerID)?.roleInfo);
+        setHasVoted(game.gamePlayers.find(p=>p.id===myPlayerID)?.votedPlayer !== undefined);
       },
       onMafiaGameStarted: (game: MafiaGame) => {
         setGamePhase(game.phase);
@@ -165,6 +170,21 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         </Container>
       );
     }
+    let lobbyButton;
+    if (isPlayerHost && gameInstance) {
+      if (gamePhase !== 'win') {
+        lobbyButton = (<NextPhaseButton
+          area={recArea}
+          myPlayerID={myPlayerID}
+          gameInstanceID={gameInstance.id}
+          />);
+      } else {
+        lobbyButton = <Button onClick={disbandLobby}>Exit Game</Button>;
+      }
+    } else {
+      lobbyButton = <></>;
+    }
+
     const isDay = gamePhase === 'day_discussion' || gamePhase === 'day_voting';
     return (
       <Container
@@ -184,7 +204,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase.toString()} />
             </div>
             <Container width='455px' />
-            <GameUITimer />
+            {lobbyButton}
           </HStack>
           <HStack width='full' alignItems='stretch' align='flex-start'>
             <VStack align='left'>
@@ -196,20 +216,9 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             </VStack>
             <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase}/>
             <VStack>
-              <GameUIAlivePlayerList players={gameInstance.alivePlayers} />
+              <GameUIAlivePlayerList players={gameInstance.alivePlayers} playerTeam={gameInstance.playerTeam(myPlayerID)} playerRole={playerRole} gamePhase={gamePhase} hasVoted={hasVoted} voteFunc={voteFunc}/>
               <GameUIDeadPlayerList players={gameInstance.deadPlayers} />
             </VStack>
-          </HStack>
-          <HStack>
-            {isPlayerHost && gameInstance ? (
-              <NextPhaseButton
-                area={recArea}
-                myPlayerID={myPlayerID}
-                gameInstanceID={gameInstance.id}
-              />
-            ) : (
-              <></>
-            )}
           </HStack>
         </VStack>
       </Container>

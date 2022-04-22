@@ -1,12 +1,13 @@
 import { Button, Container, Heading, Text, useToast } from '@chakra-ui/react';
 import assert from 'assert';
 import React, { useCallback } from 'react';
-import GamePlayer, { Role } from '../../classes/GamePlayer';
-import MafiaGame from '../../classes/MafiaGame';
+import GamePlayer, { Role, Team } from '../../classes/GamePlayer';
+import MafiaGame, { Phase } from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea from '../../classes/RecreationArea';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import useCurrentRecreationArea from '../../hooks/useCurrentRecreationArea';
+import useIsDead from '../../hooks/useIsDead';
 import useRecreationAreas from '../../hooks/useRecreationAreas';
 import ParticipantList from '../VideoCall/VideoFrontend/components/ParticipantList/ParticipantList';
 import VideoOverlay from '../VideoCall/VideoOverlay/VideoOverlay';
@@ -85,46 +86,55 @@ export function GameUIRoleList(): JSX.Element {
 
 
 type GameUIPlayerListElementProps = {
+  voteFunc: (() => void),
   player: GamePlayer
 }
 
-function GameUIAlivePlayerListElement({player}: GameUIPlayerListElementProps): JSX.Element {
+function GameUIAlivePlayerListElement({player, voteFunc}: GameUIPlayerListElementProps): JSX.Element {
   const { apiClient, sessionToken, currentTownID, myPlayerID } = useCoveyAppState();
   const currentRecArea = useCurrentRecreationArea();
-  assert(currentRecArea, 'Recreation area must be defined.');
   const toast = useToast();
 
   const sendVote = useCallback(async () => {
       try {
+          assert(currentRecArea?.mafiaGame, 'Recreation area and mafia game must be defined.');
           await apiClient.sendVote({
               coveyTownID: currentTownID,
               sessionToken,
-              recreationAreaLabel: currentRecArea.label,
+              mafiaGameID: currentRecArea.mafiaGame.id,
               voterID: myPlayerID,
               votedID: player.id,
           });
+          currentRecArea.mafiaGame.votePlayer(myPlayerID, player.id);
+          voteFunc();
           toast({
-              title: `Target ${player.userName} selected`,
+              title: `Vote against ${player.userName} submitted`,
               status: 'success',
           });
       } catch (err) {
           toast({
-              title: `Unable to select target ${player.userName}`,
+              title: `Unable to vote for ${player.userName}`,
               description: err.toString(),
               status: 'error',
           })
       }
-  }, [player, apiClient, currentRecArea.label, currentTownID, myPlayerID, sessionToken, toast]);
-
-  return <li key={player.id}>{player.userName} <Button onClick={sendVote}>Vote</Button></li>;
+  }, [currentRecArea?.mafiaGame, apiClient, currentTownID, sessionToken, myPlayerID, player.id, player.userName, voteFunc, toast])
+  return <li key={player.id}><Button colorScheme='red' padding='2px' height='20px' onClick={sendVote}>{player.userName}</Button></li>;
 }
 
 
-type GameUIPlayerListProps = {
+type GameUIAlivePlayerListProps = {
   players: GamePlayer[];
+  hasVoted: boolean;
+  voteFunc: (() => void);
+  gamePhase: string | undefined;
+  playerRole: Role | undefined;
+  playerTeam: Team | undefined;
 };
+
 // needs an array map from players to strings
-export function GameUIAlivePlayerList({players}: GameUIPlayerListProps): JSX.Element {
+export function GameUIAlivePlayerList({players, hasVoted, voteFunc, gamePhase, playerRole, playerTeam}: GameUIAlivePlayerListProps): JSX.Element {
+  const isDead = useIsDead();
   return (
       <Container 
           width="200px"
@@ -133,13 +143,19 @@ export function GameUIAlivePlayerList({players}: GameUIPlayerListProps): JSX.Ele
               >
                   <Heading fontSize='xl' as='h1'>Players</Heading>
                   <ul>
-                  {players.map((player) => (<GameUIAlivePlayerListElement key={player.id} player={player} />))}
+                    {((gamePhase === 'day_voting' || (gamePhase === 'night' && playerRole === Role.Unassigned && playerTeam === Team.Mafia)) && !hasVoted && !isDead)
+                  ? players.map(p=><GameUIAlivePlayerListElement key={p.id} player={p} voteFunc={voteFunc}/>)
+                  : players.map(p=><li key={p.id}>{p.userName}</li>)}
                   </ul>
               </Container>
   );
 }
 
-export function GameUIDeadPlayerList({ players }: GameUIPlayerListProps): JSX.Element {
+
+type GameUIDeadPlayerListProps = {
+  players: GamePlayer[];
+};
+export function GameUIDeadPlayerList({ players }: GameUIDeadPlayerListProps): JSX.Element {
   return (
     <Container width='200px' height='296px' className='ui-container'>
       <Heading fontSize='xl' as='h1'>

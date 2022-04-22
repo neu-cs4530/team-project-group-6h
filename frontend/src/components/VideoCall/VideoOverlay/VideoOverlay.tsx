@@ -17,6 +17,7 @@ import './VideoGrid.scss';
 import MediaErrorSnackbar from '../VideoFrontend/components/PreJoinScreens/MediaErrorSnackbar/MediaErrorSnackbar';
 import useMaybeVideo from '../../../hooks/useMaybeVideo';
 import MafiaGame from '../../../classes/MafiaGame';
+import useIsDead from '../../../hooks/useIsDead';
 
 const Container = styled('div')({
   display: 'grid',
@@ -37,6 +38,7 @@ interface Props {
   hexColour?: string;
   preferredMode: 'sidebar' | 'fullwidth';
   onPresentingChanged?(presenting: boolean): void;
+  isDead: boolean;
 
 }
 
@@ -51,6 +53,7 @@ export default function VideoGrid(props: Props) {
   const unloadRef = useRef<EventListener>();
   const existingRoomRef = useRef<TwilioRoom | undefined>();
   const [mediaError, setMediaError] = useState<Error>();
+  const isDead = useIsDead();
 
   let coveyRoom = coveyController?.coveyTownID;
   if (!coveyRoom) coveyRoom = 'Disconnected';
@@ -124,7 +127,7 @@ export default function VideoGrid(props: Props) {
             <ReconnectingNotification />
             <MobileTopMenuBar />
             <Room />
-            <MenuBar />
+            {isDead ? <></> : <MenuBar/>}
           </Main>
         )}
         <MediaErrorSnackbar error={mediaError} />

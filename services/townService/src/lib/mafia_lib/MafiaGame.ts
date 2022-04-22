@@ -101,7 +101,7 @@ export default class MafiaGame {
    * Returns all players still alive within the game.
    */
   get alivePlayers(): GamePlayer[] {
-    return [...this._gamePlayers].filter(player => player.isAlive === false);
+    return [...this._gamePlayers].filter(player => player.isAlive === true);
   }
 
   get mafiaPlayers(): GamePlayer[] {
@@ -135,7 +135,9 @@ export default class MafiaGame {
         prevPlayer.voteTally > currentPlayer.voteTally ? prevPlayer : currentPlayer,
       );
 
+      console.log(`Eliminating player with id ${votedPlayer.id}...`);
       this.eliminatePlayer(votedPlayer.id);
+      this.resetFields();
     }
   }
 
@@ -145,13 +147,12 @@ export default class MafiaGame {
    */
   public resetFields(): void {
     this._gamePlayers.forEach(player => {
-      if (player.isAlive) {
-        player.votedPlayer = undefined; // _currentVote
-        player.targetPlayer = undefined; // _target
-        player.result = undefined; // _result
-        player._voteTally = 0; // _voteTally
-      }
+      player.votedPlayer = undefined; // _currentVote
+      player.targetPlayer = undefined; // _target
+      player.result = undefined; // _result
+      player._voteTally = 0; // _voteTally
     });
+    console.log('FIELDS RESET (voted, target, result, votetally)');
   }
 
   /**
@@ -232,6 +233,7 @@ export default class MafiaGame {
         }
       });
     }
+    this.resetFields();
   }
 
   /**
@@ -397,6 +399,8 @@ export default class MafiaGame {
     detectiveList[0].role = Role.Detective;
 
     this._gamePlayers = [...godfatherList, ...doctorList, ...hypnotistList, ...detectiveList];
+    console.log('Game roles assigned.');
+    this._gamePlayers.forEach(p => console.log(`player id: ${p.id}, player name: ${p.userName}`));
   }
 
   /**
@@ -406,9 +410,12 @@ export default class MafiaGame {
    */
   public votePlayer(voterID: string, targetID: string): void {
     const playerIndex = this._gamePlayers.findIndex(player => player.id === voterID);
+    const votedPlayer = this._gamePlayers.find(p => p.id === targetID);
 
     // give the ID of the person that this player has voted for
     this._gamePlayers[playerIndex].votedPlayer = targetID;
+    if (votedPlayer) votedPlayer._voteTally += 1;
+    else throw new Error('Vote failed.');
   }
 
   /**

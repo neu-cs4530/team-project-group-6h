@@ -7,6 +7,7 @@ import {
   GameLobbyJoinRequest,
   GameStartRequest,
   NextPhaseRequest,
+  SendVoteRequest,
   ServerConversationArea,
   ServerRecreationArea,
 } from '../client/TownsServiceClient';
@@ -355,7 +356,7 @@ export function mafiaGameLobbyDestroyHandler(
     isOK: success,
     response: {},
     message: !success
-      ? `Unable to join mafia game lobby in ${_requestData.recreationAreaLabel}.`
+      ? `Unable to destroy mafia game lobby in ${_requestData.recreationAreaLabel}.`
       : undefined,
   };
 }
@@ -402,6 +403,31 @@ export function mafiaGameNextPhaseHandler(
     response: {},
     message: !success
       ? `Unable to update phase in Mafia Game:${_requestData.mafiaGameID}.`
+      : undefined,
+  };
+}
+
+export function mafiaSendVoteHandler(
+  _requestData: SendVoteRequest,
+): ResponseEnvelope<Record<string, null>> {
+  const townController = getTownController(_requestData.coveyTownID);
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
+    return {
+      isOK: false,
+      response: {},
+      message: `Unable to send vote in Mafia Game:${_requestData.mafiaGameID}.`,
+    };
+  }
+  const success = townController.sendVote(
+    _requestData.mafiaGameID,
+    _requestData.voterID,
+    _requestData.votedID,
+  );
+  return {
+    isOK: success,
+    response: {},
+    message: !success
+      ? `Unable to send vote in mafia game:${_requestData.mafiaGameID}.`
       : undefined,
   };
 }
