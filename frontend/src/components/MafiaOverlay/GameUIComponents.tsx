@@ -1,5 +1,5 @@
 import { Container, Heading, Text } from '@chakra-ui/react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import GamePlayer, { Role } from '../../classes/GamePlayer';
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
@@ -22,11 +22,35 @@ export function GameUIHeader({ gameName, gamePhase }: GameUIHeaderProps): JSX.El
   );
 }
 
-export function GameUITimer(): JSX.Element {
+export function GameUITimer({ gameName, gamePhase }: GameUIHeaderProps): JSX.Element {
+  const phaseDuration = 90;
+  const [timeLeft, setTimeLeft] = useState(phaseDuration);
+
+  useEffect(() => {
+    // resets timer
+    setTimeLeft(phaseDuration);
+  }, [gamePhase])
+  
+
+  useEffect(() => {
+
+    if (timeLeft !== 0) {
+      // subtracts one from timer every time a second passes during this phase
+      const timer = setTimeout(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+
+    return () => {};
+    
+  });
+
   return (
     <Container width='100px' height='62px' align='center' className='ui-container'>
       <Heading fontSize='xl' as='h1'>
-        1:30
+        {`${Math.floor(timeLeft / 60)}:${timeLeft % 60 < 10 ? `0${timeLeft % 60}` : timeLeft % 60}`}
       </Heading>
     </Container>
   );
@@ -56,7 +80,7 @@ export function GameUIRoleList(): JSX.Element {
       <Heading fontSize='xl' as='h4'>
         All Roles
       </Heading>
-      <ul>
+      <ul style={{ listStyleType: "none" }}>
         <li>
           <Text color='#00a108'>Investigator</Text>
         </li>
@@ -87,7 +111,7 @@ export function GameUIAlivePlayerList({ players }: GameUIPlayerListProps): JSX.E
       <Heading fontSize='xl' as='h1'>
         Players
       </Heading>
-      <ul>
+      <ul style={{ listStyleType: "none" }}>
         {players.map(player => (player ? <li key={player.id}>{player.userName}</li> : <li />))}
       </ul>
     </Container>
@@ -146,7 +170,7 @@ export function GameUILobbyRoles(): JSX.Element {
   return (
     <Container width='350px' height='550px'>
       <Heading>Roles</Heading>
-      <ul>
+      <ul style={{ listStyleType: "none" }}>
         <li>General Town: able to vote on a member of the town to lynch</li>
         <li>Doctor: can block the mafia from killing a town member for one night</li>
         <li>Investigator: can discover the role of another town member each night</li>
@@ -183,7 +207,7 @@ export function GameUILobbyPlayersList({ players }: GameUILobbyPlayersListProps)
   return (
     <Container width='350px' height='550px'>
       <Heading>Players</Heading>
-      <ul>
+      <ul style={{ listStyleType: "none" }}>
         {players.map((p: Player) => (
           <li key={p.id}>{p.userName}</li>
         ))}
