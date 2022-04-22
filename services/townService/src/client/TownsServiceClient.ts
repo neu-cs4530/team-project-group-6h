@@ -159,6 +159,14 @@ export interface NextPhaseRequest {
   mafiaGameID: string;
 }
 
+export interface SendVoteRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  mafiaGameID: string;
+  voterID: string;
+  votedID: string;
+}
+
 /**
  * Payload sent by client to set a player's night target
  */

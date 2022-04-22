@@ -106,18 +106,19 @@ export default class MafiaGame {
    * @returns The player's role, or undefined if the p
    */
   public playerRole(playerID: string): Role | undefined {
-    const role = this.gamePlayers.find(gp => gp.id === playerID)?.role;
-    return role;
+    return this.gamePlayers.find(gp => gp.id === playerID)?.role;
   }
 
-  get alivePlayers(): GamePlayer[] {
-    const aliveTown = this.townPlayers.filter(player => !this._deadPlayers.includes(player));
-    const aliveMafia = this.mafiaPlayers.filter(player => !this._deadPlayers.includes(player));
-    return aliveTown.concat(aliveMafia);
+  public playerTeam(playerID: string): Team | undefined {
+    return this.gamePlayers.find(gp => gp.id === playerID)?.team;
   }
 
   get deadPlayers(): GamePlayer[] {
-    return this._deadPlayers;
+    return [...this._gamePlayers].filter(player => player.isAlive === false);
+  }
+
+  get alivePlayers(): GamePlayer[] {
+    return [...this._gamePlayers].filter(player => player.isAlive === true);
   }
 
   get mafiaPlayers(): GamePlayer[] {

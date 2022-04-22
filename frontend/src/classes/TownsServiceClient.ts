@@ -121,6 +121,13 @@ export interface NextPhaseRequest {
   mafiaGameID: string;
 }
 
+export interface SendVoteRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  mafiaGameID: string;
+  voterID: string;
+  votedID: string;
+}
 export interface SetNightTargetRequest {
   coveyTownID: string;
   sessionToken: string;
@@ -263,6 +270,12 @@ export default class TownsServiceClient {
       `/towns/${requestData.coveyTownID}/nextPhase`,
       requestData,
     );
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
+  // send vote/target
+  async sendVote(requestData: SendVoteRequest) : Promise<void> {
+    const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/sendVote`, requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 

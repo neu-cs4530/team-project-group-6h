@@ -7,6 +7,7 @@ import {
   GameLobbyJoinRequest,
   GameStartRequest,
   NextPhaseRequest,
+  SendVoteRequest,
   ServerConversationArea,
   ServerRecreationArea,
   SetNightTargetRequest,
@@ -356,7 +357,7 @@ export function mafiaGameLobbyDestroyHandler(
     isOK: success,
     response: {},
     message: !success
-      ? `Unable to join mafia game lobby in ${_requestData.recreationAreaLabel}.`
+      ? `Unable to destroy mafia game lobby in ${_requestData.recreationAreaLabel}.`
       : undefined,
   };
 }
@@ -407,6 +408,31 @@ export function mafiaGameNextPhaseHandler(
   };
 }
 
+export function mafiaSendVoteHandler(
+  _requestData: SendVoteRequest,
+): ResponseEnvelope<Record<string, null>> {
+  const townController = getTownController(_requestData.coveyTownID);
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
+    return {
+      isOK: false,
+      response: {},
+      message: `Unable to send vote in Mafia Game:${_requestData.mafiaGameID}.`,
+    };
+  }
+  const success = townController.sendVote(
+    _requestData.mafiaGameID,
+    _requestData.voterID,
+    _requestData.votedID,
+  );
+  return {
+    isOK: success,
+    response: {},
+    message: !success
+      ? `Unable to send vote in mafia game:${_requestData.mafiaGameID}.`
+      : undefined,
+  };
+}
+
 export function setNightTargetHandler(
   _requestData: SetNightTargetRequest,
 ): ResponseEnvelope<Record<string, null>> {
@@ -418,7 +444,11 @@ export function setNightTargetHandler(
       message: `Unable to set ${_requestData.playerID}'s target to ${_requestData.targetID}.`,
     };
   }
-  const success = townController.setNightTarget(_requestData.mafiaGameID, _requestData.playerID, _requestData.targetID);
+  const success = townController.setNightTarget(
+    _requestData.mafiaGameID,
+    _requestData.playerID,
+    _requestData.targetID,
+  );
   return {
     isOK: success,
     response: {},

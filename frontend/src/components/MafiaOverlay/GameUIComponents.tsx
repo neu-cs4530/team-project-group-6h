@@ -1,8 +1,14 @@
-import { Container, Heading, Text, Button } from '@chakra-ui/react';
-import React from 'react';
+import { Button, Container, Heading, Text, useToast } from '@chakra-ui/react';
+import assert from 'assert';
+import React, { useCallback, useEffect, useState } from 'react';
 import GamePlayer, { Role, Team } from '../../classes/GamePlayer';
-import MafiaGame, { Phase } from '../../classes/MafiaGame';
+import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
+import RecreationArea from '../../classes/RecreationArea';
+import useCoveyAppState from '../../hooks/useCoveyAppState';
+import useCurrentRecreationArea from '../../hooks/useCurrentRecreationArea';
+import useIsDead from '../../hooks/useIsDead';
+import useRecreationAreas from '../../hooks/useRecreationAreas';
 import ParticipantList from '../VideoCall/VideoFrontend/components/ParticipantList/ParticipantList';
 import VideoOverlay from '../VideoCall/VideoOverlay/VideoOverlay';
 import GameUIVideo from './GameUIVideo';
@@ -22,11 +28,35 @@ export function GameUIHeader({ gameName, gamePhase }: GameUIHeaderProps): JSX.El
   );
 }
 
-export function GameUITimer(): JSX.Element {
+export function GameUITimer({ gameName, gamePhase }: GameUIHeaderProps): JSX.Element {
+  const phaseDuration = 90;
+  const [timeLeft, setTimeLeft] = useState(phaseDuration);
+
+  useEffect(() => {
+    // resets timer
+    setTimeLeft(phaseDuration);
+  }, [gamePhase])
+  
+
+  useEffect(() => {
+
+    if (timeLeft !== 0) {
+      // subtracts one from timer every time a second passes during this phase
+      const timer = setTimeout(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+
+    return () => {};
+    
+  });
+
   return (
     <Container width='100px' height='62px' align='center' className='ui-container'>
       <Heading fontSize='xl' as='h1'>
-        1:30
+        {`${Math.floor(timeLeft / 60)}:${timeLeft % 60 < 10 ? `0${timeLeft % 60}` : timeLeft % 60}`}
       </Heading>
     </Container>
   );
@@ -56,7 +86,7 @@ export function GameUIRoleList(): JSX.Element {
       <Heading fontSize='xl' as='h4'>
         All Roles
       </Heading>
-      <ul>
+      <ul style={{ listStyleType: "none" }}>
         <li>
           <Text color='#00a108'>Investigator</Text>
         </li>
@@ -77,70 +107,81 @@ export function GameUIRoleList(): JSX.Element {
   );
 }
 
-type GameUIAlivePlayerListProps = {
-    players: GamePlayer[];
-    phase: string | undefined;
-    playerRole: Role | undefined;
-    playerTeam: Team | undefined;
-};
 
-type GameUIPlayerListProps = {
-    players: GamePlayer[];
+type GameUIPlayerListElementProps = {
+  voteFunc: (() => void),
+  player: GamePlayer
+}
+
+function GameUIAlivePlayerListElement({player, voteFunc}: GameUIPlayerListElementProps): JSX.Element {
+  const { apiClient, sessionToken, currentTownID, myPlayerID } = useCoveyAppState();
+  const currentRecArea = useCurrentRecreationArea();
+  const toast = useToast();
+
+  const sendVote = useCallback(async () => {
+      try {
+          assert(currentRecArea?.mafiaGame, 'Recreation area and mafia game must be defined.');
+          await apiClient.sendVote({
+              coveyTownID: currentTownID,
+              sessionToken,
+              mafiaGameID: currentRecArea.mafiaGame.id,
+              voterID: myPlayerID,
+              votedID: player.id,
+          });
+          currentRecArea.mafiaGame.votePlayer(myPlayerID, player.id);
+          voteFunc();
+          toast({
+              title: `Vote against ${player.userName} submitted`,
+              status: 'success',
+          });
+      } catch (err) {
+        if (err instanceof Error) {
+            toast({
+                title: `Unable to vote for ${player.userName}`,
+                description: err.toString(),
+                status: 'error',
+            })
+        }
+      }
+  }, [currentRecArea?.mafiaGame, apiClient, currentTownID, sessionToken, myPlayerID, player.id, player.userName, voteFunc, toast])
+  return <li key={player.id}><Button colorScheme='red' padding='2px' height='20px' onClick={sendVote}>{player.userName}</Button></li>;
+}
+
+
+type GameUIAlivePlayerListProps = {
+  players: GamePlayer[];
+  hasVoted: boolean;
+  voteFunc: (() => void);
+  gamePhase: string | undefined;
+  playerRole: Role | undefined;
+  playerTeam: Team | undefined;
 };
 
 // needs an array map from players to strings
-export function GameUIAlivePlayerList({ players, phase, playerRole, playerTeam }: GameUIAlivePlayerListProps): JSX.Element {
-    // dummy values for buttons, replace with Chris' versions later
+export function GameUIAlivePlayerList({players, hasVoted, voteFunc, gamePhase, playerRole, playerTeam}: GameUIAlivePlayerListProps): JSX.Element {
+  const isDead = useIsDead();
 
-    if (phase === Phase[Phase.day_voting] 
-        || (phase === Phase[Phase.night] && !playerRole && playerTeam === Team.Mafia)) {
-        return (
-            <Container width='200px' height='296px' className='ui-container'>
-              <Heading fontSize='xl' as='h1'>
-                Players
-              </Heading>
-              <ul>
-                {players.map((gp: GamePlayer) => (
-                    <li key={gp.id}>
-                    <Button> Vote {gp.userName} </Button>
-                    </li>) )} 
-              </ul>
-            </Container> 
-        );
-    }
-    if (phase === Phase[Phase.night] 
-        && (playerRole === Role.Godfather || playerRole === Role.Detective
-            || playerRole === Role.Hypnotist || playerRole === Role.Doctor)) {
-        if (!playerRole && playerTeam === Team.Mafia) {
-            return (
-                <Container width='200px' height='296px' className='ui-container'>
-                  <Heading fontSize='xl' as='h1'>
-                    Players
-                  </Heading>
-                  <ul>
-                    {players.map((gp: GamePlayer) => (
-                        <li key={gp.id}>
-                        <Button> Target {gp.userName} </Button>
-                        </li>) )} 
-                  </ul>
-                </Container> 
-            );
-        }    
-    }
-    
   return (
-    <Container width='200px' height='296px' className='ui-container'>
-      <Heading fontSize='xl' as='h1'>
-        Players
-      </Heading>
-      <ul>
-        {players.map(player => (player ? <li key={player.id}>{player.userName}</li> : <li />))}
-      </ul>
-    </Container>
+      <Container 
+          width="200px"
+          height="296px"
+          className='ui-container'
+              >
+                  <Heading fontSize='xl' as='h1'>Players</Heading>
+                  <ul>
+                    {((gamePhase === 'day_voting' || (gamePhase === 'night' && playerRole === Role.Unassigned && playerTeam === Team.Mafia)) && !hasVoted && !isDead)
+                  ? players.map(p=><GameUIAlivePlayerListElement key={p.id} player={p} voteFunc={voteFunc}/>)
+                  : players.map(p=><li key={p.id}>{p.userName}</li>)}
+                  </ul>
+              </Container>
   );
 }
 
-export function GameUIDeadPlayerList({ players }: GameUIPlayerListProps): JSX.Element {
+
+type GameUIDeadPlayerListProps = {
+  players: GamePlayer[];
+};
+export function GameUIDeadPlayerList({ players }: GameUIDeadPlayerListProps): JSX.Element {
   return (
     <Container width='200px' height='296px' className='ui-container'>
       <Heading fontSize='xl' as='h1'>
@@ -192,7 +233,7 @@ export function GameUILobbyRoles(): JSX.Element {
   return (
     <Container width='350px' height='550px'>
       <Heading>Roles</Heading>
-      <ul>
+      <ul style={{ listStyleType: "none" }}>
         <li>General Town: able to vote on a member of the town to lynch</li>
         <li>Doctor: can block the mafia from killing a town member for one night</li>
         <li>Investigator: can discover the role of another town member each night</li>
@@ -230,7 +271,7 @@ export function GameUILobbyPlayersList({ players }: GameUILobbyPlayersListProps)
   return (
     <Container width='350px' height='550px'>
       <Heading>Players</Heading>
-      <ul>
+      <ul style={{ listStyleType: "none" }}>
         {players.map((p: Player) => (
           <li key={p.id}>{p.userName}</li>
         ))}

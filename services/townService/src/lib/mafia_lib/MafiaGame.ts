@@ -136,6 +136,7 @@ export default class MafiaGame {
         prevPlayer.voteTally > currentPlayer.voteTally ? prevPlayer : currentPlayer,
       );
 
+      console.log(`Eliminating player with id ${votedPlayer.id}...`);
       this.eliminatePlayer(votedPlayer.id);
     } else {
       throw new Error(`Not in day phase. Currently in phase ${Phase[this._phase]}.`);
@@ -155,6 +156,7 @@ export default class MafiaGame {
         player.resetTally(); // _voteTally
       }
     });
+    console.log('FIELDS RESET (voted, target, result, votetally)');
   }
 
   /**
@@ -238,6 +240,7 @@ export default class MafiaGame {
     } else {
       throw new Error(`Not in the night phase. Currently in phase ${Phase[this._phase]}.`);
     }
+    this.resetFields();
   }
 
   /**
@@ -405,15 +408,22 @@ export default class MafiaGame {
     detectiveList[0].role = Role.Detective;
 
     this._gamePlayers = [...godfatherList, ...doctorList, ...hypnotistList, ...detectiveList];
+    console.log('Game roles assigned.');
+    this._gamePlayers.forEach(p => console.log(`player id: ${p.id}, player name: ${p.userName}`));
   }
 
   /**
    * Sets the target of the player to vote out of the game.
    * @param voterID The ID of the player that is voting
    * @param targetID The ID of the player that this player is voting for
+   * @throws Error if either voterID or targetID can't be found.
    */
   public votePlayer(voterID: string, targetID: string): void {
     const playerIndex = this._gamePlayers.findIndex(player => player.id === voterID);
+
+    if (playerIndex === -1) {
+      throw new Error('Vote failed: Cannot find voter.');
+    }
 
     // give the ID of the person that this player has voted for
     this._gamePlayers[playerIndex].votedPlayer = targetID;
@@ -421,6 +431,11 @@ export default class MafiaGame {
     // increment that player's vote tally
     const targetIndex = this._gamePlayers.findIndex(player => player.id === targetID);
     this._gamePlayers[targetIndex].vote();
+
+    if (targetIndex === -1) {
+      throw new Error('Vote failed: Cannot find target.');
+    } 
+    
   }
 
   /**

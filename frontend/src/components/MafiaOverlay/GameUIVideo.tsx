@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         gridInnerContainer: {
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr 1fr',
+            gridTemplateColumns: '1fr 1fr 1fr',
             gridAutoRows: '1fr',
             [theme.breakpoints.down('md')]: {
                 gridTemplateColumns: '1fr 1fr 1fr',
@@ -85,7 +85,7 @@ export default function GameUIVideo({ game, gamePhase }: GameVideoProps) {
 
     const mafiaParticipants = participants.filter((p) => mafiaIds.includes(p.participant.identity));
 
-    return <main
+    return (<main
         className={clsx(
             classes.gridContainer,
             {
@@ -140,5 +140,5 @@ export default function GameUIVideo({ game, gamePhase }: GameVideoProps) {
             }
 
         </div>
-    </main>
+    </main>);
 }

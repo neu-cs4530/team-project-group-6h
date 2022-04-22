@@ -46,10 +46,15 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const [gamePhase, setGamePhase] = useState<string | undefined>(gameInstance?.phase);
   const [playerRole, setPlayerRole] = useState<Role | undefined>(Role.Unassigned);
   const [playerRoleInfo, setPlayerRoleInfo] = useState<string | undefined>();
+  const [hasVoted, setHasVoted] = useState<boolean>(false);
   const [playerTeam, setPlayerTeam] = useState<Team | undefined>(undefined);
 
 
   const toast = useToast();
+
+  const voteFunc = useCallback(async () => {
+    setHasVoted(true);
+  }, [setHasVoted]);
 
   const disbandLobby = useCallback(async () => {
     if (myPlayerID === recArea?.mafiaGame?.host.id) {
@@ -99,6 +104,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGamePhase(game.phase);
         setPlayerRole(game.playerRole(myPlayerID));
         setPlayerRoleInfo(game.gamePlayers.find(p => p.id === myPlayerID)?.roleInfo);
+        setHasVoted(game.gamePlayers.find(p=>p.id===myPlayerID)?.votedPlayer !== undefined);
       },
       onMafiaGameStarted: (game: MafiaGame) => {
         setGamePhase(game.phase);
@@ -147,7 +153,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
           align='left'
           spacing={2}
           border='2px'
-          padding={15}
+          padding='15'
           borderColor='gray.500'
           minWidth='100%'
           minHeight='100%'
@@ -181,13 +187,28 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         </Container>
       );
     }
+    let lobbyButton;
+    if (isPlayerHost && gameInstance) {
+      if (gamePhase !== 'win') {
+        lobbyButton = (<NextPhaseButton
+          area={recArea}
+          myPlayerID={myPlayerID}
+          gameInstanceID={gameInstance.id}
+          />);
+      } else {
+        lobbyButton = <Button onClick={disbandLobby}>Exit Game</Button>;
+      }
+    } else {
+      lobbyButton = <></>;
+    }
+
     const isDay = gamePhase === 'day_discussion' || gamePhase === 'day_voting';
     return (
       <Container
         align='left'
         spacing={2}
         border='2px'
-        padding={15}
+        padding='15'
         borderColor='gray.500'
         minWidth='100%'
         minHeight='100%'
@@ -197,10 +218,11 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         <VStack>
           <HStack>
             <div margin-left='100px'>
-              <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase.toString()} />
+              <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase} />
             </div>
-            <Container width='455px' />
-            <GameUITimer />
+            <Container width='300px' />
+            {lobbyButton}
+            <GameUITimer gameName={recArea.label} gamePhase={gameInstance.phase} />
           </HStack>
           <HStack width='full' alignItems='stretch' align='flex-start'>
             <VStack align='left'>
@@ -213,24 +235,9 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             </VStack>
             <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase} />
             <VStack>
-              <GameUIAlivePlayerList 
-              players={alivePlayers} 
-              phase={gamePhase}
-              playerRole={playerRole}
-              playerTeam={playerTeam}/>
-              <GameUIDeadPlayerList players={deadPlayers} />
+              <GameUIAlivePlayerList players={gameInstance.alivePlayers} playerTeam={gameInstance.playerTeam(myPlayerID)} playerRole={playerRole} gamePhase={gamePhase} hasVoted={hasVoted} voteFunc={voteFunc}/>
+              <GameUIDeadPlayerList players={gameInstance.deadPlayers} />
             </VStack>
-          </HStack>
-          <HStack>
-            {isPlayerHost && gameInstance ? (
-              <NextPhaseButton
-                area={recArea}
-                myPlayerID={myPlayerID}
-                gameInstanceID={gameInstance.id}
-              />
-            ) : (
-              <></>
-            )}
           </HStack>
         </VStack>
       </Container>
