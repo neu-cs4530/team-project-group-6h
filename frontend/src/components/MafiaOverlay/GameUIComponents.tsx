@@ -1,7 +1,7 @@
-import { Container, Heading, Text } from '@chakra-ui/react';
+import { Container, Heading, Text, Button } from '@chakra-ui/react';
 import React from 'react';
-import GamePlayer, { Role } from '../../classes/GamePlayer';
-import MafiaGame from '../../classes/MafiaGame';
+import GamePlayer, { Role, Team } from '../../classes/GamePlayer';
+import MafiaGame, { Phase } from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import ParticipantList from '../VideoCall/VideoFrontend/components/ParticipantList/ParticipantList';
 import VideoOverlay from '../VideoCall/VideoOverlay/VideoOverlay';
@@ -77,11 +77,57 @@ export function GameUIRoleList(): JSX.Element {
   );
 }
 
-type GameUIPlayerListProps = {
-  players: GamePlayer[];
+type GameUIAlivePlayerListProps = {
+    players: GamePlayer[];
+    phase: string | undefined;
+    playerRole: Role | undefined;
+    playerTeam: Team | undefined;
 };
+
+type GameUIPlayerListProps = {
+    players: GamePlayer[];
+};
+
 // needs an array map from players to strings
-export function GameUIAlivePlayerList({ players }: GameUIPlayerListProps): JSX.Element {
+export function GameUIAlivePlayerList({ players, phase, playerRole, playerTeam }: GameUIAlivePlayerListProps): JSX.Element {
+    // dummy values for buttons, replace with Chris' versions later
+
+    if (phase === Phase[Phase.day_voting] 
+        || (phase === Phase[Phase.night] && !playerRole && playerTeam === Team.Mafia)) {
+        return (
+            <Container width='200px' height='296px' className='ui-container'>
+              <Heading fontSize='xl' as='h1'>
+                Players
+              </Heading>
+              <ul>
+                {players.map((gp: GamePlayer) => (
+                    <li key={gp.id}>
+                    <Button> Vote {gp.userName} </Button>
+                    </li>) )} 
+              </ul>
+            </Container> 
+        );
+    }
+    if (phase === Phase[Phase.night] 
+        && (playerRole === Role.Godfather || playerRole === Role.Detective
+            || playerRole === Role.Hypnotist || playerRole === Role.Doctor)) {
+        if (!playerRole && playerTeam === Team.Mafia) {
+            return (
+                <Container width='200px' height='296px' className='ui-container'>
+                  <Heading fontSize='xl' as='h1'>
+                    Players
+                  </Heading>
+                  <ul>
+                    {players.map((gp: GamePlayer) => (
+                        <li key={gp.id}>
+                        <Button> Target {gp.userName} </Button>
+                        </li>) )} 
+                  </ul>
+                </Container> 
+            );
+        }    
+    }
+    
   return (
     <Container width='200px' height='296px' className='ui-container'>
       <Heading fontSize='xl' as='h1'>
@@ -180,6 +226,7 @@ type GameUILobbyPlayersListProps = {
 };
 
 export function GameUILobbyPlayersList({ players }: GameUILobbyPlayersListProps): JSX.Element {
+    
   return (
     <Container width='350px' height='550px'>
       <Heading>Players</Heading>

@@ -64,7 +64,7 @@ describe('MafiaGame', () => {
       `Game is currently in phase: ${Phase[Phase.lobby]}`,
     );
   });
-  it('Eliminates most voted player at end of day cycle and updates phase', () => {
+  it('Eliminates most voted player at end of day/night cycle and updates phase', () => {
     const mafiaGame2 = new MafiaGame(recPlayer1);
     mafiaGame2.addPlayer(recPlayer2);
     mafiaGame2.addPlayer(recPlayer3);
@@ -90,6 +90,17 @@ describe('MafiaGame', () => {
     expect(mafiaGame2.townPlayers.length).toBe(3);
     expect(mafiaGame2.mafiaPlayers.length).toBe(1);
     expect(mafiaGame2.mafiaPlayers.length).toBe(1);
+
+    // Tie condition (Team here doesn't matter, just want to make sure tie condition = no one eliminated)
+    mafiaGame2.updatePhase();
+    mafiaGame2.votePlayer(recPlayer1.id, recPlayer3.id);
+    mafiaGame2.votePlayer(recPlayer3.id, recPlayer4.id);
+    mafiaGame2.votePlayer(recPlayer4.id, recPlayer1.id);
+
+    mafiaGame2.endNight();
+    expect(mafiaGame2.deadPlayers.length).toBe(1);
+
+
 
     
   });

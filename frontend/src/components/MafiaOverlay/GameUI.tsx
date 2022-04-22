@@ -8,7 +8,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
-import GamePlayer, { Role } from '../../classes/GamePlayer';
+import GamePlayer, { Role, Team } from '../../classes/GamePlayer';
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
@@ -47,6 +47,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const [gamePhase, setGamePhase] = useState<string | undefined>(gameInstance?.phase);
   const [playerRole, setPlayerRole] = useState<Role | undefined>(Role.Unassigned);
   const [playerRoleInfo, setPlayerRoleInfo] = useState<string | undefined>();
+  const [playerTeam, setPlayerTeam] = useState<Team | undefined>(undefined);
+
 
   const toast = useToast();
 
@@ -101,6 +103,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
       },
       onMafiaGameStarted: (game: MafiaGame) => {
         setGamePhase(game.phase);
+        setPlayerTeam(game.gamePlayers.find(p => p.id === myPlayerID)?.team);
         setPlayerRole(game.playerRole(myPlayerID));
         setPlayerRoleInfo(game.gamePlayers.find(p => p.id === myPlayerID)?.roleInfo);
         // console.log(`Game Started, player role: ${playerRole}`);
@@ -160,7 +163,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               divider={<StackDivider borderColor='black' />}>
               <GameUILobbyRoles />
               <GameUILobbyRules />
-              <GameUILobbyPlayersList players={gamePlayers} />
+              <GameUILobbyPlayersList 
+              players={gamePlayers}/>
             </HStack>
             <HStack>
               {gameInstance && isPlayerHost && gameCanStart ? (
@@ -207,7 +211,11 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             </VStack>
             <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase}/>
             <VStack>
-              <GameUIAlivePlayerList players={alivePlayers} />
+              <GameUIAlivePlayerList 
+              players={alivePlayers} 
+              phase={gamePhase}
+              playerRole={playerRole}
+              playerTeam={playerTeam}/>
               <GameUIDeadPlayerList players={deadPlayers} />
             </VStack>
           </HStack>
