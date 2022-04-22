@@ -168,6 +168,17 @@ export interface SendVoteRequest {
 }
 
 /**
+ * Payload sent by client to set a player's night target
+ */
+export interface SetNightTargetRequest {
+  coveyTownID: string;
+  sessionToken: string;
+  mafiaGameID: string;
+  playerID: string;
+  targetID: string;
+}
+
+/**
  * Envelope that wraps any response from the server
  */
 export interface ResponseEnvelope<T> {

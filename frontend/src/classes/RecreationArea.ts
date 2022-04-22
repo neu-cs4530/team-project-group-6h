@@ -3,7 +3,7 @@ import ConversationArea, {
   ConversationAreaListener,
   ServerConversationArea,
 } from './ConversationArea';
-import { ServerGamePlayer } from './GamePlayer';
+import { ServerGamePlayer, Team } from './GamePlayer';
 import MafiaGame from './MafiaGame';
 import Player from './Player';
 
@@ -115,6 +115,7 @@ export default class RecreationArea extends ConversationArea {
       if (this._mafiaGame.canStart()) {
         this._mafiaGame.gameStart(playerRoles);
         const game = this._mafiaGame;
+        game.gamePlayers.forEach(p => console.log(`${Team[p.team]}`));
         this._recListeners.forEach(listener => listener.onMafiaGameStarted?.(game));
       }
     }

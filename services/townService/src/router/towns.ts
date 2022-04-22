@@ -11,6 +11,7 @@ import {
   mafiaGameStartHandler,
   mafiaSendVoteHandler,
   recreationAreaCreateHandler,
+  setNightTargetHandler,
   townCreateHandler,
   townDeleteHandler,
   townJoinHandler,
@@ -235,6 +236,25 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
         mafiaGameID: req.body.mafiaGameID,
         voterID: req.body.voterID,
         votedID: req.body.votedID,
+      });
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error, please see log in server for more details',
+      });
+    }
+  });
+
+  // Set a player's night target
+  app.post('/towns/:townID/setNightTarget', express.json(), async (req, res) => {
+    try {
+      const result = await setNightTargetHandler({
+        coveyTownID: req.params.townID,
+        sessionToken: req.body.sessionToken,
+        mafiaGameID: req.body.mafiaGameID,
+        playerID: req.body.playerID,
+        targetID: req.body.targetID,
       });
       res.status(StatusCodes.OK).json(result);
     } catch (err) {

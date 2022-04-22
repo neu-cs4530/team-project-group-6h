@@ -10,6 +10,7 @@ import {
   SendVoteRequest,
   ServerConversationArea,
   ServerRecreationArea,
+  SetNightTargetRequest,
 } from '../client/TownsServiceClient';
 import { ChatMessage, CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownController from '../lib/CoveyTownController';
@@ -428,6 +429,31 @@ export function mafiaSendVoteHandler(
     response: {},
     message: !success
       ? `Unable to send vote in mafia game:${_requestData.mafiaGameID}.`
+      : undefined,
+  };
+}
+
+export function setNightTargetHandler(
+  _requestData: SetNightTargetRequest,
+): ResponseEnvelope<Record<string, null>> {
+  const townController = getTownController(_requestData.coveyTownID);
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
+    return {
+      isOK: false,
+      response: {},
+      message: `Unable to set ${_requestData.playerID}'s target to ${_requestData.targetID}.`,
+    };
+  }
+  const success = townController.setNightTarget(
+    _requestData.mafiaGameID,
+    _requestData.playerID,
+    _requestData.targetID,
+  );
+  return {
+    isOK: success,
+    response: {},
+    message: !success
+      ? `Unable to set ${_requestData.playerID}'s target to ${_requestData.targetID}.`
       : undefined,
   };
 }

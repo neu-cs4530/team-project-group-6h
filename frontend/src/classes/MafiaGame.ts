@@ -361,7 +361,6 @@ export default class MafiaGame {
       this.gamePlayers.push(GamePlayer.fromServerGamePlayer(recPlayer, serverGamePlayer));
       return true;
     }
-
     return false;
   }
 
@@ -384,7 +383,9 @@ export default class MafiaGame {
    */
   public gameStart(playerRoles: ServerGamePlayer[]): void {
     this._phase = Phase.day_discussion;
-    playerRoles.forEach(p => this.addGamePlayer(p));
+    playerRoles.forEach(p => {
+      this.addGamePlayer(p);
+    });
   }
 
   /**
