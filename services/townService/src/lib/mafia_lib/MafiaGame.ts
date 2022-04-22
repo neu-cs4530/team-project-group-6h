@@ -158,10 +158,9 @@ export default class MafiaGame {
    * Determines who is eliminated at the end of a night phase.
    */
   public endNight(): void {
-    let targetPlayer:
-      | GamePlayer
-      | undefined = this._gamePlayers.reduce((prevPlayer, currentPlayer) =>
-      prevPlayer.voteTally > currentPlayer.voteTally ? prevPlayer : currentPlayer,
+    let targetPlayer: GamePlayer | undefined = this._gamePlayers.reduce(
+      (prevPlayer, currentPlayer) =>
+        prevPlayer.voteTally > currentPlayer.voteTally ? prevPlayer : currentPlayer,
     );
 
     const godfather = this._gamePlayers.find(player => player.role === Role.Godfather);
@@ -365,12 +364,8 @@ export default class MafiaGame {
      * MIN CASE: No players w/ unassigned roles (Every role is filled).
      * Any number > min case will have unassigned, "vanilla" Mafia/Town players.
      */
-    const [
-      godfatherList,
-      doctorList,
-      hypnotistList,
-      detectiveList,
-    ]: GamePlayer[][] = this.partition(gamePlayers);
+    const [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] =
+      this.partition(gamePlayers);
 
     godfatherList.forEach(mafia => {
       mafia.team = Team.Mafia;
