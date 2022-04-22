@@ -135,7 +135,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
           align='left'
           spacing={2}
           border='2px'
-          padding={15}
+          padding='15'
           borderColor='gray.500'
           minWidth='100%'
           minHeight='100%'
@@ -174,7 +174,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         align='left'
         spacing={2}
         border='2px'
-        padding={15}
+        padding='15'
         borderColor='gray.500'
         minWidth='100%'
         minHeight='100%'
@@ -184,10 +184,10 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         <VStack>
           <HStack>
             <div margin-left='100px'>
-              <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase.toString()} />
+              <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase} />
             </div>
-            <Container width='455px' />
-            <GameUITimer />
+            <Container width='455px'/>
+            <GameUITimer gameName={recArea.label} gamePhase={gameInstance.phase} />
           </HStack>
           <HStack width='full' alignItems='stretch' align='flex-start'>
             <VStack align='left'>
