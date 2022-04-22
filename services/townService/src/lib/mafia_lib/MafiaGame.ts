@@ -240,7 +240,6 @@ export default class MafiaGame {
     } else {
       throw new Error(`Not in the night phase. Currently in phase ${Phase[this._phase]}.`);
     }
-    this.resetFields();
   }
 
   /**

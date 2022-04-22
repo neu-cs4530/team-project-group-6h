@@ -113,7 +113,7 @@ type GameUIPlayerListElementProps = {
   player: GamePlayer
 }
 
-function GameUIAlivePlayerListElement({player, voteFunc}: GameUIPlayerListElementProps): JSX.Element {
+function GameUIVotePlayerListElement({player, voteFunc}: GameUIPlayerListElementProps): JSX.Element {
   const { apiClient, sessionToken, currentTownID, myPlayerID } = useCoveyAppState();
   const currentRecArea = useCurrentRecreationArea();
   const toast = useToast();
@@ -128,7 +128,7 @@ function GameUIAlivePlayerListElement({player, voteFunc}: GameUIPlayerListElemen
               voterID: myPlayerID,
               votedID: player.id,
           });
-          currentRecArea.mafiaGame.votePlayer(myPlayerID, player.id);
+          // currentRecArea.mafiaGame.votePlayer(myPlayerID, player.id);
           voteFunc();
           toast({
               title: `Vote against ${player.userName} submitted`,
@@ -140,11 +140,45 @@ function GameUIAlivePlayerListElement({player, voteFunc}: GameUIPlayerListElemen
                 title: `Unable to vote for ${player.userName}`,
                 description: err.toString(),
                 status: 'error',
-            })
+            });
         }
       }
   }, [currentRecArea?.mafiaGame, apiClient, currentTownID, sessionToken, myPlayerID, player.id, player.userName, voteFunc, toast])
-  return <li key={player.id}><Button colorScheme='red' padding='2px' height='20px' onClick={sendVote}>{player.userName}</Button></li>;
+  return <li key={player.id}><Button colorScheme='red' padding='2px' height='20px' onClick={sendVote}>Vote {player.userName}</Button></li>;
+}
+
+
+function GameUITargetPlayerListElement({player, voteFunc}: GameUIPlayerListElementProps): JSX.Element {
+  const { apiClient, sessionToken, currentTownID, myPlayerID } = useCoveyAppState();
+  const currentRecArea = useCurrentRecreationArea();
+  const toast = useToast();
+
+  const target = useCallback(async () => {
+      try {
+          assert(currentRecArea?.mafiaGame, 'Recreation area and mafia game must be defined.');
+          await apiClient.setNightTarget({
+              coveyTownID: currentTownID,
+              sessionToken,
+              mafiaGameID: currentRecArea.mafiaGame.id,
+              playerID: myPlayerID,
+              targetID: player.id,
+          });
+          voteFunc();
+          toast({
+              title: `Targeted ${player.userName}`,
+              status: 'success',
+          });
+      } catch (err) {
+        if (err instanceof Error) {
+            toast({
+                title: `Unable to target ${player.userName}`,
+                description: err.toString(),
+                status: 'error',
+            });
+        }
+      }
+  }, [currentRecArea?.mafiaGame, apiClient, currentTownID, sessionToken, myPlayerID, player.id, player.userName, voteFunc, toast])
+  return <li key={player.id}><Button colorScheme='blue' padding='2px' height='20px' onClick={target}>Target {player.userName}</Button></li>;
 }
 
 
@@ -157,10 +191,16 @@ type GameUIAlivePlayerListProps = {
   playerTeam: Team | undefined;
 };
 
-// needs an array map from players to strings
 export function GameUIAlivePlayerList({players, hasVoted, voteFunc, gamePhase, playerRole, playerTeam}: GameUIAlivePlayerListProps): JSX.Element {
   const isDead = useIsDead();
 
+  /**
+   * If (town || mafia) && day - playerList - voting buttons
+   * If mafia (unassigned) && night - playerList - voting buttons
+   * If mafia (Godfather) && night - playerList - target buttons
+   * If town (Unassigned) && night - playerList - no buttons
+   * If town (hypnotist | Detective | Doctor) && night - playerList - Target Buttons 
+   */
   return (
       <Container 
           width="200px"
@@ -169,8 +209,20 @@ export function GameUIAlivePlayerList({players, hasVoted, voteFunc, gamePhase, p
               >
                   <Heading fontSize='xl' as='h1'>Players</Heading>
                   <ul>
-                    {((gamePhase === 'day_voting' || (gamePhase === 'night' && playerRole === Role.Unassigned && playerTeam === Team.Mafia)) && !hasVoted && !isDead)
-                  ? players.map(p=><GameUIAlivePlayerListElement key={p.id} player={p} voteFunc={voteFunc}/>)
+                    {((gamePhase === 'day_voting' || gamePhase === 'night') && !(playerTeam === Team.Town && playerRole === Role.Unassigned) && !hasVoted && !isDead)
+                  ? players.map((p) => {
+                    if (gamePhase === 'night') {
+                      if (playerRole === Role.Unassigned && playerTeam === Team.Mafia) {
+                        if (p.team !== Team.Mafia) {
+                          return <GameUIVotePlayerListElement key={p.id} player={p} voteFunc={voteFunc}/>
+                        }
+                        // this button isn't supposed to do anything.
+                        return <li key={p.id}><Button colorScheme='grey' padding='2px' height='20px'> {p.userName} </Button></li>;
+                      }
+                      return <GameUITargetPlayerListElement key={p.id} player={p} voteFunc={voteFunc}/>;
+                    }
+                    return <GameUIVotePlayerListElement key={p.id} player={p} voteFunc={voteFunc}/>
+                  })
                   : players.map(p=><li key={p.id}>{p.userName}</li>)}
                   </ul>
               </Container>

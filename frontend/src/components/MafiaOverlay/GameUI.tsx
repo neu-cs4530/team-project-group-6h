@@ -235,7 +235,13 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             </VStack>
             <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase} />
             <VStack>
-              <GameUIAlivePlayerList players={gameInstance.alivePlayers} playerTeam={gameInstance.playerTeam(myPlayerID)} playerRole={playerRole} gamePhase={gamePhase} hasVoted={hasVoted} voteFunc={voteFunc}/>
+              <GameUIAlivePlayerList 
+              players={gameInstance.alivePlayers} 
+              playerTeam={gameInstance.playerTeam(myPlayerID)} 
+              playerRole={playerRole} 
+              gamePhase={gamePhase} 
+              hasVoted={hasVoted} 
+              voteFunc={voteFunc}/>
               <GameUIDeadPlayerList players={gameInstance.deadPlayers} />
             </VStack>
           </HStack>
