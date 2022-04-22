@@ -325,7 +325,11 @@ export default class MafiaGame {
           }
         });
         if (this._host.id === gamePlayer.id) {
-          this._host = this.alivePlayers[0].player;
+          const newHost: GamePlayer = this.alivePlayers[0];
+          const hostPlayer = this.players.find(player => player.id === newHost.id);
+          if (hostPlayer) {
+            this._host = hostPlayer;
+          }
         }
         this._gamePlayers[playerIndex].result = 'You have been eliminated!';
         this._deadPlayers.push(gamePlayer);

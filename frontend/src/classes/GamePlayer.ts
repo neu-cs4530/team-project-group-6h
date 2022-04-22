@@ -68,9 +68,6 @@ export default class GamePlayer {
     this._result = undefined;
   }
 
-  get player(): Player {
-    return this._player;
-  }
 
   get playerLocation(): UserLocation | undefined {
     return this._player.location;
