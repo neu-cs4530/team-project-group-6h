@@ -53,7 +53,6 @@ function ConversationAreaView({ area } : ConversationAreaViewProps): JSX.Element
 export default function ConversationAreasList(): JSX.Element {
   // get the conversation areas
   const conversationAreas = useConversationAreas();
-  console.log(conversationAreas)
   const recreationAreas = useRecreationAreas();
   // get the active conversation areas only
   const activeConvAreas = conversationAreas.filter(eachArea => eachArea.topic !== NO_TOPIC_STRING);
