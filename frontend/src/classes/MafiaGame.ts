@@ -1,5 +1,4 @@
-import { ServerGamePlayer } from '../../../services/townService/src/lib/mafia_lib/GamePlayer';
-import GamePlayer, { Role, Team } from './GamePlayer';
+import GamePlayer, { Role, Team, ServerGamePlayer } from './GamePlayer';
 import Player from './Player';
 
 /**
