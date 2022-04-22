@@ -1,5 +1,5 @@
-import assert from 'assert';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import assert from 'assert';
 import { ServerConversationArea } from './ConversationArea';
 import { ServerPlayer } from './Player';
 import { ServerRecreationArea } from './RecreationArea';
