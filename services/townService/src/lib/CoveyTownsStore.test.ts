@@ -4,7 +4,7 @@ import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
 import { ServerConversationArea, ServerRecreationArea } from '../client/TownsServiceClient';
 import { ChatMessage } from '../CoveyTypes';
-import GamePlayer from './mafia_lib/GamePlayer';
+import GamePlayer, { ServerGamePlayer } from './mafia_lib/GamePlayer';
 
 const mockCoveyListenerTownDestroyed = jest.fn();
 const mockCoveyListenerOtherFns = jest.fn();
@@ -36,13 +36,16 @@ function mockCoveyListener(): CoveyTownListener {
     onLobbyCreated(_recreationArea: ServerRecreationArea, _hostID: string, mafiaGameID: string): void {
       mockCoveyListenerOtherFns(_recreationArea, _hostID, mafiaGameID);
     },
+    onLobbyDestroyed(_recreationAreaLabel: string): void {
+      mockCoveyListenerOtherFns(_recreationAreaLabel);
+    },
     onPlayerJoinedGame(_recreationAreaLabel: string, playerID: string): void {
       mockCoveyListenerOtherFns(_recreationAreaLabel, playerID);
     },
-    onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: GamePlayer[]): void {
+    onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: ServerGamePlayer[]): void {
       mockCoveyListenerOtherFns(mafiaGameID, phase, gamePlayers);
     },
-    onMafiaGameStarted(recAreaLabel: string, playerRoles: GamePlayer[]): void {
+    onMafiaGameStarted(recAreaLabel: string, playerRoles: ServerGamePlayer[]): void {
       mockCoveyListenerOtherFns(recAreaLabel, playerRoles);
     },
     onChatMessage(message: ChatMessage): void {
