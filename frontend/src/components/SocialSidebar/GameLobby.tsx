@@ -17,7 +17,6 @@ function GameLobby({ area, playerID }: GameLobbyProps): JSX.Element {
 
   // tracks list of game players
   const [gamePlayers, setGamePlayers] = useState<Player[]>(() => area.mafiaGame?.players || []);
-  // console.log(area.mafiaGame);
 
   useEffect(() => {
     const updateListener: RecreationAreaListener = {

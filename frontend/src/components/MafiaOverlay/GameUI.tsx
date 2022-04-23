@@ -38,8 +38,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const [gameInstance, setGameInstance] = useState<MafiaGame | undefined>(recArea?.mafiaGame);
   const [gamePlayers, setGamePlayers] = useState<Player[]>([]);
   const [numGamePlayers, setNumGamePlayers] = useState<number>(gameInstance?.players.length || 0);
-  const [alivePlayers, setAlivePlayers] = useState<GamePlayer[]>(gameInstance?.alivePlayers || []);
-  const [deadPlayers, setDeadPlayers] = useState<GamePlayer[]>(gameInstance?.deadPlayers || []);
   const [gameCanStart, setGameCanStart] = useState<boolean>(gameInstance?.canStart() || false);
   const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
   const [host, setHost] = useState<Player | undefined>(gameInstance?.host);
@@ -98,13 +96,18 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setHost(game.host);
         setIsPlayerHost(game.host.id === myPlayerID);
         setGamePlayers(game.players);
-        setDeadPlayers(game.deadPlayers);
-        setAlivePlayers(game.alivePlayers);
         setNumGamePlayers(game.players.length);
         setGamePhase(game.phase);
         setPlayerRole(game.playerRole(myPlayerID));
         setPlayerRoleInfo(game.gamePlayers.find(p => p.id === myPlayerID)?.roleInfo);
         setHasVoted(game.gamePlayers.find(p=>p.id===myPlayerID)?.votedPlayer !== undefined);
+        const result = game.gamePlayers.find(p=>p.id===myPlayerID)?.result;
+        if (result) {
+          toast({
+            title: `TOWN NEWS`,
+            description: result,
+          });
+        }
       },
       onMafiaGameStarted: (game: MafiaGame) => {
         setGamePhase(game.phase);
@@ -117,33 +120,13 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGameInstance(undefined);
         setGameCanStart(false);
         setGamePlayers([]);
-        setAlivePlayers([]);
-        setDeadPlayers([]);
       },
     };
     recArea?.addRecListener(updateListener);
     return () => {
-      recArea?.removeListener(updateListener);
+      recArea?.removeRecListener(updateListener);
     };
-  }, [
-    myPlayerID,
-    gameInstance,
-    setGameInstance,
-    gamePlayers,
-    setGamePlayers,
-    recArea,
-    numGamePlayers,
-    setNumGamePlayers,
-    gamePhase,
-    alivePlayers,
-    deadPlayers,
-    host,
-    setGamePhase,
-    playerRole,
-    setPlayerRole,
-    playerTeam,
-    setPlayerTeam,
-  ]);
+  }, [myPlayerID, gameInstance, setGameInstance, gamePlayers, setGamePlayers, recArea, numGamePlayers, setNumGamePlayers, gamePhase, host, setGamePhase, playerRole, setPlayerRole, playerTeam, setPlayerTeam, toast]);
 
   if (recArea && gameInstance && gamePlayers.map(p => p.id).includes(myPlayerID)) {
     // inLobby = gameInstance._phase === Phase.lobby;

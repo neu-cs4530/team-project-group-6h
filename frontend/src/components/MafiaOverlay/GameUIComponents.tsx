@@ -128,7 +128,6 @@ function GameUIVotePlayerListElement({player, voteFunc}: GameUIPlayerListElement
               voterID: myPlayerID,
               votedID: player.id,
           });
-          // currentRecArea.mafiaGame.votePlayer(myPlayerID, player.id);
           voteFunc();
           toast({
               title: `Vote against ${player.userName} submitted`,
@@ -163,6 +162,7 @@ function GameUITargetPlayerListElement({player, voteFunc}: GameUIPlayerListEleme
               playerID: myPlayerID,
               targetID: player.id,
           });
+          console.log(`Sent request for ${myPlayerID} to target ${player.id}`);
           voteFunc();
           toast({
               title: `Targeted ${player.userName}`,
@@ -216,8 +216,7 @@ export function GameUIAlivePlayerList({players, hasVoted, voteFunc, gamePhase, p
                         if (p.team !== Team.Mafia) {
                           return <GameUIVotePlayerListElement key={p.id} player={p} voteFunc={voteFunc}/>
                         }
-                        // this button isn't supposed to do anything.
-                        return <li key={p.id}><Button colorScheme='grey' padding='2px' height='20px'> {p.userName} </Button></li>;
+                        return <li key={p.id}>{p.userName}</li>;
                       }
                       return <GameUITargetPlayerListElement key={p.id} player={p} voteFunc={voteFunc}/>;
                     }
@@ -261,7 +260,7 @@ export function GameUIVideoOverlay( {game, gamePhase} : GameVideoProps): JSX.Ele
       height='600px'
       borderRadius='0px'
       borderColor='black'
-      backgroundColor='#fafafa'>
+      backgroundColor='#ababab'>
       <Heading fontSize='xl' as='h1'>
         <GameUIVideo game={game} gamePhase={gamePhase} />
       </Heading>

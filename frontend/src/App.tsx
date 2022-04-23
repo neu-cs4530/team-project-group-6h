@@ -1,4 +1,4 @@
-import { ChakraProvider, useToast } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
 import React, {
@@ -172,6 +172,8 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         RecreationArea.fromServerRecreationArea(sa),
       );
       let localNearbyPlayers: Player[] = [];
+      let localAudioEnabled : boolean = isAudioEnabled;
+      let localVideoEnabled : boolean = isVideoEnabled;
       setPlayersInTown(localPlayers);
       setConversationAreas(localConversationAreas);
       setRecreationAreas(localRecreationAreas);
@@ -278,10 +280,8 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           const host = localPlayers.find(p => p.id === _hostID);
 
           if (existingRecArea && host) {
-            // existingRecArea.mafiaGame = new MafiaGame(_mafiaGameID, host);
             existingRecArea.addMafiaGame(new MafiaGame(_mafiaGameID, host));
             setRecreationAreas(localRecreationAreas);
-            console.log('lobby created');
           }
         },
       );
@@ -292,7 +292,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           existingRecArea.addPlayerToGame(player);
         }
         setRecreationAreas(localRecreationAreas);
-        console.log(`Player ${_playerID} joined game in ${_recreationAreaLabel}`);
       });
       socket.on('lobbyDestroyed', (recreationAreaLabel: string) => {
         const existingRecArea = localRecreationAreas.find(a => a.label === recreationAreaLabel);
@@ -311,11 +310,8 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
 
         if (recArea) {
           recArea.startGame(_playerRoles);
-          console.log(`Mafia game started in ${_recAreaLabel}`);
         }
       });
-
-      const getNewGamePlayer = function (serverGamePlayer: ServerGamePlayer): void {};
       socket.on(
         'mafiaGameUpdated',
         (_mafiaGameID: string, _phase: string, _gamePlayers: ServerGamePlayer[]) => {
@@ -333,20 +329,19 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             mafiaGame.gamePlayers = updatedGamePlayers;
             mafiaGame.updatePhase();
 
-            const newAlivePlayers = updatedGamePlayers.filter(p=>p.isAlive);
-            const newDeadPlayers = updatedGamePlayers.filter(p=>!p.isAlive);
-            console.log(`Mafia game updated. New alive: ${newAlivePlayers}, new dead: ${newDeadPlayers}`);
-
             const recArea = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID);
             recArea?.notifyGameUpdated();
+            mafiaGame.resetFields();
 
-            if (newDeadPlayers.map(p=>p.id).includes(gamePlayerID)) {
+            if (updatedGamePlayers.filter(p=>!p.isAlive).map(p=>p.id).includes(gamePlayerID)) {
               setIsDead(true);
-              if (isAudioEnabled) {
+              if (localAudioEnabled) {
                 toggleAudioEnabled();
+                localAudioEnabled = false;
               }
-              if (isVideoEnabled) {
+              if (localVideoEnabled) {
                 toggleVideoEnabled();
+                localVideoEnabled = false;
               }
             } else {
               setIsDead(false);
