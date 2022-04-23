@@ -65,7 +65,7 @@ export default class GamePlayer {
     this._role = gamePlayer.role;
     this._roleInfo = gamePlayer.roleInfo;
     this._target = undefined;
-    this._result = undefined;
+    this._result = gamePlayer.result;
   }
 
 

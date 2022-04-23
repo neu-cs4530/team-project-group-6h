@@ -264,7 +264,6 @@ export default class MafiaGame {
     if (!this.isGameOver()) {
       switch (this._phase) {
         case Phase.day_discussion:
-          this.resetFields();
           this._phase = Phase.day_voting;
           break;
         case Phase.day_voting:
