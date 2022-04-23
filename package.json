@@ -50,7 +50,6 @@
     "dependencies": {
         "@types/node": "^17.0.23",
         "@types/ramda": "^0.27.34",
-        "axios": "^0.26.1",
         "nanoid": "^3.3.2",
         "ramda": "^0.27.1",
         "typescript-is": "^0.17.0"
