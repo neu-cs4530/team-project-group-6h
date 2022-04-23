@@ -16,34 +16,37 @@ export default function NextPhaseButton({
   gameInstanceID,
 }: NextPhaseProps): JSX.Element {
   const [mafiaGame, setMafiaGame] = useState<MafiaGame | undefined>(area.mafiaGame);
-
   const { apiClient, sessionToken, currentTownID } = useCoveyAppState();
-
   const toast = useToast();
 
-  // let updatePhase;
 
   const updatePhase = useCallback(async () => {
-    try {
-      await apiClient.nextPhase({
-        coveyTownID: currentTownID,
-        sessionToken,
-        mafiaGameID: gameInstanceID,
-      });
-      toast({
-        title: 'Mafia Game Phase Updated!',
-        status: 'success',
-      });
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        toast({
-          title: 'Unable to advance Mafia Game to next phase',
-          description: err.toString(),
-          status: 'error',
+    if (myPlayerID === mafiaGame?.host.id) {
+      try {
+        await apiClient.nextPhase({
+          coveyTownID: currentTownID,
+          sessionToken,
+          mafiaGameID: gameInstanceID,
         });
+        toast({
+          title: 'Mafia Game Phase Updated!',
+          status: 'success',
+        });
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          toast({
+            title: 'Unable to advance Mafia Game to next phase',
+            description: err.toString(),
+            status: 'error',
+          });
+        }
       }
+    } else {
+      toast({
+        title: `Only the host can move to the next phase.`,
+      });
     }
-  }, [apiClient, sessionToken, currentTownID, toast, area, mafiaGame, myPlayerID, gameInstanceID]);
+  }, [apiClient, sessionToken, currentTownID, toast, myPlayerID, mafiaGame?.host, gameInstanceID]);
 
   useEffect(() => {
     const updateListener: RecreationAreaListener = {

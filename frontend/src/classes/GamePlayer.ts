@@ -52,14 +52,14 @@ export default class GamePlayer {
 
   private _result: string | undefined; // The result of what happened to thos player at the end of a phase.
 
-  _voteTally = 0;
+  private _voteTally = 0;
 
   /**
    * Default constructor; input isAlive = false to create as spectator
    */
   constructor(recPlayer: Player, gamePlayer: ServerGamePlayer) {
     this._player = recPlayer;
-    this._isAlive = true;
+    this._isAlive = gamePlayer.isAlive;
     this._currentVote = undefined;
     this._team = gamePlayer.team;
     this._role = gamePlayer.role;
@@ -67,6 +67,7 @@ export default class GamePlayer {
     this._target = undefined;
     this._result = undefined;
   }
+
 
   get playerLocation(): UserLocation | undefined {
     return this._player.location;
@@ -118,6 +119,10 @@ export default class GamePlayer {
 
   get roleInfo(): string {
     return this._roleInfo;
+  }
+
+  public resetTally(): void {
+    this._voteTally = 0;
   }
 
   get voteTally(): number {

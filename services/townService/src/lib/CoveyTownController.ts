@@ -351,6 +351,7 @@ export default class CoveyTownController {
 
     // Notify listeners
     this._listeners.forEach(listener => listener.onLobbyCreated(areaToAddGame, hostID, newGame.id));
+    console.log(`mafia lobby with id ${newGame.id} created`);
     return true;
   }
 
@@ -385,6 +386,7 @@ export default class CoveyTownController {
     if (mafiaGame.addPlayer(player)) {
       // Notify listeners that player was added to game
       this._listeners.forEach(listener => listener.onPlayerJoinedGame(recAreaLabel, playerID));
+      console.log(`player with id ${playerID} joined game with id ${mafiaGame.id}`);
       return true;
     }
     return false;
@@ -395,9 +397,10 @@ export default class CoveyTownController {
     const recArea = this._recreationAreas.find(rec => rec.label === recAreaLabel);
     if (recArea) {
       const mafiaGame = this._mafiaGames.find(g => g.id === recArea._mafiaGameID);
-      if (mafiaGame?.phase === 'lobby') {
+      if (mafiaGame) {
         recArea._mafiaGameID = undefined;
         this._listeners.forEach(listener => listener.onLobbyDestroyed(recAreaLabel));
+        console.log(`mafia game with id ${mafiaGame.id} destroyed`);
         return true;
       }
     }
@@ -444,6 +447,8 @@ export default class CoveyTownController {
     this._listeners.forEach(listener =>
       listener.onMafiaGameStarted(recAreaLabel, serverGamePlayers),
     );
+    console.log(`Started mafia game with id ${mafiaGame.id}.`);
+    mafiaGame.gamePlayers.forEach(p => console.log(`Player with id: ${p.id}, name: ${p.userName}`));
     return true;
   }
 
@@ -460,7 +465,7 @@ export default class CoveyTownController {
 
     // Update phase
     try {
-      if (mafiaGame.phase === Phase[Phase.day_discussion]) {
+      if (mafiaGame.phase === Phase[Phase.day_voting]) {
         mafiaGame.endDay();
       }
       if (mafiaGame.phase === Phase[Phase.night]) {
@@ -478,6 +483,31 @@ export default class CoveyTownController {
     } catch (err) {
       return false;
     }
+    const alivePlayers = mafiaGame.gamePlayers.filter(p => p.isAlive);
+    const deadPlayers = mafiaGame.gamePlayers.filter(p => !p.isAlive);
+    console.log(
+      `Mafia game with id ${mafiaGame.id} phase updated. New alivePlayers: ${alivePlayers}, new deadPlayers: ${deadPlayers}`,
+    );
+    return true;
+  }
+
+  sendVote(mafiaGameID: string, voterID: string, votedID: string): boolean {
+    const mafiaGame = this._mafiaGames.find(game => game.id === mafiaGameID);
+    if (!mafiaGame) {
+      return false;
+    }
+    const alivePlayers = mafiaGame.alivePlayers.map(p => p.id);
+    if (!alivePlayers.includes(voterID) || !alivePlayers.includes(votedID)) {
+      if (!alivePlayers.includes(voterID)) {
+        console.log(`voter with id ${voterID} doesn't exist`);
+      }
+      if (!alivePlayers.includes(votedID)) {
+        console.log(`voted with id ${votedID} doesn't exist`);
+      }
+      return false;
+    }
+    mafiaGame.votePlayer(voterID, votedID);
+    console.log(`${voterID} voted for ${votedID}`);
     return true;
   }
 

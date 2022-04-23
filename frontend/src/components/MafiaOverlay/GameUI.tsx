@@ -8,7 +8,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Role, Team } from '../../classes/GamePlayer';
+import GamePlayer, { Role, Team } from '../../classes/GamePlayer';
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
@@ -38,15 +38,23 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const [gameInstance, setGameInstance] = useState<MafiaGame | undefined>(recArea?.mafiaGame);
   const [gamePlayers, setGamePlayers] = useState<Player[]>([]);
   const [numGamePlayers, setNumGamePlayers] = useState<number>(gameInstance?.players.length || 0);
+  const [alivePlayers, setAlivePlayers] = useState<GamePlayer[]>(gameInstance?.alivePlayers || []);
+  const [deadPlayers, setDeadPlayers] = useState<GamePlayer[]>(gameInstance?.deadPlayers || []);
   const [gameCanStart, setGameCanStart] = useState<boolean>(gameInstance?.canStart() || false);
   const [isPlayerHost, setIsPlayerHost] = useState<boolean>(false);
+  const [host, setHost] = useState<Player | undefined>(gameInstance?.host);
   const [gamePhase, setGamePhase] = useState<string | undefined>(gameInstance?.phase);
   const [playerRole, setPlayerRole] = useState<Role | undefined>(Role.Unassigned);
   const [playerRoleInfo, setPlayerRoleInfo] = useState<string | undefined>();
+  const [hasVoted, setHasVoted] = useState<boolean>(false);
   const [playerTeam, setPlayerTeam] = useState<Team | undefined>(undefined);
-  // let inLobby = false;
+
 
   const toast = useToast();
+
+  const voteFunc = useCallback(async () => {
+    setHasVoted(true);
+  }, [setHasVoted]);
 
   const disbandLobby = useCallback(async () => {
     if (myPlayerID === recArea?.mafiaGame?.host.id) {
@@ -87,11 +95,16 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
       onMafiaGameUpdated: (game: MafiaGame) => {
         setGameInstance(game);
         setGameCanStart(game.canStart());
+        setHost(game.host);
+        setIsPlayerHost(game.host.id === myPlayerID);
         setGamePlayers(game.players);
+        setDeadPlayers(game.deadPlayers);
+        setAlivePlayers(game.alivePlayers);
         setNumGamePlayers(game.players.length);
         setGamePhase(game.phase);
         setPlayerRole(game.playerRole(myPlayerID));
         setPlayerRoleInfo(game.gamePlayers.find(p => p.id === myPlayerID)?.roleInfo);
+        setHasVoted(game.gamePlayers.find(p=>p.id===myPlayerID)?.votedPlayer !== undefined);
       },
       onMafiaGameStarted: (game: MafiaGame) => {
         setGamePhase(game.phase);
@@ -104,6 +117,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGameInstance(undefined);
         setGameCanStart(false);
         setGamePlayers([]);
+        setAlivePlayers([]);
+        setDeadPlayers([]);
       },
     };
     recArea?.addRecListener(updateListener);
@@ -120,6 +135,9 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     numGamePlayers,
     setNumGamePlayers,
     gamePhase,
+    alivePlayers,
+    deadPlayers,
+    host,
     setGamePhase,
     playerRole,
     setPlayerRole,
@@ -145,14 +163,15 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             <Heading fontSize='xl' as='h1'>
               Welcome to MAFIA - {recArea.label}
             </Heading>
-            <h2>{`Host: ${gameInstance.host.userName}`}</h2>
+            <h2>{`Host: ${host?.userName}`}</h2>
             <HStack
               width='full'
               borderColor='gray.500'
               divider={<StackDivider borderColor='black' />}>
               <GameUILobbyRoles />
               <GameUILobbyRules />
-              <GameUILobbyPlayersList players={gamePlayers} />
+              <GameUILobbyPlayersList 
+              players={gamePlayers}/>
             </HStack>
             <HStack>
               {gameInstance && isPlayerHost && gameCanStart ? (
@@ -168,6 +187,21 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         </Container>
       );
     }
+    let lobbyButton;
+    if (isPlayerHost && gameInstance) {
+      if (gamePhase !== 'win') {
+        lobbyButton = (<NextPhaseButton
+          area={recArea}
+          myPlayerID={myPlayerID}
+          gameInstanceID={gameInstance.id}
+          />);
+      } else {
+        lobbyButton = <Button onClick={disbandLobby}>Exit Game</Button>;
+      }
+    } else {
+      lobbyButton = <></>;
+    }
+
     const isDay = gamePhase === 'day_discussion' || gamePhase === 'day_voting';
     return (
       <Container
@@ -186,7 +220,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             <div margin-left='100px'>
               <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase} />
             </div>
-            <Container width='455px'/>
+            <Container width='300px' />
+            {lobbyButton}
             <GameUITimer gameName={recArea.label} gamePhase={gameInstance.phase} />
           </HStack>
           <HStack width='full' alignItems='stretch' align='flex-start'>
@@ -200,20 +235,15 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             </VStack>
             <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase} />
             <VStack>
-              <GameUIAlivePlayerList players={gameInstance.alivePlayers} />
+              <GameUIAlivePlayerList 
+              players={gameInstance.alivePlayers} 
+              playerTeam={gameInstance.playerTeam(myPlayerID)} 
+              playerRole={playerRole} 
+              gamePhase={gamePhase} 
+              hasVoted={hasVoted} 
+              voteFunc={voteFunc}/>
               <GameUIDeadPlayerList players={gameInstance.deadPlayers} />
             </VStack>
-          </HStack>
-          <HStack>
-            {isPlayerHost && gameInstance ? (
-              <NextPhaseButton
-                area={recArea}
-                myPlayerID={myPlayerID}
-                gameInstanceID={gameInstance.id}
-              />
-            ) : (
-              <></>
-            )}
           </HStack>
         </VStack>
       </Container>

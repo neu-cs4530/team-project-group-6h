@@ -1,4 +1,4 @@
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, useToast } from '@chakra-ui/react';
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
 import React, {
@@ -25,6 +25,8 @@ import { ChatProvider } from './components/VideoCall/VideoFrontend/components/Ch
 import ErrorDialog from './components/VideoCall/VideoFrontend/components/ErrorDialog/ErrorDialog';
 import UnsupportedBrowserWarning from './components/VideoCall/VideoFrontend/components/UnsupportedBrowserWarning/UnsupportedBrowserWarning';
 import { VideoProvider } from './components/VideoCall/VideoFrontend/components/VideoProvider';
+import useLocalAudioToggle from './components/VideoCall/VideoFrontend/hooks/useLocalAudioToggle/useLocalAudioToggle';
+import useLocalVideoToggle from './components/VideoCall/VideoFrontend/hooks/useLocalVideoToggle/useLocalVideoToggle';
 import AppStateProvider, { useAppState } from './components/VideoCall/VideoFrontend/state';
 import theme from './components/VideoCall/VideoFrontend/theme';
 import { Callback } from './components/VideoCall/VideoFrontend/types';
@@ -34,6 +36,7 @@ import WorldMap from './components/world/WorldMap';
 import ConversationAreasContext from './contexts/ConversationAreasContext';
 import CoveyAppContext from './contexts/CoveyAppContext';
 import CurrentRecreationAreaContext from './contexts/CurrentRecreationAreaContext';
+import IsDeadContext from './contexts/IsDeadContext';
 import NearbyPlayersContext from './contexts/NearbyPlayersContext';
 import PlayerMovementContext, { PlayerMovementCallback } from './contexts/PlayerMovementContext';
 import PlayersInTownContext from './contexts/PlayersInTownContext';
@@ -137,6 +140,9 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
   const [conversationAreas, setConversationAreas] = useState<ConversationArea[]>([]);
   const [recreationAreas, setRecreationAreas] = useState<RecreationArea[]>([]);
   const [currentRecArea, setCurrentRecArea] = useState<RecreationArea>();
+  const [isDead, setIsDead] = useState<boolean>(false);
+  const [isAudioEnabled, toggleAudioEnabled] = useLocalAudioToggle();
+  const [isVideoEnabled, toggleVideoEnabled] = useLocalVideoToggle();
 
   const setupGameController = useCallback(
     async (initData: TownJoinResponse) => {
@@ -275,6 +281,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             // existingRecArea.mafiaGame = new MafiaGame(_mafiaGameID, host);
             existingRecArea.addMafiaGame(new MafiaGame(_mafiaGameID, host));
             setRecreationAreas(localRecreationAreas);
+            console.log('lobby created');
           }
         },
       );
@@ -285,6 +292,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           existingRecArea.addPlayerToGame(player);
         }
         setRecreationAreas(localRecreationAreas);
+        console.log(`Player ${_playerID} joined game in ${_recreationAreaLabel}`);
       });
       socket.on('lobbyDestroyed', (recreationAreaLabel: string) => {
         const existingRecArea = localRecreationAreas.find(a => a.label === recreationAreaLabel);
@@ -293,6 +301,9 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           existingRecArea.endGame();
           console.log(`Lobby disbanded in recArea ${recreationAreaLabel}.`);
         }
+        if (localCurrentRecArea?.label === recreationAreaLabel) {
+          setIsDead(false);
+        }
         setRecreationAreas(localRecreationAreas);
       });
       socket.on('mafiaGameStarted', (_recAreaLabel: string, _playerRoles: ServerGamePlayer[]) => {
@@ -300,12 +311,14 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
 
         if (recArea) {
           recArea.startGame(_playerRoles);
+          console.log(`Mafia game started in ${_recAreaLabel}`);
         }
       });
+
+      const getNewGamePlayer = function (serverGamePlayer: ServerGamePlayer): void {};
       socket.on(
         'mafiaGameUpdated',
         (_mafiaGameID: string, _phase: string, _gamePlayers: ServerGamePlayer[]) => {
-          console.log('in on mafiaGameUpdated');
           const mafiaGame = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID)
             ?.mafiaGame;
           if (mafiaGame) {
@@ -320,8 +333,24 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             mafiaGame.gamePlayers = updatedGamePlayers;
             mafiaGame.updatePhase();
 
+            const newAlivePlayers = updatedGamePlayers.filter(p=>p.isAlive);
+            const newDeadPlayers = updatedGamePlayers.filter(p=>!p.isAlive);
+            console.log(`Mafia game updated. New alive: ${newAlivePlayers}, new dead: ${newDeadPlayers}`);
+
             const recArea = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID);
             recArea?.notifyGameUpdated();
+
+            if (newDeadPlayers.map(p=>p.id).includes(gamePlayerID)) {
+              setIsDead(true);
+              if (isAudioEnabled) {
+                toggleAudioEnabled();
+              }
+              if (isVideoEnabled) {
+                toggleVideoEnabled();
+              }
+            } else {
+              setIsDead(false);
+            }
           }
         },
       );
@@ -350,7 +379,10 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           existingRecArea.mafiaGame = undefined;
           existingRecArea.endGame();
         }
-        if (localCurrentRecArea?.label === _recreationArea.label) setCurrentRecArea(undefined);
+        if (localCurrentRecArea?.label === _recreationArea.label) {
+          setCurrentRecArea(undefined);
+          setIsDead(false);
+        }
         localRecreationAreas = localRecreationAreas.filter(a => a.label !== _recreationArea.label);
         localConversationAreas = localConversationAreas.filter(
           a => a.label !== _recreationArea.label,
@@ -375,14 +407,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
 
       return true;
     },
-    [
-      dispatchAppUpdate,
-      playerMovementCallbacks,
-      setPlayersInTown,
-      setNearbyPlayers,
-      setConversationAreas,
-      recreationAreas,
-    ],
+    [playerMovementCallbacks, isAudioEnabled, isVideoEnabled, toggleAudioEnabled, toggleVideoEnabled],
   );
   const videoInstance = Video.instance();
 
@@ -405,10 +430,10 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     return (
       <div>
         <WorldMap />
-        <VideoOverlay preferredMode='fullwidth' />
+        <VideoOverlay preferredMode='fullwidth' isDead={isDead} />
       </div>
     );
-  }, [setupGameController, appState.sessionToken, videoInstance]);
+  }, [appState.sessionToken, videoInstance, isDead, setupGameController]);
 
   return (
     <CoveyAppContext.Provider value={appState}>
@@ -420,7 +445,9 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
                 <ConversationAreasContext.Provider value={conversationAreas}>
                   <RecreationAreasContext.Provider value={recreationAreas}>
                     <CurrentRecreationAreaContext.Provider value={currentRecArea}>
+                      <IsDeadContext.Provider value={isDead}>
                       {page}
+                      </IsDeadContext.Provider>
                     </CurrentRecreationAreaContext.Provider>
                   </RecreationAreasContext.Provider>
                 </ConversationAreasContext.Provider>

@@ -47,7 +47,7 @@ export default function StartGameButton({ area, myPlayerID }: StartGameProps ): 
                 });
             }
         }
-    }, [apiClient, sessionToken, currentTownID, toast, area, mafiaGame, myPlayerID]); 
+    }, [apiClient, sessionToken, currentTownID, toast, area, myPlayerID]); 
 
     useEffect(() => {
         const updateListener: RecreationAreaListener = {

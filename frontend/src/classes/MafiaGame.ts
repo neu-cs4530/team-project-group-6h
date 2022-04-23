@@ -22,11 +22,11 @@ export default class MafiaGame {
 
   private _gamePlayers: GamePlayer[]; // all players in the mafia game
 
-  private _winner = Team.Unassigned;
+  private _winner = Team.Unassigned; // Team that won the game
 
-  _phase = Phase.lobby;
+  _phase = Phase.lobby; // current phase of the game
 
-  _host: Player; // the id of the host
+  _host: Player; 
 
   _deadPlayers: GamePlayer[];
 
@@ -105,31 +105,19 @@ export default class MafiaGame {
    * @returns The player's role, or undefined if the p
    */
   public playerRole(playerID: string): Role | undefined {
-    const role = this.gamePlayers.find(gp => gp.id === playerID)?.role;
-    return role;
-    /*
-    const getPlayer = (p: GamePlayer) => p.id === playerID;
-    const townPlayerIDs = this.townPlayers.map(gPlayer => gPlayer.id);
-    const mafiaPlayerIDs = this.mafiaPlayers.map(gPlayer => gPlayer.id);
-
-    if (townPlayerIDs.includes(playerID)) {
-      return this.townPlayers.find(getPlayer)?.role;
-    }
-    if (mafiaPlayerIDs.includes(playerID)) {
-      return this.mafiaPlayers.find(getPlayer)?.role;
-    }
-    return undefined;
-    */
+    return this.gamePlayers.find(gp => gp.id === playerID)?.role;
   }
 
-  get alivePlayers(): GamePlayer[] {
-    const aliveTown = this.townPlayers.filter(player => !this._deadPlayers.includes(player));
-    const aliveMafia = this.mafiaPlayers.filter(player => !this._deadPlayers.includes(player));
-    return aliveTown.concat(aliveMafia);
+  public playerTeam(playerID: string): Team | undefined {
+    return this.gamePlayers.find(gp => gp.id === playerID)?.team;
   }
 
   get deadPlayers(): GamePlayer[] {
-    return this._deadPlayers;
+    return [...this._gamePlayers].filter(player => player.isAlive === false);
+  }
+
+  get alivePlayers(): GamePlayer[] {
+    return [...this._gamePlayers].filter(player => player.isAlive === true);
   }
 
   get mafiaPlayers(): GamePlayer[] {
@@ -164,6 +152,8 @@ export default class MafiaGame {
       );
 
       this.eliminatePlayer(votedPlayer.id);
+    } else {
+      throw new Error(`Not in day phase. Currently in phase ${Phase[this._phase]}.`);
     }
   }
 
@@ -177,99 +167,104 @@ export default class MafiaGame {
         player.votedPlayer = undefined; // _currentVote
         player.targetPlayer = undefined; // _target
         player.result = undefined; // _result
-        player._voteTally = 0; // _voteTally
+        player.resetTally(); // _voteTally
       }
     });
   }
 
   /**
    * Determines who is eliminated at the end of a night phase.
+   * @throws Error if not in the night phase.
    */
-  public endNight(): void {
-    let targetPlayer:
-      | GamePlayer
-      | undefined = this._gamePlayers.reduce((prevPlayer, currentPlayer) =>
-      prevPlayer.voteTally > currentPlayer.voteTally ? prevPlayer : currentPlayer,
-    );
+   public endNight(): void {
+    if (this._phase === Phase.night) {
+      let targetPlayer: GamePlayer | undefined = this._gamePlayers.reduce((prevPlayer, currentPlayer) =>
+        prevPlayer.voteTally > currentPlayer.voteTally ? prevPlayer : currentPlayer,
+      );
 
-    const godfather = this._gamePlayers.find(player => player.role === Role.Godfather);
+      const godfather = this._gamePlayers.find(player => player.role === Role.Godfather);
 
-    // Godfather override of mafia vote
-    let overrideTarget: GamePlayer | undefined = targetPlayer;
-    if (godfather?.target && godfather.target !== targetPlayer?.id) {
-      overrideTarget = this._gamePlayers.find(player => player.id === godfather?.target);
-      targetPlayer = overrideTarget;
-    }
-
-    // Doctor heal
-    let healTarget: GamePlayer | undefined;
-    const doctor = this._gamePlayers.find(player => player.role === Role.Doctor);
-    if (doctor?.target === targetPlayer?.id) {
-      healTarget = this._gamePlayers.find(player => player === overrideTarget);
-      if (healTarget) {
-        targetPlayer = healTarget;
+      // Godfather override of mafia vote
+      let overrideTarget: GamePlayer | undefined = targetPlayer;
+      if (godfather?.target && godfather.target !== targetPlayer?.id) {
+        overrideTarget = this._gamePlayers.find(player => player.id === godfather?.target);
+        targetPlayer = overrideTarget;
       }
-    }
 
-    // Detective Investigate
-    const detectiveIndex = this._gamePlayers.findIndex(player => player.role === Role.Detective);
-    if (detectiveIndex > 0) {
-      const targetID = this._gamePlayers[detectiveIndex].target;
-      const target = this._gamePlayers.find(player => player.id === targetID);
-
-      if (target) {
-        this._gamePlayers[detectiveIndex].result = `${target.userName} is a ${Role[target.role]}.`;
+      // Doctor heal
+      let healTarget: GamePlayer | undefined;
+      const doctor = this._gamePlayers.find(player => player.role === Role.Doctor);
+      if (doctor?.target === targetPlayer?.id) {
+        healTarget = this._gamePlayers.find(player => player === overrideTarget);
+        if (healTarget) {
+          targetPlayer = healTarget;
+        }
       }
-    }
 
-    // Hypnotist
-    const hypnotistIndex = this._gamePlayers.findIndex(player => player.role === Role.Hypnotist);
-    if (detectiveIndex > 0) {
-      const targetID = this._gamePlayers[hypnotistIndex].target;
-      const target = this._gamePlayers.find(player => player.id === targetID);
+      // Detective Investigate
+      const detectiveIndex = this._gamePlayers.findIndex(player => player.role === Role.Detective);
+      if (detectiveIndex > 0) {
+        const targetID = this._gamePlayers[detectiveIndex].target;
+        const target = this._gamePlayers.find(player => player.id === targetID);
 
-      if (target) {
-        switch (target.role) {
-          case Role.Detective:
-            this._gamePlayers[detectiveIndex].result = undefined;
-            break;
-          case Role.Doctor:
-            targetPlayer = overrideTarget;
-            break;
-          case Role.Godfather:
-            targetPlayer = undefined;
-            break;
-          default:
-            if (target.team === Team.Mafia) {
+        if (target) {
+          this._gamePlayers[detectiveIndex].result = `${target.userName} is a ${Role[target.role]}.`;
+        }
+      }
+
+      // Hypnotist
+      const hypnotistIndex = this._gamePlayers.findIndex(player => player.role === Role.Hypnotist);
+      if (detectiveIndex > 0) {
+        const targetID = this._gamePlayers[hypnotistIndex].target;
+        const target = this._gamePlayers.find(player => player.id === targetID);
+
+        if (target) {
+          switch (target.role) {
+            case Role.Detective:
+              this._gamePlayers[detectiveIndex].result = undefined;
+              break;
+            case Role.Doctor:
+              targetPlayer = overrideTarget;
+              break;
+            case Role.Godfather:
               targetPlayer = undefined;
-            }
-          // Town members don't get to do anything at night, so nothing should happen.
-        }
+              break;
+            default:
+              if (target.team === Team.Mafia) {
+                targetPlayer = undefined;
+              }
+            // Town members don't get to do anything at night, so nothing should happen.
+          }
 
-        this._gamePlayers[hypnotistIndex].result = `${target.userName} was hypnotised. `;
-      }
-    }
-    if (targetPlayer) {
-      this.eliminatePlayer(targetPlayer.id);
-    } else {
-      this._gamePlayers.forEach(player => {
-        if (!player.result) {
-          player.result = 'No one was eliminated.';
-        } else {
-          player.result += 'No one was eliminated.';
+          this._gamePlayers[hypnotistIndex].result = `${target.userName} was hypnotised. `;
         }
-      });
+      }
+      if (targetPlayer) {
+        this.eliminatePlayer(targetPlayer.id);
+      } else {
+        this._gamePlayers.forEach(player => {
+          if (!player.result) {
+            player.result = 'No one was eliminated.';
+          } else {
+            player.result += 'No one was eliminated.';
+          }
+        });
+      }
+    } else {
+      throw new Error(`Not in night phase. Currently in phase ${Phase[this._phase]}.`);
     }
   }
 
+
   /**
-   * Cycles through the phases of the game after the game has started.
-   * @throws Error if the game is either in the 'lobby' or 'win' state.
+   * Cycles through the phases of the game after the game has started. Enters win state if game is over.
+   * @throws Error if the game is either in the 'lobby' state or game is in 'win' state when the game is not over. 
    */
   public updatePhase(): void {
     if (!this.isGameOver()) {
       switch (this._phase) {
         case Phase.day_discussion:
+          this.resetFields();
           this._phase = Phase.day_voting;
           break;
         case Phase.day_voting:
@@ -281,12 +276,13 @@ export default class MafiaGame {
         default:
           throw Error(`Game is currently in phase: ${Phase[this._phase]}`);
       }
+    } else {
+      this._phase = Phase.win;
     }
   }
 
   /**
-   * Determines if the game is over if there are no players remaining in either the Mafia or the town team.
-   *
+   * Determines if the game is over if there are no players remaining in either the Mafia or the town team. If game is over, it sets the winner and returns true.
    * @returns False if the game is not over, true if it is over
    */
   private isGameOver(): boolean {
@@ -296,7 +292,6 @@ export default class MafiaGame {
         !this.townPlayers.every(player => !player.isAlive)
       ) {
         this._winner = Team.Town;
-        this._phase = Phase.win;
         return true;
       }
       if (
@@ -304,7 +299,6 @@ export default class MafiaGame {
         this.townPlayers.every(player => !player.isAlive)
       ) {
         this._winner = Team.Mafia;
-        this._phase = Phase.win;
         return true;
       }
     }
@@ -330,6 +324,13 @@ export default class MafiaGame {
             player.result = `${gamePlayer.userName} has been eliminated!`;
           }
         });
+        if (this._host.id === gamePlayer.id) {
+          const newHost: GamePlayer = this.alivePlayers[0];
+          const hostPlayer = this.players.find(player => player.id === newHost.id);
+          if (hostPlayer) {
+            this._host = hostPlayer;
+          }
+        }
         this._gamePlayers[playerIndex].result = 'You have been eliminated!';
         this._deadPlayers.push(gamePlayer);
       }
@@ -341,11 +342,15 @@ export default class MafiaGame {
    * @param voterID The ID of the player that is voting
    * @param targetID The ID of the player that this player is voting for
    */
-  public votePlayer(voterID: string, targetID: string): void {
+   public votePlayer(voterID: string, targetID: string): void {
     const playerIndex = this._gamePlayers.findIndex(player => player.id === voterID);
 
     // give the ID of the person that this player has voted for
     this._gamePlayers[playerIndex].votedPlayer = targetID;
+
+    // increment that player's vote tally
+    const targetIndex = this._gamePlayers.findIndex(player => player.id === targetID);
+    this._gamePlayers[targetIndex].vote();
   }
 
   /**
@@ -375,20 +380,6 @@ export default class MafiaGame {
     return false;
   }
 
-  /*
-  private updateGamePlayers(serverGamePlayers: ServerGamePlayer[]) {
-    for (let i = 0; i < serverGamePlayers.length; i++) {
-      const currServerGamePlayer = serverGamePlayers[i];
-      const currGamePlayer = this.players.find(p => p.id === currServerGamePlayer.player);
-      if (currGamePlayer) {
-
-      } else {
-
-      }
-    }
-  }
-  */
-
   /**
    * Starts the game by setting the phase to discussion during the day time.
    */
@@ -413,7 +404,7 @@ export default class MafiaGame {
       (this._players.length <= 2 && this._phase !== Phase.lobby)
     ) {
       // end the game
-      this.isGameOver();
+      this._phase = Phase.win;
       // empty the player list of this mafia game
       this._players = [];
     }
