@@ -1,4 +1,4 @@
-import GamePlayer, { Role, Team, ServerGamePlayer } from './GamePlayer';
+import GamePlayer, { Role, ServerGamePlayer, Team } from './GamePlayer';
 import Player from './Player';
 
 /**
@@ -26,7 +26,7 @@ export default class MafiaGame {
 
   _phase = Phase.lobby; // current phase of the game
 
-  _host: Player; 
+  _host: Player;
 
   _deadPlayers: GamePlayer[];
 
@@ -176,9 +176,11 @@ export default class MafiaGame {
    * Determines who is eliminated at the end of a night phase.
    * @throws Error if not in the night phase.
    */
-   public endNight(): void {
+  public endNight(): void {
     if (this._phase === Phase.night) {
-      let targetPlayer: GamePlayer | undefined = this._gamePlayers.reduce((prevPlayer, currentPlayer) =>
+      let targetPlayer:
+        | GamePlayer
+        | undefined = this._gamePlayers.reduce((prevPlayer, currentPlayer) =>
         prevPlayer.voteTally > currentPlayer.voteTally ? prevPlayer : currentPlayer,
       );
 
@@ -208,7 +210,9 @@ export default class MafiaGame {
         const target = this._gamePlayers.find(player => player.id === targetID);
 
         if (target) {
-          this._gamePlayers[detectiveIndex].result = `${target.userName} is a ${Role[target.role]}.`;
+          this._gamePlayers[detectiveIndex].result = `${target.userName} is a ${
+            Role[target.role]
+          }.`;
         }
       }
 
@@ -255,10 +259,9 @@ export default class MafiaGame {
     }
   }
 
-
   /**
    * Cycles through the phases of the game after the game has started. Enters win state if game is over.
-   * @throws Error if the game is either in the 'lobby' state or game is in 'win' state when the game is not over. 
+   * @throws Error if the game is either in the 'lobby' state or game is in 'win' state when the game is not over.
    */
   public updatePhase(): void {
     if (!this.isGameOver()) {
@@ -341,7 +344,7 @@ export default class MafiaGame {
    * @param voterID The ID of the player that is voting
    * @param targetID The ID of the player that this player is voting for
    */
-   public votePlayer(voterID: string, targetID: string): void {
+  public votePlayer(voterID: string, targetID: string): void {
     const playerIndex = this._gamePlayers.findIndex(player => player.id === voterID);
 
     // give the ID of the person that this player has voted for

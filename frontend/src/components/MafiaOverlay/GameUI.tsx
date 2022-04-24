@@ -8,7 +8,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useState } from 'react';
-import GamePlayer, { Role, Team } from '../../classes/GamePlayer';
+import { Role, Team } from '../../classes/GamePlayer';
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
 import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
@@ -32,6 +32,11 @@ type GameUIProps = {
   recArea: RecreationArea | undefined;
 };
 
+type PlayerVoteTally = {
+  playerID: string;
+  voteTally: number;
+};
+
 // this UI container just needs a hook for whether game has begun, time of day
 export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const { apiClient, sessionToken, currentTownID, myPlayerID } = useCoveyAppState();
@@ -46,7 +51,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   const [playerRoleInfo, setPlayerRoleInfo] = useState<string | undefined>();
   const [hasVoted, setHasVoted] = useState<boolean>(false);
   const [playerTeam, setPlayerTeam] = useState<Team | undefined>(undefined);
-
+  // const [playerVoteTally, setPlayerVoteTally] = useState<number | undefined>(undefined);
+  const [playerVoteTallies, setPlayerVoteTallies] = useState<PlayerVoteTally[]>();
 
   const toast = useToast();
 
@@ -82,6 +88,15 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     }
   }, [apiClient, currentTownID, myPlayerID, recArea, sessionToken, toast]);
 
+  const resetVoteTallies = function (game: MafiaGame) {
+    const voteTallies: PlayerVoteTally[] = [];
+    for (let i = 0; i < game.alivePlayers.length; i += 1) {
+      const voteTally = { playerID: game.alivePlayers[i].id, voteTally: 0 };
+      voteTallies.push(voteTally);
+    }
+    return voteTallies;
+  };
+
   useEffect(() => {
     const updateListener: RecreationAreaListener = {
       onMafiaGameCreated: (game: MafiaGame) => {
@@ -99,9 +114,11 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setNumGamePlayers(game.players.length);
         setGamePhase(game.phase);
         setPlayerRole(game.playerRole(myPlayerID));
-        setPlayerRoleInfo(game.gamePlayers.find(p => p.id === myPlayerID)?.roleInfo);
-        setHasVoted(game.gamePlayers.find(p=>p.id===myPlayerID)?.votedPlayer !== undefined);
-        const result = game.gamePlayers.find(p=>p.id===myPlayerID)?.result;
+        const player = game.gamePlayers.find(p => p.id === myPlayerID);
+        setPlayerRoleInfo(player?.roleInfo);
+        setHasVoted(player?.votedPlayer !== undefined);
+        setPlayerVoteTallies([...resetVoteTallies(game)]);
+        const result = player?.result;
         if (result) {
           toast({
             title: `TOWN NEWS`,
@@ -115,18 +132,52 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setPlayerRole(game.playerRole(myPlayerID));
         setPlayerRoleInfo(myGamePlayer?.roleInfo);
         setPlayerTeam(myGamePlayer?.team);
+        setPlayerVoteTallies([...resetVoteTallies(game)]);
       },
       onMafiaGameDestroyed: () => {
         setGameInstance(undefined);
         setGameCanStart(false);
         setGamePlayers([]);
       },
+      onMafiaGamePlayerVoted: (voterID: string, votedID: string) => {
+        console.log('player voted');
+        if (voterID === myPlayerID) {
+          setHasVoted(true);
+        }
+        const tallies = playerVoteTallies;
+        tallies?.forEach(p => {
+          if (p.playerID === votedID) {
+            p.voteTally += 1;
+            console.log(`incrementing ${p.playerID}'s tally to ${p.voteTally}`);
+          }
+        });
+        setPlayerVoteTallies(tallies ? [...tallies] : undefined);
+      },
     };
     recArea?.addRecListener(updateListener);
     return () => {
       recArea?.removeRecListener(updateListener);
     };
-  }, [myPlayerID, gameInstance, setGameInstance, gamePlayers, setGamePlayers, recArea, numGamePlayers, setNumGamePlayers, gamePhase, host, setGamePhase, playerRole, setPlayerRole, playerTeam, setPlayerTeam, toast]);
+  }, [
+    myPlayerID,
+    gameInstance,
+    setGameInstance,
+    gamePlayers,
+    setGamePlayers,
+    recArea,
+    numGamePlayers,
+    setNumGamePlayers,
+    gamePhase,
+    host,
+    setGamePhase,
+    playerRole,
+    setPlayerRole,
+    playerTeam,
+    setPlayerTeam,
+    playerVoteTallies,
+    setPlayerVoteTallies,
+    toast,
+  ]);
 
   if (recArea && gameInstance && gamePlayers.map(p => p.id).includes(myPlayerID)) {
     // inLobby = gameInstance._phase === Phase.lobby;
@@ -153,8 +204,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               divider={<StackDivider borderColor='black' />}>
               <GameUILobbyRoles />
               <GameUILobbyRules />
-              <GameUILobbyPlayersList 
-              players={gamePlayers}/>
+              <GameUILobbyPlayersList players={gamePlayers} />
             </HStack>
             <HStack>
               {gameInstance && isPlayerHost && gameCanStart ? (
@@ -173,11 +223,13 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     let lobbyButton;
     if (isPlayerHost && gameInstance) {
       if (gamePhase !== 'win') {
-        lobbyButton = (<NextPhaseButton
-          area={recArea}
-          myPlayerID={myPlayerID}
-          gameInstanceID={gameInstance.id}
-          />);
+        lobbyButton = (
+          <NextPhaseButton
+            area={recArea}
+            myPlayerID={myPlayerID}
+            gameInstanceID={gameInstance.id}
+          />
+        );
       } else {
         lobbyButton = <Button onClick={disbandLobby}>Exit Game</Button>;
       }
@@ -218,13 +270,15 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             </VStack>
             <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase} />
             <VStack>
-              <GameUIAlivePlayerList 
-              players={gameInstance.alivePlayers} 
-              playerTeam={gameInstance.playerTeam(myPlayerID)} 
-              playerRole={playerRole} 
-              gamePhase={gamePhase} 
-              hasVoted={hasVoted} 
-              voteFunc={voteFunc}/>
+              <GameUIAlivePlayerList
+                players={gameInstance.alivePlayers}
+                playerTeam={gameInstance.playerTeam(myPlayerID)}
+                playerRole={playerRole}
+                gamePhase={gamePhase}
+                hasVoted={hasVoted}
+                voteTallies={playerVoteTallies}
+                voteFunc={voteFunc}
+              />
               <GameUIDeadPlayerList players={gameInstance.deadPlayers} />
             </VStack>
           </HStack>

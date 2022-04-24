@@ -20,6 +20,7 @@ export type RecreationAreaListener = {
   onMafiaGameCreated?: (game: MafiaGame) => void;
   onMafiaGameStarted?: (game: MafiaGame) => void;
   onMafiaGameDestroyed?: () => void;
+  onMafiaGamePlayerVoted?: (voter: string, voted: string) => void;
 } & ConversationAreaListener;
 
 export default class RecreationArea extends ConversationArea {
@@ -133,6 +134,17 @@ export default class RecreationArea extends ConversationArea {
     if (game) {
       this._recListeners.forEach(listener => listener.onMafiaGameUpdated?.(game));
     }
+  }
+
+  notifyPlayerVoted(voterID: string, votedID: string) {
+    /*
+    const voter = this.mafiaGame?.alivePlayers.find(p => p.id === voterID);
+    const voted = this.mafiaGame?.alivePlayers.find(p => p.id === votedID);
+    if (voter && voted) {
+      this._recListeners.forEach(listener => listener.onMafiaGamePlayerVoted?.(voter, voted));
+    }
+    */
+    this._recListeners.forEach(listener => listener.onMafiaGamePlayerVoted?.(voterID, votedID));
   }
 
   endGame() {

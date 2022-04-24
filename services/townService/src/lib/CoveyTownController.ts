@@ -490,6 +490,7 @@ export default class CoveyTownController {
       return false;
     }
     mafiaGame.votePlayer(voterID, votedID);
+    this._listeners.forEach(listener => listener.onPlayerVoted(mafiaGameID, voterID, votedID));
     return true;
   }
 
