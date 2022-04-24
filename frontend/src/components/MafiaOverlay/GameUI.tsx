@@ -133,8 +133,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     if (gamePhase === 'lobby') {
       return (
         <Container
-          align='left'
-          spacing={2}
           border='2px'
           padding='15'
           borderColor='gray.500'
@@ -188,8 +186,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     const isDay = gamePhase === 'day_discussion' || gamePhase === 'day_voting';
     return (
       <Container
-        align='left'
-        spacing={2}
         border='2px'
         padding='15'
         borderColor='gray.500'

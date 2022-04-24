@@ -1,7 +1,7 @@
-import { DEFAULT_VIDEO_CONSTRAINTS, SELECTED_AUDIO_INPUT_KEY, SELECTED_VIDEO_INPUT_KEY } from '../../../constants';
-import { getDeviceInfo, isPermissionDenied } from '../../../utils';
 import { useCallback, useState } from 'react';
 import Video, { LocalVideoTrack, LocalAudioTrack, CreateLocalTrackOptions } from 'twilio-video';
+import { DEFAULT_VIDEO_CONSTRAINTS, SELECTED_AUDIO_INPUT_KEY, SELECTED_VIDEO_INPUT_KEY } from '../../../constants';
+import { getDeviceInfo, isPermissionDenied } from '../../../utils';
 
 export default function useLocalTracks() {
   const [audioTrack, setAudioTrack] = useState<LocalAudioTrack>();
@@ -76,8 +76,10 @@ export default function useLocalTracks() {
 
     // In Chrome, it is possible to deny permissions to only audio or only video.
     // If that has happened, then we don't want to attempt to acquire the device.
-    const isCameraPermissionDenied = await isPermissionDenied('camera');
-    const isMicrophonePermissionDenied = await isPermissionDenied('microphone');
+    const cameraPerm: PermissionName = 'camera' as PermissionName;
+    const microphonePerm: PermissionName = 'microphone' as PermissionName;
+    const isCameraPermissionDenied = await isPermissionDenied(cameraPerm);
+    const isMicrophonePermissionDenied = await isPermissionDenied(microphonePerm);
 
     const shouldAcquireVideo = hasVideoInputDevices && !isCameraPermissionDenied;
     const shouldAcquireAudio = hasAudioInputDevices && !isMicrophonePermissionDenied;

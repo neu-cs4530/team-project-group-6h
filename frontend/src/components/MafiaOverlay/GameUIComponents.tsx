@@ -54,7 +54,7 @@ export function GameUITimer({ gameName, gamePhase }: GameUIHeaderProps): JSX.Ele
   });
 
   return (
-    <Container width='100px' height='62px' align='center' className='ui-container'>
+    <Container width='100px' height='62px' className='ui-container'>
       <Heading fontSize='xl' as='h1'>
         {`${Math.floor(timeLeft / 60)}:${timeLeft % 60 < 10 ? `0${timeLeft % 60}` : timeLeft % 60}`}
       </Heading>
