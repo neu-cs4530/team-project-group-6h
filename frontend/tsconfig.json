@@ -24,6 +24,5 @@
     "jsx": "react-jsx"
   },
   "include": [
-    "src"
-, "../services/townService/src/lib/mafia_lib"  ]
+    "src"]
 }
