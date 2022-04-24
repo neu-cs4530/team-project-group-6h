@@ -250,7 +250,7 @@ export function GameUIAlivePlayerList({
       </Heading>
       <ul>
         {(gamePhase === 'day_voting' || gamePhase === 'night') &&
-        !(playerTeam === Team.Town && playerRole === Role.Unassigned) &&
+        // !(playerTeam === Team.Town && playerRole === Role.Unassigned) &&
         !hasVoted &&
         !isDead
           ? players.map(p => {
@@ -266,7 +266,12 @@ export function GameUIAlivePlayerList({
                   }
                   return <li key={p.id}>{p.userName}</li>;
                 }
-                return <GameUITargetPlayerListElement key={p.id} player={p} voteFunc={voteFunc} />;
+                if (playerRole !== Role.Unassigned && playerTeam === Team.Town) {
+                  return (
+                    <GameUITargetPlayerListElement key={p.id} player={p} voteFunc={voteFunc} />
+                  );
+                }
+                return <li key={p.id}>{p.userName}</li>;
               }
               return (
                 <div key={p.id}>
@@ -277,7 +282,10 @@ export function GameUIAlivePlayerList({
             })
           : players.map(p => (
               <li key={p.id}>
-                {p.userName}: {voteTallies?.find(t => t.playerID === p.id)?.voteTally}
+                {p.userName}:{' '}
+                {playerTeam === Team.Town && gamePhase === 'night'
+                  ? ''
+                  : voteTallies?.find(t => t.playerID === p.id)?.voteTally}
               </li>
             ))}
       </ul>
