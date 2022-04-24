@@ -506,6 +506,9 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: ServerGamePlayer[]) {
       socket.emit('mafiaGameUpdated', mafiaGameID, phase, gamePlayers);
     },
+    onPlayerVoted(mafiaGameID: string, playerID: string, targetID: string) {
+      socket.emit('playerVoted', mafiaGameID, playerID, targetID);
+    },
     onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);
     },
