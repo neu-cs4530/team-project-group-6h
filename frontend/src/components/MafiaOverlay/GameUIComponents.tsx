@@ -249,24 +249,21 @@ export function GameUIAlivePlayerList({
         Players
       </Heading>
       <ul>
-        {(gamePhase === 'day_voting' || gamePhase === 'night') &&
-        // !(playerTeam === Team.Town && playerRole === Role.Unassigned) &&
-        !hasVoted &&
-        !isDead
+        {(gamePhase === 'day_voting' || gamePhase === 'night') && !hasVoted && !isDead
           ? players.map(p => {
               if (gamePhase === 'night') {
                 if (playerRole === Role.Unassigned && playerTeam === Team.Mafia) {
                   if (p.team !== Team.Mafia) {
                     return (
-                      <div key={p.id}>
+                      <div key={p.id} className='vote-player'>
                         <GameUIVotePlayerListElement player={p} voteFunc={voteFunc} />
-                        {voteTallies?.find(t => t.playerID === p.id)?.voteTally}
+                        {`: ${voteTallies?.find(t => t.playerID === p.id)?.voteTally}`}
                       </div>
                     );
                   }
                   return <li key={p.id}>{p.userName}</li>;
                 }
-                if (playerRole !== Role.Unassigned && playerTeam === Team.Town) {
+                if (playerRole !== Role.Unassigned) {
                   return (
                     <GameUITargetPlayerListElement key={p.id} player={p} voteFunc={voteFunc} />
                   );
@@ -274,20 +271,22 @@ export function GameUIAlivePlayerList({
                 return <li key={p.id}>{p.userName}</li>;
               }
               return (
-                <div key={p.id}>
+                <div key={p.id} className='vote-player'>
                   <GameUIVotePlayerListElement player={p} voteFunc={voteFunc} />
-                  {voteTallies?.find(t => t.playerID === p.id)?.voteTally}
+                  {`: ${voteTallies?.find(t => t.playerID === p.id)?.voteTally}`}
                 </div>
               );
             })
-          : players.map(p => (
-              <li key={p.id}>
-                {p.userName}:{' '}
-                {playerTeam === Team.Town && gamePhase === 'night'
-                  ? ''
-                  : voteTallies?.find(t => t.playerID === p.id)?.voteTally}
-              </li>
-            ))}
+          : players.map(p => {
+              // Need cases for when player is dead, has already voted, or when phase is day_discussion
+              if (gamePhase === 'day_discussion') {
+                return <li key={p.id}>{p.userName}</li>;
+              }
+              if (hasVoted || (isDead && gamePhase === 'day_voting')) {
+                return <li key={p.id}>{`${p.userName}: ${p.voteTally}`}</li>;
+              }
+              return <></>;
+            })}
       </ul>
     </Container>
   );
@@ -303,7 +302,15 @@ export function GameUIDeadPlayerList({ players }: GameUIDeadPlayerListProps): JS
         Graveyard
       </Heading>
       <ul>
-        {players.map(player => (player ? <li key={player.id}>{player.userName}</li> : <li />))}
+        {players.map(player =>
+          player ? (
+            <li key={player.id}>
+              {player.userName}: {Role[player.role]}
+            </li>
+          ) : (
+            <li />
+          ),
+        )}
       </ul>
     </Container>
   );

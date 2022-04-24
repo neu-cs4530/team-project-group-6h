@@ -78,6 +78,10 @@
   list-style-type: none;
 }
 
+.vote-player {
+  display: flex;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
