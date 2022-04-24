@@ -305,7 +305,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
       socket.on(
         'mafiaGameUpdated',
         (_mafiaGameID: string, _phase: string, _gamePlayers: ServerGamePlayer[]) => {
-          console.log('in on mafiaGameUpdated');
           const mafiaGame = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID)
             ?.mafiaGame;
           if (mafiaGame) {
@@ -325,6 +324,18 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           }
         },
       );
+      socket.on('playerVoted', (_mafiaGameID: string, _playerID: string, _targetID: string) => {
+        const mafiaGame = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID)
+          ?.mafiaGame;
+        if (mafiaGame) {
+          const player = mafiaGame.gamePlayers.find(p => p.id === _playerID);
+          const target = mafiaGame.gamePlayers.find(p => p.id === _targetID);
+          if (player && target) {
+            player.votedPlayer = _targetID;
+            target.vote();
+          }
+        }
+      });
 
       socket.on('mafiaGameEnded', () => {
         // TODO

@@ -418,7 +418,11 @@ export function setNightTargetHandler(
       message: `Unable to set ${_requestData.playerID}'s target to ${_requestData.targetID}.`,
     };
   }
-  const success = townController.setNightTarget(_requestData.mafiaGameID, _requestData.playerID, _requestData.targetID);
+  const success = townController.setNightTarget(
+    _requestData.mafiaGameID,
+    _requestData.playerID,
+    _requestData.targetID,
+  );
   return {
     isOK: success,
     response: {},
@@ -475,6 +479,9 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     },
     onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: ServerGamePlayer[]) {
       socket.emit('mafiaGameUpdated', mafiaGameID, phase, gamePlayers);
+    },
+    onPlayerVoted(mafiaGameID: string, playerID: string, targetID: string) {
+      socket.emit('playerVoted', mafiaGameID, playerID, targetID);
     },
     onChatMessage(message: ChatMessage) {
       socket.emit('chatMessage', message);

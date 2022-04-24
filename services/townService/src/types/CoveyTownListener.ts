@@ -84,6 +84,14 @@ export default interface CoveyTownListener {
    */
   onMafiaGameUpdated(mafiaGameID: string, phase: string, gamePlayers: ServerGamePlayer[]): void;
 
+  /**
+   * Called when a player votes for another player during a voting phase
+   * @param mafiaGameID The game
+   * @param playerID The player voting
+   * @param targetID The player voted against
+   */
+  onPlayerVoted(mafiaGameID: string, playerID: string, targetID: string): void;
+
   // TODO
   // onMafiaGameEnded(mafiaGameID: string): void;
 
