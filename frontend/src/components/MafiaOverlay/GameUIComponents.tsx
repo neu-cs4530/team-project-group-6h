@@ -72,29 +72,25 @@ export function GameUIRoleDescription({playerRole}: GameUIRoleDescriptionProps):
 }
 */
 
-// may not need hook for this
-export function GameUIRoleList(): JSX.Element {
+type GameUIRoleListProps = {
+  gamePlayers: GamePlayer[];
+};
+
+export function GameUIRoleList({ gamePlayers }: GameUIRoleListProps): JSX.Element {
   return (
     <Container width='200px' height='296px' className='ui-container'>
       <Heading fontSize='xl' as='h4'>
         All Roles
       </Heading>
       <ul style={{ listStyleType: 'none' }}>
-        <li>
-          <Text color='#00a108'>Investigator</Text>
-        </li>
-        <li>
-          <Text color='#00a108'>Doctor</Text>
-        </li>
-        <li>
-          <Text color='#00a108'>General Town</Text>
-        </li>
-        <li>
-          <Text color='#940000'>Mafia</Text>
-        </li>
-        <li>
-          <Text color='#940000'>Godfather</Text>
-        </li>
+        {gamePlayers.map(p => (
+          <li key={p.id}>
+            {' '}
+            <Text color={p.team === 0 ? '#940000' : '#00a108'}>
+              {Role[p.role]}: ({Team[p.team]})
+            </Text>
+          </li>
+        ))}
       </ul>
     </Container>
   );
