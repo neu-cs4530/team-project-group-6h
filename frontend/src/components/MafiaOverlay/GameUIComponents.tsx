@@ -1,4 +1,17 @@
-import { Button, Container, Heading, Text, useToast } from '@chakra-ui/react';
+import {
+  Button,
+  Container,
+  Heading,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
+  Text,
+  useToast,
+} from '@chakra-ui/react';
 import assert from 'assert';
 import React, { useCallback, useEffect, useState } from 'react';
 import GamePlayer, { Role, Team } from '../../classes/GamePlayer';
@@ -86,9 +99,21 @@ export function GameUIRoleList({ gamePlayers }: GameUIRoleListProps): JSX.Elemen
         {gamePlayers.map(p => (
           <li key={p.id}>
             {' '}
-            <Text color={p.team === 0 ? '#940000' : '#00a108'}>
-              {Role[p.role]}: ({Team[p.team]})
-            </Text>
+            <Popover trigger='hover'>
+              <PopoverTrigger>
+                <Text color={p.team === 0 ? '#940000' : '#00a108'}>
+                  {Role[p.role]}: ({Team[p.team]})
+                </Text>
+              </PopoverTrigger>
+              <PopoverContent>
+                <PopoverArrow />
+                <PopoverCloseButton />
+                <PopoverHeader>
+                  {Role[p.role]}: ({Team[p.team]})
+                </PopoverHeader>
+                <PopoverBody>{p.roleInfo}</PopoverBody>
+              </PopoverContent>
+            </Popover>
           </li>
         ))}
       </ul>
