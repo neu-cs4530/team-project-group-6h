@@ -368,11 +368,11 @@ export default class CoveyTownController {
     }
 
     const mafiaGame = this._mafiaGames.find(g => g.id === recArea._mafiaGameID);
-    if (mafiaGame?.phase !== 'lobby') {
+    if (!mafiaGame || !(mafiaGame?.phase === 'lobby' || mafiaGame?.phase === 'win')) {
       return false;
     }
 
-    // Ensure the player is valid and in the recreation area and not in any games?
+    // Ensure the player is valid and in the recreation area and not in any games
     const player = this._players.find(p => p.id === playerID);
     if (!player) {
       return false;
@@ -388,6 +388,40 @@ export default class CoveyTownController {
       return true;
     }
     return false;
+  }
+
+  /**
+   * Removes the player from the rec area's mafia game instance
+   * @param recAreaLabel The recreation area with the mafia game
+   * @param playerID The player to be removed to the game
+   * @returns Whether or not the player was removed to the game
+   */
+  leaveMafiaGameLobby(recAreaLabel: string, playerID: string): boolean {
+    // Assert rec area has a game in lobby or win phase
+    const recArea = this._recreationAreas.find(rec => rec.label === recAreaLabel);
+    if (!recArea) {
+      return false;
+    }
+
+    const mafiaGame = this._mafiaGames.find(g => g.id === recArea._mafiaGameID);
+    if (!mafiaGame || !(mafiaGame?.phase === 'lobby' || mafiaGame?.phase === 'win')) {
+      return false;
+    }
+
+    // Ensure the player is valid and in the recreation area and not in any games?
+    const player = this._players.find(p => p.id === playerID);
+    if (!player) {
+      return false;
+    }
+    if (!recArea.occupantsByID.includes(playerID)) {
+      return false;
+    }
+
+    // Remove player from game
+    mafiaGame.removePlayer(player);
+    this._listeners.forEach(listener => listener.onPlayerLeftGame(recAreaLabel, playerID));
+
+    return true;
   }
 
   destroyMafiaGameLobby(recAreaLabel: string): boolean {

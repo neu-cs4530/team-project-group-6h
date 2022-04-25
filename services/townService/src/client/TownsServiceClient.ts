@@ -127,7 +127,7 @@ export interface GameLobbyCreateRequest {
 /**
  * Payload sent by the client to join a mafia game lobby
  */
-export interface GameLobbyJoinRequest {
+export interface GameLobbyJoinLeaveRequest {
   coveyTownID: string;
   sessionToken: string;
   recreationAreaLabel: string;

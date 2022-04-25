@@ -89,7 +89,7 @@ export default class RecreationArea extends ConversationArea {
   }
 
   /**
-   * Attempts to add the given player to this rec areas game
+   * Attempts to add the given player to this rec area's game
    * @param player The player to be added
    * @returns Whether or not the player was added
    */
@@ -104,6 +104,26 @@ export default class RecreationArea extends ConversationArea {
       return true;
     }
 
+    return false;
+  }
+
+  /**
+   * Attempts to remove the given player from this rec area's game
+   * @param player The player to be removed
+   * @returns Whether or not the player was removed
+   */
+  removePlayerFromGame(player: Player): boolean {
+    const inArea = this._occupants.includes(player.id);
+    if (!inArea) {
+      return false;
+    }
+    const game = this.mafiaGame;
+    if (game) {
+      game.removePlayer(player);
+      console.log('notifying listeners');
+      this._recListeners.forEach(recListener => recListener.onMafiaGameUpdated?.(game));
+      return true;
+    }
     return false;
   }
 

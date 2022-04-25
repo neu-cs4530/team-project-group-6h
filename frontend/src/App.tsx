@@ -293,6 +293,16 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         }
         setRecreationAreas(localRecreationAreas);
       });
+      socket.on('playerLeftGame', (_recreationAreaLabel: string, _playerID: string) => {
+        console.log('leaving game');
+        const existingRecArea = localRecreationAreas.find(a => a.label === _recreationAreaLabel);
+        const player = localPlayers.find(p => p.id === _playerID);
+        if (existingRecArea?.mafiaGame && player) {
+          console.log('heyo');
+          existingRecArea.removePlayerFromGame(player);
+        }
+        setRecreationAreas(localRecreationAreas);
+      });
       socket.on('lobbyDestroyed', (recreationAreaLabel: string) => {
         const existingRecArea = localRecreationAreas.find(a => a.label === recreationAreaLabel);
         if (existingRecArea?.mafiaGame) {
@@ -451,7 +461,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     return (
       <div>
         <WorldMap />
-        <VideoOverlay preferredMode='fullwidth'/>
+        <VideoOverlay preferredMode='fullwidth' />
       </div>
     );
   }, [appState.sessionToken, videoInstance, isDead, setupGameController]);

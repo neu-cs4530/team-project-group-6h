@@ -1,5 +1,5 @@
 import { Button, Container, Heading, HStack } from '@chakra-ui/react';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Role, Team } from '../../classes/GamePlayer';
 import MafiaGame from '../../classes/MafiaGame';
 import RecreationArea from '../../classes/RecreationArea';
@@ -14,6 +14,7 @@ type GameUIWinOverlayProps = {
   isPlayerHost: boolean;
   disbandLobby: () => Promise<void>;
   startGame: () => Promise<void>;
+  leaveLobby: () => Promise<void>;
 };
 
 export default function GameUIWinOverlay({
@@ -23,8 +24,13 @@ export default function GameUIWinOverlay({
   isPlayerHost,
   disbandLobby,
   startGame,
+  leaveLobby,
 }: GameUIWinOverlayProps): JSX.Element {
-  const startNewGame = useCallback(async () => {}, [game]);
+  const getWinnerColor = function (): string {
+    if (game.winner === Team.Town) return '#00a108';
+    if (game.winner === Team.Mafia) return '#940000';
+    return 'black';
+  };
   return (
     <Container
       border='2px'
@@ -35,12 +41,8 @@ export default function GameUIWinOverlay({
       borderRadius='50px'
       backgroundColor='#ededed'
       className='ui-container-day'>
-      <Heading
-        fontSize='xl'
-        as='h1'
-        color={game.winner === Team.Town ? '#00a108' : '#940000'}
-        margin='20px'>
-        {Team[game.winner]} wins!
+      <Heading fontSize='xl' as='h1' color={getWinnerColor()} margin='20px'>
+        {game.winner !== Team.Unassigned ? `${Team[game.winner]} wins!` : 'Draw'}
       </Heading>
 
       <HStack>
@@ -62,7 +64,11 @@ export default function GameUIWinOverlay({
           <div className='win-buttons'>
             {isPlayerHost ? (
               <>
-                <Button colorScheme='blue' width='60%' onClick={startGame}>
+                <Button
+                  colorScheme='blue'
+                  width='60%'
+                  onClick={startGame}
+                  isDisabled={!game.canStart()}>
                   New Game
                 </Button>
                 <Button colorScheme='red' width='60%' onClick={disbandLobby}>
@@ -70,7 +76,9 @@ export default function GameUIWinOverlay({
                 </Button>
               </>
             ) : (
-              <Button colorScheme='red'>Leave Game</Button>
+              <Button colorScheme='red' onClick={leaveLobby}>
+                Leave Game
+              </Button>
             )}
           </div>
         </div>

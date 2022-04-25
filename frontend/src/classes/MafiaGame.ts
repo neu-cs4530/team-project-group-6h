@@ -138,7 +138,7 @@ export default class MafiaGame {
    * @returns Whether or not the player was added
    */
   public addPlayer(player: Player): boolean {
-    if (this._phase === Phase.lobby) {
+    if (this._phase === Phase.lobby || this._phase === Phase.win) {
       this._players.push(player);
       return true;
     }
@@ -306,6 +306,18 @@ export default class MafiaGame {
       ) {
         this._winner = Team.Mafia;
         return true;
+      }
+
+      const aliveMafiaPlayers = this.mafiaPlayers.filter(p => p.isAlive);
+      const aliveTownPlayers = this.townPlayers.filter(p => p.isAlive);
+      if (aliveMafiaPlayers.length === 1 && aliveTownPlayers.length === 1) {
+        if (
+          aliveTownPlayers[0].role === Role.Doctor ||
+          aliveTownPlayers[0].role === Role.Hypnotist
+        ) {
+          this._winner = Team.Unassigned;
+          return true;
+        }
       }
     }
 

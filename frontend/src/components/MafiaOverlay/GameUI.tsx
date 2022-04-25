@@ -121,6 +121,37 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     }
   }, [apiClient, sessionToken, currentTownID, toast, recArea, myPlayerID]);
 
+  const leaveLobby = useCallback(async () => {
+    if (recArea) {
+      try {
+        await apiClient.leaveGameLobby({
+          coveyTownID: currentTownID,
+          sessionToken,
+          recreationAreaLabel: recArea.label,
+          playerID: myPlayerID,
+        });
+        toast({
+          title: 'Left mafia game',
+          status: 'success',
+        });
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          toast({
+            title: 'Unable to leave Mafia Game',
+            description: err.toString(),
+            status: 'error',
+          });
+        }
+      }
+    } else {
+      toast({
+        title: 'Unable to leave Mafia Game, rec area is undefined',
+        description: '',
+        status: 'error',
+      });
+    }
+  }, [apiClient, sessionToken, currentTownID, toast, recArea, myPlayerID]);
+
   const resetVoteTallies = function (game: MafiaGame) {
     const voteTallies: PlayerVoteTally[] = [];
     for (let i = 0; i < game.alivePlayers.length; i += 1) {
@@ -129,7 +160,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     }
     return voteTallies;
   };
-
 
   const phaseDuration = 90;
   const [timeLeft, setTimeLeft] = useState(phaseDuration);
@@ -143,11 +173,12 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGamePhase(game.phase);
       },
       onMafiaGameUpdated: (game: MafiaGame) => {
+        console.log('mafia game updated');
         setGameInstance(game);
         setGameCanStart(game.canStart());
         setHost(game.host);
         setIsPlayerHost(game.host.id === myPlayerID);
-        setGamePlayers(game.players);
+        setGamePlayers([...game.players]);
         setNumGamePlayers(game.players.length);
 
         if (game.phase !== gamePhase) {
@@ -222,6 +253,10 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     toast,
   ]);
 
+  if (!gamePlayers.map(p => p.id).includes(myPlayerID)) {
+    return <></>;
+  }
+
   if (recArea && gameInstance && gamePlayers.map(p => p.id).includes(myPlayerID)) {
     // inLobby = gameInstance._phase === Phase.lobby;
     if (gamePhase === 'lobby') {
@@ -248,17 +283,31 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               <GameUILobbyPlayersList players={gamePlayers} />
             </HStack>
             <HStack>
-              {!gameCanStart && <Tooltip label='At least four players are required to start!'>
-                <h3>Waiting for players...</h3>
-              </Tooltip>}
+              {!gameCanStart && (
+                <Tooltip label='At least four players are required to start!'>
+                  <h3>Waiting for players...</h3>
+                </Tooltip>
+              )}
 
-              {gameInstance && isPlayerHost && gameCanStart && <StartGameButton area={recArea} myPlayerID={myPlayerID} />}
+              {gameInstance && isPlayerHost && gameCanStart && (
+                <StartGameButton area={recArea} myPlayerID={myPlayerID} />
+              )}
 
-              {gameInstance && !isPlayerHost && gameCanStart && <h3>Waiting for host to start game...</h3>}
-              
-              <Button colorScheme='red' onClick={disbandLobby}>
-                Disband Lobby
-              </Button>
+              {gameInstance && !isPlayerHost && gameCanStart && (
+                <h3>Waiting for host to start game...</h3>
+              )}
+
+              {gameInstance && isPlayerHost && (
+                <Button colorScheme='red' onClick={disbandLobby}>
+                  Disband Lobby
+                </Button>
+              )}
+
+              {gameInstance && !isPlayerHost && (
+                <Button colorScheme='red' onClick={leaveLobby}>
+                  Leave Game
+                </Button>
+              )}
             </HStack>
           </VStack>
         </Container>
@@ -300,7 +349,13 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               </div>
               <Container width='300px' />
               {lobbyButton}
-              <GameUITimer gameName={recArea.label} gameInstanceID={gameInstance.id} isPlayerHost={isPlayerHost} timeLeft={timeLeft} setTimeLeft={setTimeLeft}/>
+              <GameUITimer
+                gameName={recArea.label}
+                gameInstanceID={gameInstance.id}
+                isPlayerHost={isPlayerHost}
+                timeLeft={timeLeft}
+                setTimeLeft={setTimeLeft}
+              />
             </HStack>
             <HStack width='full' alignItems='stretch' align='flex-start'>
               <VStack align='left'>
@@ -315,6 +370,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase} />
               <VStack>
                 <GameUIAlivePlayerList
+                  myPlayerID={myPlayerID}
                   players={[...gameInstance.alivePlayers].sort((p1, p2) =>
                     p1.userName.localeCompare(p2.userName, undefined, {
                       numeric: true,
@@ -344,6 +400,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
       isPlayerHost={isPlayerHost}
       disbandLobby={disbandLobby}
       startGame={startGame}
+      leaveLobby={leaveLobby}
     />
   ) : (
     <></>

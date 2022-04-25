@@ -13,7 +13,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import assert from 'assert';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import GamePlayer, { Role, Team } from '../../classes/GamePlayer';
 import MafiaGame from '../../classes/MafiaGame';
 import Player from '../../classes/Player';
@@ -45,32 +45,36 @@ type GameUITimerProps = {
   setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
 };
 
-
-export function GameUITimer({ gameName, gameInstanceID, isPlayerHost, timeLeft, setTimeLeft }: GameUITimerProps): JSX.Element {
-
+export function GameUITimer({
+  gameName,
+  gameInstanceID,
+  isPlayerHost,
+  timeLeft,
+  setTimeLeft,
+}: GameUITimerProps): JSX.Element {
   const { apiClient, sessionToken, currentTownID } = useCoveyAppState();
   const toast = useToast();
 
   const updatePhase = async () => {
-      try {
-        await apiClient.nextPhase({
-          coveyTownID: currentTownID,
-          sessionToken,
-          mafiaGameID: gameInstanceID,
-        });
+    try {
+      await apiClient.nextPhase({
+        coveyTownID: currentTownID,
+        sessionToken,
+        mafiaGameID: gameInstanceID,
+      });
+      toast({
+        title: 'Mafia Game Phase Updated!',
+        status: 'success',
+      });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
         toast({
-          title: 'Mafia Game Phase Updated!',
-          status: 'success',
+          title: 'Unable to advance Mafia Game to next phase',
+          description: err.toString(),
+          status: 'error',
         });
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          toast({
-            title: 'Unable to advance Mafia Game to next phase',
-            description: err.toString(),
-            status: 'error',
-          });
-        }
       }
+    }
   };
 
   const phaseDuration = 90;
@@ -84,10 +88,8 @@ export function GameUITimer({ gameName, gameInstanceID, isPlayerHost, timeLeft, 
         await updatePhase();
         setTimeLeft(phaseDuration);
       }
-      
     }, 1000);
     return () => clearTimeout(timer);
-
   });
 
   return (
@@ -268,6 +270,7 @@ type PlayerVoteTally = {
 };
 
 type GameUIAlivePlayerListProps = {
+  myPlayerID: string;
   players: GamePlayer[];
   hasVoted: boolean;
   voteFunc: () => void;
@@ -278,6 +281,7 @@ type GameUIAlivePlayerListProps = {
 };
 
 export function GameUIAlivePlayerList({
+  myPlayerID,
   players,
   hasVoted,
   voteFunc,
@@ -309,23 +313,37 @@ export function GameUIAlivePlayerList({
                     return (
                       <div key={p.id} className='vote-player'>
                         <GameUIVotePlayerListElement player={p} voteFunc={voteFunc} />
-                        {`: ${voteTallies?.find(t => t.playerID === p.id)?.voteTally}`}
+                        {
+                          // `: ${voteTallies?.find(t => t.playerID === p.id)?.voteTally}`}
+                        }
                       </div>
                     );
                   }
                   return <li key={p.id}>{p.userName}</li>;
                 }
                 if (playerRole !== Role.Unassigned) {
+                  if (
+                    (p.id === myPlayerID &&
+                      (playerRole === Role.Detective || playerRole === Role.Hypnotist)) ||
+                    (playerRole === Role.Godfather && p.team === Team.Mafia)
+                  ) {
+                    return <li key={p.id}>{p.userName}</li>;
+                  }
                   return (
                     <GameUITargetPlayerListElement key={p.id} player={p} voteFunc={voteFunc} />
                   );
                 }
                 return <li key={p.id}>{p.userName}</li>;
               }
+              if (p.id === myPlayerID) {
+                return <li key={p.id}>{`${p.userName} ${hasVoted ? p.voteTally : ''}`}</li>;
+              }
               return (
                 <div key={p.id} className='vote-player'>
                   <GameUIVotePlayerListElement player={p} voteFunc={voteFunc} />
-                  {`: ${voteTallies?.find(t => t.playerID === p.id)?.voteTally}`}
+                  {
+                    // `: ${voteTallies?.find(t => t.playerID === p.id)?.voteTally}`
+                  }
                 </div>
               );
             })
