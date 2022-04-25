@@ -4,7 +4,7 @@ Mafia.Town has added Recreation Areas to Covey.Town, which allows players to sta
 
 Creating a Recreation Area:
 	Creating a Recreation Area is similar to creating a conversation area. Because a Recreation Area is an extension of a Conversation Area, potential Conversation and Recreation areas occupy the same areas on the map. To create a Recreation Area, simply enter an empty Conversation Area, which is denoted by “(No Topic)” under the area. 
-![image](https://user-images.githubusercontent.com/40529597/165191334-25197594-db16-4437-92f3-671b8c6aa910.png)
+![image|50%](https://user-images.githubusercontent.com/40529597/165191334-25197594-db16-4437-92f3-671b8c6aa910.png)
 ![image](https://cdn.discordapp.com/attachments/956637095286411266/968293811648344104/unknown.png)
 
 Once inside the empty Conversation Area, press the spacebar. This will open up a modal window which prompts the user to enter a “Topic of Conversation”, and asks if the user would like to create a Recreation Area. To create a Recreation Area, enter a topic of conversation of your choice, and toggle the “Make Recreation Area?” switch. Then, press the “Create” button in the bottom right corner. 
