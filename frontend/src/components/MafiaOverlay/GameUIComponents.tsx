@@ -313,7 +313,9 @@ export function GameUIAlivePlayerList({
                     return (
                       <div key={p.id} className='vote-player'>
                         <GameUIVotePlayerListElement player={p} voteFunc={voteFunc} />
-                        {`: ${voteTallies?.find(t => t.playerID === p.id)?.voteTally}`}
+                        {
+                          // `: ${voteTallies?.find(t => t.playerID === p.id)?.voteTally}`}
+                        }
                       </div>
                     );
                   }
@@ -334,12 +336,14 @@ export function GameUIAlivePlayerList({
                 return <li key={p.id}>{p.userName}</li>;
               }
               if (p.id === myPlayerID) {
-                return <li key={p.id}>{`${p.userName}: ${p.voteTally}`}</li>;
+                return <li key={p.id}>{`${p.userName} ${hasVoted ? p.voteTally : ''}`}</li>;
               }
               return (
                 <div key={p.id} className='vote-player'>
                   <GameUIVotePlayerListElement player={p} voteFunc={voteFunc} />
-                  {`: ${voteTallies?.find(t => t.playerID === p.id)?.voteTally}`}
+                  {
+                    // `: ${voteTallies?.find(t => t.playerID === p.id)?.voteTally}`
+                  }
                 </div>
               );
             })
