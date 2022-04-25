@@ -38,7 +38,6 @@ interface Props {
   hexColour?: string;
   preferredMode: 'sidebar' | 'fullwidth';
   onPresentingChanged?(presenting: boolean): void;
-  isDead: boolean;
 
 }
 
@@ -127,7 +126,7 @@ export default function VideoGrid(props: Props) {
             <ReconnectingNotification />
             <MobileTopMenuBar />
             <Room />
-            {isDead ? <></> : <MenuBar/>}
+            <MenuBar/>
           </Main>
         )}
         <MediaErrorSnackbar error={mediaError} />

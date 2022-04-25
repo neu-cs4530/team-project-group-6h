@@ -27,8 +27,6 @@ export default function GameUIWinOverlay({
   const startNewGame = useCallback(async () => {}, [game]);
   return (
     <Container
-      align='left'
-      spacing={2}
       border='2px'
       padding='15'
       borderColor='gray.500'

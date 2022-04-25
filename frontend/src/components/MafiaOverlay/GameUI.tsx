@@ -130,6 +130,10 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     return voteTallies;
   };
 
+
+  const phaseDuration = 90;
+  const [timeLeft, setTimeLeft] = useState(phaseDuration);
+
   useEffect(() => {
     const updateListener: RecreationAreaListener = {
       onMafiaGameCreated: (game: MafiaGame) => {
@@ -145,6 +149,11 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setIsPlayerHost(game.host.id === myPlayerID);
         setGamePlayers(game.players);
         setNumGamePlayers(game.players.length);
+
+        if (game.phase !== gamePhase) {
+          setTimeLeft(phaseDuration);
+        }
+
         setGamePhase(game.phase);
         setPlayerRole(game.playerRole(myPlayerID));
         const player = game.gamePlayers.find(p => p.id === myPlayerID);
@@ -244,8 +253,8 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               </Tooltip>}
 
               {gameInstance && isPlayerHost && gameCanStart && <StartGameButton area={recArea} myPlayerID={myPlayerID} />}
-            
-              {gameInstance && !isPlayerHost && gameCanStart && <h3>Host must start the game.</h3>}
+
+              {gameInstance && !isPlayerHost && gameCanStart && <h3>Waiting for host to start game...</h3>}
               
               <Button colorScheme='red' onClick={disbandLobby}>
                 Disband Lobby
@@ -287,11 +296,11 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
           <VStack>
             <HStack>
               <div margin-left='100px'>
-                <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase} gameInstanceID={gameInstance.id} isPlayerHost={isPlayerHost} />
+                <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase} />
               </div>
               <Container width='300px' />
               {lobbyButton}
-              <GameUITimer gameName={recArea.label} gamePhase={gameInstance.phase} gameInstanceID={gameInstance.id} isPlayerHost={isPlayerHost} />
+              <GameUITimer gameName={recArea.label} gameInstanceID={gameInstance.id} isPlayerHost={isPlayerHost} timeLeft={timeLeft} setTimeLeft={setTimeLeft}/>
             </HStack>
             <HStack width='full' alignItems='stretch' align='flex-start'>
               <VStack align='left'>

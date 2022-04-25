@@ -98,6 +98,7 @@ export default class MafiaGame {
   public canStart(): boolean {
     return (
       this._phase === Phase.lobby ||
+      // (this._phase === Phase.lobby && this.MIN_PLAYERS <= this._players.length) ||
       (this._phase === Phase.win && this.MIN_PLAYERS <= this._players.length)
     );
   }

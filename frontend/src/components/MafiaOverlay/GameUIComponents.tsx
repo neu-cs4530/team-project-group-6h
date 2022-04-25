@@ -25,12 +25,10 @@ import GameUIVideo from './GameUIVideo';
 type GameUIHeaderProps = {
   gameName: string;
   gamePhase: string;
-  gameInstanceID: string;
-  isPlayerHost: boolean;
 };
 
 // Needs hook into game name, time of day
-export function GameUIHeader({ gameName, gamePhase, gameInstanceID, isPlayerHost }: GameUIHeaderProps): JSX.Element {
+export function GameUIHeader({ gameName, gamePhase }: GameUIHeaderProps): JSX.Element {
   const isDay = true;
   return (
     <Heading fontSize='xl' as='h1' color={isDay ? 'black' : 'white'}>
@@ -39,9 +37,16 @@ export function GameUIHeader({ gameName, gamePhase, gameInstanceID, isPlayerHost
   );
 }
 
-export function GameUITimer({ gameName, gamePhase, gameInstanceID, isPlayerHost }: GameUIHeaderProps): JSX.Element {
-  const phaseDuration = 10;
-  const [timeLeft, setTimeLeft] = useState(phaseDuration);
+type GameUITimerProps = {
+  gameName: string;
+  gameInstanceID: string;
+  isPlayerHost: boolean;
+  timeLeft: number;
+  setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
+};
+
+
+export function GameUITimer({ gameName, gameInstanceID, isPlayerHost, timeLeft, setTimeLeft }: GameUITimerProps): JSX.Element {
 
   const { apiClient, sessionToken, currentTownID } = useCoveyAppState();
   const toast = useToast();
@@ -68,27 +73,21 @@ export function GameUITimer({ gameName, gamePhase, gameInstanceID, isPlayerHost 
       }
   };
 
-  // useEffect(() => {
-
-  //   setTimeLeft(phaseDuration);
-
-  // }, [gamePhase])
-  
+  const phaseDuration = 90;
 
   useEffect(() => {
-      // subtracts one from timer every time a second passes during this phase
+    // subtracts one from timer every time a second passes during this phase
     const timer = setTimeout(async () => {
       if (timeLeft > 0) {
         setTimeLeft(timeLeft - 1);
-      } else if (timeLeft === 0 && isPlayerHost) {
-          await updatePhase();
-          setTimeLeft(phaseDuration);
+      } else if (isPlayerHost && timeLeft === 0) {
+        await updatePhase();
+        setTimeLeft(phaseDuration);
       }
       
     }, 1000);
     return () => clearTimeout(timer);
 
-    return () => {};
   });
 
   return (
