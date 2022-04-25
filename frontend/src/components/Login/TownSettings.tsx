@@ -51,11 +51,15 @@ const TownSettings: React.FunctionComponent = () => {
         })
         closeSettings();
       }catch(err){
-        toast({
-          title: 'Unable to delete town',
-          description: err.toString(),
-          status: 'error'
-        });
+
+        if (err instanceof Error) {
+          toast({
+            title: 'Unable to delete town',
+            description: err.toString(),
+            status: 'error'
+          });
+        }
+        
       }
     }else {
       try {
@@ -72,11 +76,14 @@ const TownSettings: React.FunctionComponent = () => {
         })
         closeSettings();
       }catch(err){
-        toast({
-          title: 'Unable to update town',
-          description: err.toString(),
-          status: 'error'
-        });
+        if (err instanceof Error) {
+          toast({
+            title: 'Unable to update town',
+            description: err.toString(),
+            status: 'error'
+          });
+        }
+        
       }
     }
   };

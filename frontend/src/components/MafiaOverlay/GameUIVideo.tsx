@@ -69,7 +69,7 @@ type GameVideoProps = {
 export default function GameUIVideo({ game, gamePhase }: GameVideoProps) {
   // const classes = useStyles();
   const { room } = useVideoContext();
-  const { localParticipant } = room!;
+  const localParticipant = room?.localParticipant;
   const participants = useParticipants();
 
   const classes = useStyles('fullwidth');
@@ -81,9 +81,13 @@ export default function GameUIVideo({ game, gamePhase }: GameVideoProps) {
   // during the day, everyone can see each other
   // at night, only mafia can see one another
   const { mafiaPlayers } = game;
+  const { deadPlayers } = game;
+
   const mafiaIds = mafiaPlayers.map(mafia => mafia.id);
+  const deadIds = deadPlayers.map(dead => dead.id);
 
   const mafiaParticipants = participants.filter(p => mafiaIds.includes(p.participant.identity));
+  const deadParticipants = participants.filter(p => deadIds.includes(p.participant.identity))
 
   return (
     <main
@@ -99,7 +103,7 @@ export default function GameUIVideo({ game, gamePhase }: GameVideoProps) {
       )}>
       <div className={classes.gridInnerContainer}>
         {/* my video */}
-        <Participant participant={localParticipant} isLocalParticipant insideGrid slot={0} />
+        {localParticipant && (!deadIds.includes(localParticipant.identity) || gamePhase === 'win') && <Participant participant={localParticipant} isLocalParticipant insideGrid slot={0} />}
 
         {/* other players' videos */}
         {localParticipant &&
@@ -114,7 +118,7 @@ export default function GameUIVideo({ game, gamePhase }: GameVideoProps) {
               id: mafia.participant.identity,
             };
 
-            return (
+            return (!deadIds.includes(mafia.participant.identity) &&
               mafia &&
               mafia.participant && (
                 <Participant
@@ -129,8 +133,7 @@ export default function GameUIVideo({ game, gamePhase }: GameVideoProps) {
             );
           })}
 
-        {(gamePhase === 'day_discussion' || gamePhase === 'day_voting') &&
-          participants &&
+        {localParticipant && (gamePhase === 'day_discussion' || gamePhase === 'day_voting') &&
           participants.map(p => {
             const thisPlayer = game.players.find(player => player.id === p.participant.identity);
             const remoteProfile = {
@@ -138,7 +141,7 @@ export default function GameUIVideo({ game, gamePhase }: GameVideoProps) {
               id: p.participant.identity,
             };
 
-            return (
+            return (!deadIds.includes(p.participant.identity) &&
               <Participant
                 key={p.participant.identity}
                 participant={p.participant}
@@ -149,6 +152,26 @@ export default function GameUIVideo({ game, gamePhase }: GameVideoProps) {
               />
             );
           })}
+
+        {localParticipant && gamePhase === 'win' &&
+          participants.map(p => {
+            const thisPlayer = game.players.find(player => player.id === p.participant.identity);
+            const remoteProfile = {
+              displayName: thisPlayer ? thisPlayer.userName : 'unknown',
+              id: p.participant.identity,
+            };
+
+            return (<Participant
+                key={p.participant.identity}
+                participant={p.participant}
+                profile={remoteProfile}
+                isLocalParticipant={false}
+                insideGrid
+                slot={undefined}
+              />
+            );
+          })}
+
       </div>
     </main>
   );

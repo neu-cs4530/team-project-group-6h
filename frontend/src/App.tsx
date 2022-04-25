@@ -451,7 +451,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     return (
       <div>
         <WorldMap />
-        <VideoOverlay preferredMode='fullwidth' isDead={isDead} />
+        <VideoOverlay preferredMode='fullwidth'/>
       </div>
     );
   }, [appState.sessionToken, videoInstance, isDead, setupGameController]);

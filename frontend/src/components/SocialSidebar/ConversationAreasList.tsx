@@ -59,9 +59,11 @@ export default function ConversationAreasList(): JSX.Element {
 
   let activeConversationAreas = activeConvAreas.filter(area => !area.isRecreationArea);
   const activeRecreationAreas = activeRecAreas.filter(area => area.isRecreationArea);
+  
+  const recAreaLabels = activeRecreationAreas.map((recArea) => recArea.label);
 
-  // makes sure any existing rec areas after the player joins are not shown along with convo areas
-  activeConversationAreas = activeConversationAreas.filter((area) => activeRecreationAreas.forEach((recArea) => area.label !== recArea.label));
+  // make sure there are no duplicate conversation and recreation areas
+  activeConversationAreas = activeConversationAreas.filter((area) => !recAreaLabels.includes(area.label));
 
   return (
     <Box>

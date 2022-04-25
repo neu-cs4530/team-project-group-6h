@@ -37,30 +37,61 @@ export function GameUIHeader({ gameName, gamePhase }: GameUIHeaderProps): JSX.El
   );
 }
 
-export function GameUITimer({ gameName, gamePhase }: GameUIHeaderProps): JSX.Element {
+type GameUITimerProps = {
+  gameName: string;
+  gameInstanceID: string;
+  isPlayerHost: boolean;
+  timeLeft: number;
+  setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
+};
+
+
+export function GameUITimer({ gameName, gameInstanceID, isPlayerHost, timeLeft, setTimeLeft }: GameUITimerProps): JSX.Element {
+
+  const { apiClient, sessionToken, currentTownID } = useCoveyAppState();
+  const toast = useToast();
+
+  const updatePhase = async () => {
+      try {
+        await apiClient.nextPhase({
+          coveyTownID: currentTownID,
+          sessionToken,
+          mafiaGameID: gameInstanceID,
+        });
+        toast({
+          title: 'Mafia Game Phase Updated!',
+          status: 'success',
+        });
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          toast({
+            title: 'Unable to advance Mafia Game to next phase',
+            description: err.toString(),
+            status: 'error',
+          });
+        }
+      }
+  };
+
   const phaseDuration = 90;
-  const [timeLeft, setTimeLeft] = useState(phaseDuration);
 
   useEffect(() => {
-    // resets timer
-    setTimeLeft(phaseDuration);
-  }, [gamePhase]);
-
-  useEffect(() => {
-    if (timeLeft !== 0) {
-      // subtracts one from timer every time a second passes during this phase
-      const timer = setTimeout(() => {
+    // subtracts one from timer every time a second passes during this phase
+    const timer = setTimeout(async () => {
+      if (timeLeft > 0) {
         setTimeLeft(timeLeft - 1);
-      }, 1000);
+      } else if (isPlayerHost && timeLeft === 0) {
+        await updatePhase();
+        setTimeLeft(phaseDuration);
+      }
+      
+    }, 1000);
+    return () => clearTimeout(timer);
 
-      return () => clearTimeout(timer);
-    }
-
-    return () => {};
   });
 
   return (
-    <Container width='100px' height='62px' align='center' className='ui-container'>
+    <Container width='100px' height='62px' className='ui-container'>
       <Heading fontSize='xl' as='h1'>
         {`${Math.floor(timeLeft / 60)}:${timeLeft % 60 < 10 ? `0${timeLeft % 60}` : timeLeft % 60}`}
       </Heading>
