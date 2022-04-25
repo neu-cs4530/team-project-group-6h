@@ -483,10 +483,10 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     return (
       <div>
         <WorldMap />
-        <VideoOverlay preferredMode='fullwidth' />
+        <VideoOverlay preferredMode='fullwidth' mafiaGame={currentRecArea?.mafiaGame} />
       </div>
     );
-  }, [appState.sessionToken, videoInstance, setupGameController]);
+  }, [appState.sessionToken, videoInstance, currentRecArea?.mafiaGame, setupGameController]);
 
   return (
     <CoveyAppContext.Provider value={appState}>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import Button from '@material-ui/core/Button';
@@ -13,6 +13,8 @@ import ToggleChatButton from '../Buttons/ToggleChatButton/ToggleChatButton';
 import ToggleVideoButton from '../Buttons/ToggleVideoButton/ToggleVideoButton';
 import ToggleScreenShareButton from '../Buttons/ToogleScreenShareButton/ToggleScreenShareButton';
 import TownSettings from '../../../../Login/TownSettings';
+import useCurrentRecreationArea from '../../../../../hooks/useCurrentRecreationArea';
+import MafiaGame from '../../../../../classes/MafiaGame';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -63,7 +65,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function MenuBar() {
+interface MafiaGameProps {
+  mafiaGame: MafiaGame | undefined;
+};
+
+export default function MenuBar( { mafiaGame } : MafiaGameProps) {
   const classes = useStyles();
   const { isSharingScreen, toggleScreenShare } = useVideoContext();
   const roomState = useRoomState();
@@ -85,7 +91,8 @@ export default function MenuBar() {
             {process.env.REACT_APP_DISABLE_TWILIO_CONVERSATIONS !== 'true' && <ToggleChatButton />}
               <ToggleAudioButton disabled={isReconnecting} />
               <ToggleVideoButton disabled={isReconnecting} />
-              {!isSharingScreen && !isMobile && <ToggleScreenShareButton disabled={isReconnecting} />}
+              {mafiaGame === undefined && !isSharingScreen && !isMobile && <ToggleScreenShareButton disabled={isReconnecting} />}
+              
               <Hidden smDown>
                 <Menu />
                 <TownSettings />

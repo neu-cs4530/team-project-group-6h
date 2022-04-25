@@ -38,7 +38,7 @@ interface Props {
   hexColour?: string;
   preferredMode: 'sidebar' | 'fullwidth';
   onPresentingChanged?(presenting: boolean): void;
-
+  mafiaGame: MafiaGame | undefined;
 }
 
 export default function VideoGrid(props: Props) {
@@ -126,7 +126,7 @@ export default function VideoGrid(props: Props) {
             <ReconnectingNotification />
             <MobileTopMenuBar />
             <Room />
-            <MenuBar/>
+            <MenuBar mafiaGame={props.mafiaGame}/>
           </Main>
         )}
         <MediaErrorSnackbar error={mediaError} />
