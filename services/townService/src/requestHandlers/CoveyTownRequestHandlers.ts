@@ -318,7 +318,6 @@ export function mafiaGameLobbyJoinHandler(
 ): ResponseEnvelope<Record<string, null>> {
   const townController = getTownController(_requestData.coveyTownID);
   if (!townController?.getSessionByToken(_requestData.sessionToken)) {
-    console.log('Invalid session/token');
     return {
       isOK: false,
       response: {},
@@ -345,7 +344,6 @@ export function mafiaGameLobbyLeaveHandler(
 ): ResponseEnvelope<Record<string, null>> {
   const townController = getTownController(_requestData.coveyTownID);
   if (!townController?.getSessionByToken(_requestData.sessionToken)) {
-    console.log('Invalid session/token');
     return {
       isOK: false,
       response: {},

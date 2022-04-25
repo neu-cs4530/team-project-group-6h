@@ -38,7 +38,6 @@ export function GameUIHeader({ gameName, gamePhase }: GameUIHeaderProps): JSX.El
 }
 
 type GameUITimerProps = {
-  gameName: string;
   gameInstanceID: string;
   isPlayerHost: boolean;
   timeLeft: number;
@@ -46,7 +45,6 @@ type GameUITimerProps = {
 };
 
 export function GameUITimer({
-  gameName,
   gameInstanceID,
   isPlayerHost,
   timeLeft,
@@ -229,7 +227,6 @@ function GameUITargetPlayerListElement({
         playerID: myPlayerID,
         targetID: player.id,
       });
-      console.log(`Sent request for ${myPlayerID} to target ${player.id}`);
       voteFunc();
       toast({
         title: `Targeted ${player.userName}`,
@@ -264,10 +261,6 @@ function GameUITargetPlayerListElement({
   );
 }
 
-type PlayerVoteTally = {
-  playerID: string;
-  voteTally: number;
-};
 
 type GameUIAlivePlayerListProps = {
   myPlayerID: string;
@@ -277,7 +270,6 @@ type GameUIAlivePlayerListProps = {
   gamePhase: string | undefined;
   playerRole: Role | undefined;
   playerTeam: Team | undefined;
-  voteTallies: PlayerVoteTally[] | undefined;
 };
 
 export function GameUIAlivePlayerList({
@@ -288,7 +280,6 @@ export function GameUIAlivePlayerList({
   gamePhase,
   playerRole,
   playerTeam,
-  voteTallies,
 }: GameUIAlivePlayerListProps): JSX.Element {
   const isDead = useIsDead();
 

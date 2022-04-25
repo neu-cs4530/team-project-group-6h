@@ -87,7 +87,6 @@ export default function GameUIVideo({ game, gamePhase }: GameVideoProps) {
   const deadIds = deadPlayers.map(dead => dead.id);
 
   const mafiaParticipants = participants.filter(p => mafiaIds.includes(p.participant.identity));
-  const deadParticipants = participants.filter(p => deadIds.includes(p.participant.identity))
 
   return (
     <main

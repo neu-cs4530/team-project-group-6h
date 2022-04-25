@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useState }from 'react';
+import React, { useCallback }from 'react';
 import { Button, useToast } from "@chakra-ui/react";
-import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
-import MafiaGame from '../../classes/MafiaGame';
+import RecreationArea from '../../classes/RecreationArea';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 
 export enum Phase {
