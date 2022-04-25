@@ -531,6 +531,18 @@ export default class MafiaGame {
   }
 
   /**
+   * Determines if there is a sufficient number of players to start the game.
+   * @returns True if game can start, false if otherwise.
+   */
+  public canStart(): boolean {
+    return (
+      this.numPlayers() >= this.MIN_PLAYERS &&
+      this.numPlayers() <= this.MAX_PLAYERS &&
+      (this.phase === Phase[Phase.lobby] || this.phase === Phase[Phase.win])
+    );
+  }
+
+  /**
    * Starts the game by setting the phase to discussion during the day time.
    */
   public gameStart(): void {
