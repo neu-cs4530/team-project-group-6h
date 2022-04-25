@@ -354,7 +354,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             mafiaGame.resetFields();
 
             if (mafiaGame.phase === 'win') {
-              console.log(`game ended. ${localAudioEnabled} ${isAudioEnabled} ${localVideoEnabled} ${isVideoEnabled}`);
               if (!localAudioEnabled) {
                 toggleAudioEnabled();
                 localAudioEnabled = true;
