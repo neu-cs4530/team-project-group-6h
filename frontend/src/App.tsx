@@ -226,6 +226,19 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         }
       });
       socket.on('playerDisconnect', (disconnectedPlayer: ServerPlayer) => {
+        // Remove from mafia game if necessary
+        const playerToRemove = localPlayers.find(player => player.id === disconnectedPlayer._id);
+        const recArea = localRecreationAreas.find(rec =>
+          rec.occupants.includes(disconnectedPlayer._id),
+        );
+        if (recArea && playerToRemove) {
+          const game = recArea.mafiaGame;
+          if (game) {
+            game.eliminatePlayer(playerToRemove.id);
+            game.removePlayer(playerToRemove);
+          }
+        }
+
         localPlayers = localPlayers.filter(player => player.id !== disconnectedPlayer._id);
         setPlayersInTown(localPlayers);
         recalculateNearbyPlayers();

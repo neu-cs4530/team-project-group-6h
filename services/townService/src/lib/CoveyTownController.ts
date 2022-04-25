@@ -219,6 +219,7 @@ export default class CoveyTownController {
         this._listeners.forEach(listener => listener.onConversationAreaDestroyed(conversation));
       }
     } else if (recArea) {
+      if (recArea._mafiaGameID) this.mafiaGamePlayerDisconnect(player, recArea._mafiaGameID);
       this._listeners.forEach(listener => listener.onRecreationAreaUpdated(recArea));
     } else {
       this._listeners.forEach(listener => listener.onConversationAreaUpdated(conversation));
@@ -449,9 +450,14 @@ export default class CoveyTownController {
     const recArea = this._recreationAreas.find(rec => rec.label === recAreaLabel);
     const gameID = recArea?._mafiaGameID;
     const mafiaGame = this._mafiaGames.find(game => game.id === gameID);
+    if (!mafiaGame || !mafiaGame.canStart()) {
+      return false;
+    }
+    /*
     if (!gameID || !mafiaGame || !(mafiaGame.phase === 'lobby' || mafiaGame.phase === 'win')) {
       return false;
     }
+    */
 
     // Ensure the given player is the host of the game lobby
     const player = this.players.find(p => p.id === playerStartID);
@@ -552,6 +558,19 @@ export default class CoveyTownController {
 
     player.targetPlayer = targetID;
     return true;
+  }
+
+  /**
+   * Handles a player disconnecting from a mafia game
+   *  - Eliminates player from game (treating them as dead)
+   *  - Removes player from games list of players (so they aren't added again if new game is started)
+   * @param player
+   * @param mafiaGameID
+   */
+  mafiaGamePlayerDisconnect(player: Player, mafiaGameID: string) {
+    const mafiaGame = this.mafiaGames.find(game => game.id === mafiaGameID);
+    mafiaGame?.eliminatePlayer(player.id);
+    mafiaGame?.removePlayer(player);
   }
 
   /**
