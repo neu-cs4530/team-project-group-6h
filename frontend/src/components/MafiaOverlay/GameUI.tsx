@@ -308,6 +308,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
                   playerRole={playerRole}
                   playerRoleInfo={playerRoleInfo || 'Error: no role info'}
                   playerTeam={playerTeam}
+                  gamePlayers={gameInstance.gamePlayers}
                 />
                 <GameUIRoleList gamePlayers={[...gameInstance.alivePlayers]} />
               </VStack>
