@@ -4,7 +4,7 @@ import {
   ConversationAreaCreateRequest,
   GameLobbyCreateRequest,
   GameLobbyDestroyRequest,
-  GameLobbyJoinRequest,
+  GameLobbyJoinLeaveRequest,
   GameStartRequest,
   NextPhaseRequest,
   SendVoteRequest,
@@ -314,7 +314,7 @@ export function mafiaGameLobbyCreateHandler(
 }
 
 export function mafiaGameLobbyJoinHandler(
-  _requestData: GameLobbyJoinRequest,
+  _requestData: GameLobbyJoinLeaveRequest,
 ): ResponseEnvelope<Record<string, null>> {
   const townController = getTownController(_requestData.coveyTownID);
   if (!townController?.getSessionByToken(_requestData.sessionToken)) {
@@ -327,6 +327,33 @@ export function mafiaGameLobbyJoinHandler(
   }
 
   const success = townController.joinMafiaGameLobby(
+    _requestData.recreationAreaLabel,
+    _requestData.playerID,
+  );
+
+  return {
+    isOK: success,
+    response: {},
+    message: !success
+      ? `Unable to join mafia game lobby in ${_requestData.recreationAreaLabel}.`
+      : undefined,
+  };
+}
+
+export function mafiaGameLobbyLeaveHandler(
+  _requestData: GameLobbyJoinLeaveRequest,
+): ResponseEnvelope<Record<string, null>> {
+  const townController = getTownController(_requestData.coveyTownID);
+  if (!townController?.getSessionByToken(_requestData.sessionToken)) {
+    console.log('Invalid session/token');
+    return {
+      isOK: false,
+      response: {},
+      message: `Unable to leave mafia game lobby in ${_requestData.recreationAreaLabel}.`,
+    };
+  }
+
+  const success = townController.leaveMafiaGameLobby(
     _requestData.recreationAreaLabel,
     _requestData.playerID,
   );
@@ -496,6 +523,9 @@ function townSocketAdapter(socket: Socket): CoveyTownListener {
     },
     onPlayerJoinedGame(recreationAreaLabel: string, playerID: string) {
       socket.emit('playerJoinedGame', recreationAreaLabel, playerID);
+    },
+    onPlayerLeftGame(recreationAreaLabel: string, playerID: string) {
+      socket.emit('playerLeftGame', recreationAreaLabel, playerID);
     },
     onLobbyDestroyed(recreationAreaLabel: string) {
       socket.emit('lobbyDestroyed', recreationAreaLabel);

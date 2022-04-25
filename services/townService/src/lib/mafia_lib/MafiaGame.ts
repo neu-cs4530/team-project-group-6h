@@ -118,7 +118,7 @@ export default class MafiaGame {
    * @returns Whether or not the player was added
    */
   public addPlayer(player: Player): boolean {
-    if (this._phase === Phase.lobby) {
+    if (this._phase === Phase.lobby || this._phase === Phase.win) {
       this._players.push(player);
       return true;
     }
@@ -445,8 +445,12 @@ export default class MafiaGame {
      * MIN CASE: No players w/ unassigned roles (Every role is filled).
      * Any number > min case will have unassigned, "vanilla" Mafia/Town players.
      */
-    const [godfatherList, doctorList, hypnotistList, detectiveList]: GamePlayer[][] =
-      this.partition(gamePlayers);
+    const [
+      godfatherList,
+      doctorList,
+      hypnotistList,
+      detectiveList,
+    ]: GamePlayer[][] = this.partition(gamePlayers);
 
     godfatherList.forEach(mafia => {
       mafia.team = Team.Mafia;

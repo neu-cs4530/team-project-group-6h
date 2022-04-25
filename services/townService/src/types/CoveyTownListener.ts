@@ -68,6 +68,13 @@ export default interface CoveyTownListener {
    */
   onPlayerJoinedGame(recreationAreaLabel: string, playerID: string): void;
 
+  /**
+   * Called when a player leaves a mafia game
+   * @param recreationAreaLabel Rec area containing the game
+   * @param playerID Player leaving the game
+   */
+  onPlayerLeftGame(recreationAreaLabel: string, playerID: string): void;
+
   onLobbyDestroyed(recreationAreaLabel: string): void;
 
   /**

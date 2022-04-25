@@ -1,5 +1,5 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { ServerConversationArea } from './ConversationArea';
 import { ServerPlayer } from './Player';
 import { ServerRecreationArea } from './RecreationArea';
@@ -101,7 +101,7 @@ export interface GameLobbyDestroyRequest {
   recreationAreaLabel: string;
 }
 
-export interface GameLobbyJoinRequest {
+export interface GameLobbyJoinLeaveRequest {
   coveyTownID: string;
   sessionToken: string;
   recreationAreaLabel: string;
@@ -239,9 +239,18 @@ export default class TownsServiceClient {
   }
 
   // Join Game Lobby
-  async joinGameLobby(requestData: GameLobbyJoinRequest): Promise<void> {
+  async joinGameLobby(requestData: GameLobbyJoinLeaveRequest): Promise<void> {
     const responseWrapper = await this._axios.post(
       `/towns/${requestData.coveyTownID}/joinLobby`,
+      requestData,
+    );
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
+  // Leave game lobby
+  async leaveGameLobby(requestData: GameLobbyJoinLeaveRequest): Promise<void> {
+    const responseWrapper = await this._axios.post(
+      `/towns/${requestData.coveyTownID}/leaveLobby`,
       requestData,
     );
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
@@ -274,8 +283,11 @@ export default class TownsServiceClient {
   }
 
   // send vote/target
-  async sendVote(requestData: SendVoteRequest) : Promise<void> {
-    const responseWrapper = await this._axios.post(`/towns/${requestData.coveyTownID}/sendVote`, requestData);
+  async sendVote(requestData: SendVoteRequest): Promise<void> {
+    const responseWrapper = await this._axios.post(
+      `/towns/${requestData.coveyTownID}/sendVote`,
+      requestData,
+    );
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
   }
 

@@ -1,5 +1,5 @@
 import { Button, Container, Heading, HStack } from '@chakra-ui/react';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Role, Team } from '../../classes/GamePlayer';
 import MafiaGame from '../../classes/MafiaGame';
 import RecreationArea from '../../classes/RecreationArea';
@@ -14,6 +14,7 @@ type GameUIWinOverlayProps = {
   isPlayerHost: boolean;
   disbandLobby: () => Promise<void>;
   startGame: () => Promise<void>;
+  leaveLobby: () => Promise<void>;
 };
 
 export default function GameUIWinOverlay({
@@ -23,8 +24,8 @@ export default function GameUIWinOverlay({
   isPlayerHost,
   disbandLobby,
   startGame,
+  leaveLobby,
 }: GameUIWinOverlayProps): JSX.Element {
-  const startNewGame = useCallback(async () => {}, [game]);
   return (
     <Container
       border='2px'
@@ -62,7 +63,11 @@ export default function GameUIWinOverlay({
           <div className='win-buttons'>
             {isPlayerHost ? (
               <>
-                <Button colorScheme='blue' width='60%' onClick={startGame}>
+                <Button
+                  colorScheme='blue'
+                  width='60%'
+                  onClick={startGame}
+                  isDisabled={!game.canStart()}>
                   New Game
                 </Button>
                 <Button colorScheme='red' width='60%' onClick={disbandLobby}>
@@ -70,7 +75,9 @@ export default function GameUIWinOverlay({
                 </Button>
               </>
             ) : (
-              <Button colorScheme='red'>Leave Game</Button>
+              <Button colorScheme='red' onClick={leaveLobby}>
+                Leave Game
+              </Button>
             )}
           </div>
         </div>

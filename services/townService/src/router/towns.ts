@@ -7,6 +7,7 @@ import {
   mafiaGameLobbyCreateHandler,
   mafiaGameLobbyDestroyHandler,
   mafiaGameLobbyJoinHandler,
+  mafiaGameLobbyLeaveHandler,
   mafiaGameNextPhaseHandler,
   mafiaGameStartHandler,
   mafiaSendVoteHandler,
@@ -161,6 +162,24 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
   app.post('/towns/:townID/joinLobby', express.json(), async (req, res) => {
     try {
       const result = await mafiaGameLobbyJoinHandler({
+        coveyTownID: req.params.townID,
+        sessionToken: req.body.sessionToken,
+        recreationAreaLabel: req.body.recreationAreaLabel,
+        playerID: req.body.playerID,
+      });
+      res.status(StatusCodes.OK).json(result);
+    } catch (err) {
+      logError(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: 'Internal server error, please see log in server for more details',
+      });
+    }
+  });
+
+  // Player leave game lobby
+  app.post('/towns/:townID/leaveLobby', express.json(), async (req, res) => {
+    try {
+      const result = await mafiaGameLobbyLeaveHandler({
         coveyTownID: req.params.townID,
         sessionToken: req.body.sessionToken,
         recreationAreaLabel: req.body.recreationAreaLabel,

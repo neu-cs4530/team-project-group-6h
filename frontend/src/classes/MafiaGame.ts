@@ -138,7 +138,7 @@ export default class MafiaGame {
    * @returns Whether or not the player was added
    */
   public addPlayer(player: Player): boolean {
-    if (this._phase === Phase.lobby) {
+    if (this._phase === Phase.lobby || this._phase === Phase.win) {
       this._players.push(player);
       return true;
     }
