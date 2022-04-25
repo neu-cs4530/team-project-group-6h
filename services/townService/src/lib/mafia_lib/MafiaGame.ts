@@ -33,6 +33,8 @@ export default class MafiaGame {
   // Currently, should be 4 (minus the Unassigned Role)
   private MIN_PLAYERS: number = Object.keys(Role).length / 2 - 1;
 
+  private MAX_PLAYERS = 10;
+
   constructor(host: Player) {
     this._id = nanoid();
     this._host = host;
@@ -118,7 +120,10 @@ export default class MafiaGame {
    * @returns Whether or not the player was added
    */
   public addPlayer(player: Player): boolean {
-    if (this._phase === Phase.lobby || this._phase === Phase.win) {
+    if (
+      (this._phase === Phase.lobby || this._phase === Phase.win) &&
+      this.numPlayers() < this.MAX_PLAYERS
+    ) {
       this._players.push(player);
       return true;
     }
