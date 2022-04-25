@@ -4,6 +4,7 @@ import {
   Heading,
   HStack,
   StackDivider,
+  Tooltip,
   useToast,
   VStack,
 } from '@chakra-ui/react';
@@ -217,8 +218,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     if (gamePhase === 'lobby') {
       return (
         <Container
-          align='left'
-          spacing={2}
           border='2px'
           padding='15'
           borderColor='gray.500'
@@ -230,7 +229,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
             <Heading fontSize='xl' as='h1'>
               Welcome to MAFIA - {recArea.label}
             </Heading>
-            <h2>{`Host: ${host?.userName}`}</h2>
+            <h2>{`Host: ${gameInstance.host.userName}`}</h2>
             <HStack
               width='full'
               borderColor='gray.500'
@@ -240,11 +239,14 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               <GameUILobbyPlayersList players={gamePlayers} />
             </HStack>
             <HStack>
-              {gameInstance && isPlayerHost && gameCanStart ? (
-                <StartGameButton area={recArea} myPlayerID={myPlayerID} />
-              ) : (
-                <> </>
-              )}
+              {!gameCanStart && <Tooltip label='At least four players are required to start!'>
+                <h3>Waiting for players...</h3>
+              </Tooltip>}
+
+              {gameInstance && isPlayerHost && gameCanStart && <StartGameButton area={recArea} myPlayerID={myPlayerID} />}
+            
+              {gameInstance && !isPlayerHost && gameCanStart && <h3>Host must start the game.</h3>}
+              
               <Button colorScheme='red' onClick={disbandLobby}>
                 Disband Lobby
               </Button>
@@ -274,8 +276,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
       const isDay = gamePhase === 'day_discussion' || gamePhase === 'day_voting';
       return (
         <Container
-          align='left'
-          spacing={2}
           border='2px'
           padding='15'
           borderColor='gray.500'
@@ -287,11 +287,11 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
           <VStack>
             <HStack>
               <div margin-left='100px'>
-                <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase} />
+                <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase} gameInstanceID={gameInstance.id} isPlayerHost={isPlayerHost} />
               </div>
               <Container width='300px' />
               {lobbyButton}
-              <GameUITimer gameName={recArea.label} gamePhase={gameInstance.phase} />
+              <GameUITimer gameName={recArea.label} gamePhase={gameInstance.phase} gameInstanceID={gameInstance.id} isPlayerHost={isPlayerHost} />
             </HStack>
             <HStack width='full' alignItems='stretch' align='flex-start'>
               <VStack align='left'>

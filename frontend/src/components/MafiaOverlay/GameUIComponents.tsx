@@ -25,10 +25,12 @@ import GameUIVideo from './GameUIVideo';
 type GameUIHeaderProps = {
   gameName: string;
   gamePhase: string;
+  gameInstanceID: string;
+  isPlayerHost: boolean;
 };
 
 // Needs hook into game name, time of day
-export function GameUIHeader({ gameName, gamePhase }: GameUIHeaderProps): JSX.Element {
+export function GameUIHeader({ gameName, gamePhase, gameInstanceID, isPlayerHost }: GameUIHeaderProps): JSX.Element {
   const isDay = true;
   return (
     <Heading fontSize='xl' as='h1' color={isDay ? 'black' : 'white'}>
@@ -37,30 +39,60 @@ export function GameUIHeader({ gameName, gamePhase }: GameUIHeaderProps): JSX.El
   );
 }
 
-export function GameUITimer({ gameName, gamePhase }: GameUIHeaderProps): JSX.Element {
-  const phaseDuration = 90;
+export function GameUITimer({ gameName, gamePhase, gameInstanceID, isPlayerHost }: GameUIHeaderProps): JSX.Element {
+  const phaseDuration = 10;
   const [timeLeft, setTimeLeft] = useState(phaseDuration);
 
-  useEffect(() => {
-    // resets timer
-    setTimeLeft(phaseDuration);
-  }, [gamePhase]);
+  const { apiClient, sessionToken, currentTownID } = useCoveyAppState();
+  const toast = useToast();
+
+  const updatePhase = async () => {
+      try {
+        await apiClient.nextPhase({
+          coveyTownID: currentTownID,
+          sessionToken,
+          mafiaGameID: gameInstanceID,
+        });
+        toast({
+          title: 'Mafia Game Phase Updated!',
+          status: 'success',
+        });
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          toast({
+            title: 'Unable to advance Mafia Game to next phase',
+            description: err.toString(),
+            status: 'error',
+          });
+        }
+      }
+  };
+
+  // useEffect(() => {
+
+  //   setTimeLeft(phaseDuration);
+
+  // }, [gamePhase])
+  
 
   useEffect(() => {
-    if (timeLeft !== 0) {
       // subtracts one from timer every time a second passes during this phase
-      const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
+      if (timeLeft > 0) {
         setTimeLeft(timeLeft - 1);
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
+      } else if (timeLeft === 0 && isPlayerHost) {
+          await updatePhase();
+          setTimeLeft(phaseDuration);
+      }
+      
+    }, 1000);
+    return () => clearTimeout(timer);
 
     return () => {};
   });
 
   return (
-    <Container width='100px' height='62px' align='center' className='ui-container'>
+    <Container width='100px' height='62px' className='ui-container'>
       <Heading fontSize='xl' as='h1'>
         {`${Math.floor(timeLeft / 60)}:${timeLeft % 60 < 10 ? `0${timeLeft % 60}` : timeLeft % 60}`}
       </Heading>

@@ -1,4 +1,4 @@
-import { Heading } from '@chakra-ui/react'
+import { Heading, Tooltip } from '@chakra-ui/react'
 import React, { useEffect } from 'react'
 import MafiaGame from '../../classes/MafiaGame'
 import RecreationArea from '../../classes/RecreationArea'
@@ -17,16 +17,23 @@ const LobbyButtons = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Elem
 
   return (
     <>
-        <Heading as='h2' fontSize='l'>Mafia Game Lobby</Heading>
+        <Heading as='h2' fontSize='l'>Mafia Game Menu</Heading>
         {mafiaGame ? 
-            <JoinGameButton 
-            hostID={mafiaGame._host.id} 
-            myPlayerID={playerID} 
-            area={area}/>
+        <Tooltip label="Click this button to join a game of Mafia!">
+          <JoinGameButton
+            hostID={mafiaGame._host.id}
+            myPlayerID={playerID}
+            area={area} />
+        </Tooltip>
+            
         :
-            <CreateGameButton 
-            area={area} 
-            myPlayerID={playerID}/>}
+        <Tooltip label="Click this button to start a game of Mafia!">
+          <CreateGameButton
+            area={area}
+            myPlayerID={playerID} />
+        </Tooltip>
+        }
+            
         
     </>
   );
