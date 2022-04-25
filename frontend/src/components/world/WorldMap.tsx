@@ -12,8 +12,6 @@ import usePlayerMovement from '../../hooks/usePlayerMovement';
 import usePlayersInTown from '../../hooks/usePlayersInTown';
 import { Callback } from '../VideoCall/VideoFrontend/types';
 import GameUI from '../MafiaOverlay/GameUI';
-import useRecreationAreas from '../../hooks/useRecreationAreas';
-import RecreationArea, { RecreationAreaListener } from '../../classes/RecreationArea';
 import useCurrentRecreationArea from '../../hooks/useCurrentRecreationArea';
 import MafiaGame from '../../classes/MafiaGame';
 

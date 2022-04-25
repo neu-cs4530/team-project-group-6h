@@ -3,7 +3,6 @@ import React from 'react';
 import ConversationAreasList from './ConversationAreasList';
 import PlayersList from './PlayersList';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
-import useRecreationAreas from '../../hooks/useRecreationAreas';
 import GameLobby from './GameLobby';
 import useCurrentRecreationArea from '../../hooks/useCurrentRecreationArea';
 

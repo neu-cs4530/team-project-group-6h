@@ -509,8 +509,6 @@ export default class CoveyTownController {
     } catch (err) {
       return false;
     }
-    const alivePlayers = mafiaGame.gamePlayers.filter(p => p.isAlive);
-    const deadPlayers = mafiaGame.gamePlayers.filter(p => !p.isAlive);
     return true;
   }
 

@@ -2,14 +2,9 @@ import { Button, Container, Heading, HStack } from '@chakra-ui/react';
 import React from 'react';
 import { Role, Team } from '../../classes/GamePlayer';
 import MafiaGame from '../../classes/MafiaGame';
-import RecreationArea from '../../classes/RecreationArea';
 import { GameUIVideoOverlay } from './GameUIComponents';
 
 type GameUIWinOverlayProps = {
-  // winningTeam: Team,
-  // players: GamePlayer[],
-  myPlayerID: string;
-  area: RecreationArea;
   game: MafiaGame;
   isPlayerHost: boolean;
   disbandLobby: () => Promise<void>;
@@ -18,15 +13,13 @@ type GameUIWinOverlayProps = {
 };
 
 export default function GameUIWinOverlay({
-  myPlayerID,
-  area,
   game,
   isPlayerHost,
   disbandLobby,
   startGame,
   leaveLobby,
 }: GameUIWinOverlayProps): JSX.Element {
-  const getWinnerColor = function (): string {
+  const getWinnerColor = () => {
     if (game.winner === Team.Town) return '#00a108';
     if (game.winner === Team.Mafia) return '#940000';
     return 'black';

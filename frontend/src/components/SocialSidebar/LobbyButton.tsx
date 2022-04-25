@@ -1,5 +1,5 @@
-import { Heading, Tooltip } from '@chakra-ui/react'
-import React, { useEffect } from 'react'
+import { Heading } from '@chakra-ui/react'
+import React from 'react'
 import MafiaGame from '../../classes/MafiaGame'
 import RecreationArea from '../../classes/RecreationArea'
 import CreateGameButton from './CreateGameButton'
@@ -11,11 +11,7 @@ type LobbyButtonProps = {
     playerID: string,
 }
 
-const LobbyButtons = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Element => { 
-
-    const a = 1;
-
-  return (
+const LobbyButtons = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Element => (
     <>
         <Heading as='h2' fontSize='l'>Mafia Game Menu</Heading>
         {mafiaGame ? 
@@ -33,7 +29,6 @@ const LobbyButtons = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Elem
             
         
     </>
-  );
-}
+  )
 
 export default LobbyButtons

@@ -3,7 +3,7 @@ import ConversationArea, {
   ConversationAreaListener,
   ServerConversationArea,
 } from './ConversationArea';
-import { ServerGamePlayer, Team } from './GamePlayer';
+import { ServerGamePlayer } from './GamePlayer';
 import MafiaGame from './MafiaGame';
 import Player from './Player';
 
@@ -120,7 +120,6 @@ export default class RecreationArea extends ConversationArea {
     const game = this.mafiaGame;
     if (game) {
       game.removePlayer(player);
-      console.log('notifying listeners');
       this._recListeners.forEach(recListener => recListener.onMafiaGameUpdated?.(game));
       return true;
     }
@@ -136,7 +135,6 @@ export default class RecreationArea extends ConversationArea {
       if (this._mafiaGame.canStart()) {
         this._mafiaGame.gameStart(playerRoles);
         const game = this._mafiaGame;
-        game.gamePlayers.forEach(p => console.log(`${Team[p.team]}`));
         this._recListeners.forEach(listener => listener.onMafiaGameStarted?.(game));
       }
     }

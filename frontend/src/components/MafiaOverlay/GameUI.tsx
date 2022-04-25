@@ -152,7 +152,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     }
   }, [apiClient, sessionToken, currentTownID, toast, recArea, myPlayerID]);
 
-  const resetVoteTallies = function (game: MafiaGame) {
+  const resetVoteTallies = (game: MafiaGame) => {
     const voteTallies: PlayerVoteTally[] = [];
     for (let i = 0; i < game.alivePlayers.length; i += 1) {
       const voteTally = { playerID: game.alivePlayers[i].id, voteTally: 0 };
@@ -173,7 +173,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGamePhase(game.phase);
       },
       onMafiaGameUpdated: (game: MafiaGame) => {
-        console.log('mafia game updated');
         setGameInstance(game);
         setGameCanStart(game.canStart());
         setHost(game.host);
@@ -200,7 +199,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         }
       },
       onMafiaGameStarted: (game: MafiaGame) => {
-        console.log('in on mafia game started');
         setGamePhase(game.phase);
         const myGamePlayer = game.gamePlayers.find(p => p.id === myPlayerID);
         setPlayerRole(game.playerRole(myPlayerID));
@@ -214,7 +212,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         setGamePlayers([]);
       },
       onMafiaGamePlayerVoted: (voterID: string, votedID: string) => {
-        console.log('player voted');
         if (voterID === myPlayerID) {
           setHasVoted(true);
         }
@@ -222,7 +219,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         tallies?.forEach(p => {
           if (p.playerID === votedID) {
             p.voteTally += 1;
-            console.log(`incrementing ${p.playerID}'s tally to ${p.voteTally}`);
           }
         });
         setPlayerVoteTallies(tallies ? [...tallies] : undefined);
@@ -350,7 +346,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               <Container width='300px' />
               {lobbyButton}
               <GameUITimer
-                gameName={recArea.label}
                 gameInstanceID={gameInstance.id}
                 isPlayerHost={isPlayerHost}
                 timeLeft={timeLeft}

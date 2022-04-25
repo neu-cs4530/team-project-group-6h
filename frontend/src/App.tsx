@@ -294,11 +294,9 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setRecreationAreas(localRecreationAreas);
       });
       socket.on('playerLeftGame', (_recreationAreaLabel: string, _playerID: string) => {
-        console.log('leaving game');
         const existingRecArea = localRecreationAreas.find(a => a.label === _recreationAreaLabel);
         const player = localPlayers.find(p => p.id === _playerID);
         if (existingRecArea?.mafiaGame && player) {
-          console.log('heyo');
           existingRecArea.removePlayerFromGame(player);
         }
         setRecreationAreas(localRecreationAreas);
@@ -308,7 +306,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         if (existingRecArea?.mafiaGame) {
           existingRecArea.mafiaGame = undefined;
           existingRecArea.endGame();
-          console.log(`Lobby disbanded in recArea ${recreationAreaLabel}.`);
         }
         if (localCurrentRecArea?.label === recreationAreaLabel) {
           setIsDead(false);
@@ -316,7 +313,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setRecreationAreas(localRecreationAreas);
       });
       socket.on('mafiaGameStarted', (_recAreaLabel: string, _playerRoles: ServerGamePlayer[]) => {
-        console.log('mafia game started, App.tsx');
         const recArea = localRecreationAreas.find(rec => rec.label === _recAreaLabel);
 
         if (recArea) {
@@ -464,7 +460,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         <VideoOverlay preferredMode='fullwidth' />
       </div>
     );
-  }, [appState.sessionToken, videoInstance, isDead, setupGameController]);
+  }, [appState.sessionToken, videoInstance, setupGameController]);
 
   return (
     <CoveyAppContext.Provider value={appState}>
