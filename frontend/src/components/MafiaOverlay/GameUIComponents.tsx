@@ -308,6 +308,7 @@ export function GameUIAlivePlayerList({
         {(gamePhase === 'day_voting' || gamePhase === 'night') && !hasVoted && !isDead
           ? players.map(p => {
               if (gamePhase === 'night') {
+                // Render Mafia vote buttons for general mafia
                 if (playerRole === Role.Unassigned && playerTeam === Team.Mafia) {
                   if (p.team !== Team.Mafia) {
                     return (
@@ -321,6 +322,7 @@ export function GameUIAlivePlayerList({
                   }
                   return <li key={p.id}>{p.userName}</li>;
                 }
+                // For players in town with special role, render target buttons
                 if (playerRole !== Role.Unassigned) {
                   if (
                     (p.id === myPlayerID &&
@@ -333,11 +335,15 @@ export function GameUIAlivePlayerList({
                     <GameUITargetPlayerListElement key={p.id} player={p} voteFunc={voteFunc} />
                   );
                 }
+                // For general town, render player user name
                 return <li key={p.id}>{p.userName}</li>;
               }
+              // Render votes against the player during day voting cycle, no button to vote
+              // against self
               if (p.id === myPlayerID) {
-                return <li key={p.id}>{`${p.userName} ${hasVoted ? p.voteTally : ''}`}</li>;
+                return <li key={p.id}>{`${p.userName} ${hasVoted ? p.voteTally : ''}`} </li>;
               }
+              // Render vote buttons during day voting cycle
               return (
                 <div key={p.id} className='vote-player'>
                   <GameUIVotePlayerListElement player={p} voteFunc={voteFunc} />
@@ -349,11 +355,14 @@ export function GameUIAlivePlayerList({
             })
           : players.map(p => {
               // Need cases for when player is dead, has already voted, or when phase is day_discussion
-              if (gamePhase === 'day_discussion') {
+              if (
+                gamePhase === 'day_discussion' ||
+                (playerTeam === Team.Town && gamePhase === 'night')
+              ) {
                 return <li key={p.id}>{p.userName}</li>;
               }
               if (hasVoted || (isDead && gamePhase === 'day_voting')) {
-                return <li key={p.id}>{`${p.userName}: ${p.voteTally}`}</li>;
+                return <li key={p.id}>{`${p.userName}: ${p.voteTally}`} </li>;
               }
               return <></>;
             })}
