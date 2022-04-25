@@ -26,6 +26,11 @@ export default function GameUIWinOverlay({
   startGame,
   leaveLobby,
 }: GameUIWinOverlayProps): JSX.Element {
+  const getWinnerColor = function (): string {
+    if (game.winner === Team.Town) return '#00a108';
+    if (game.winner === Team.Mafia) return '#940000';
+    return 'black';
+  };
   return (
     <Container
       border='2px'
@@ -36,12 +41,8 @@ export default function GameUIWinOverlay({
       borderRadius='50px'
       backgroundColor='#ededed'
       className='ui-container-day'>
-      <Heading
-        fontSize='xl'
-        as='h1'
-        color={game.winner === Team.Town ? '#00a108' : '#940000'}
-        margin='20px'>
-        {Team[game.winner]} wins!
+      <Heading fontSize='xl' as='h1' color={getWinnerColor()} margin='20px'>
+        {game.winner !== Team.Unassigned ? `${Team[game.winner]} wins!` : 'Draw'}
       </Heading>
 
       <HStack>
