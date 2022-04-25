@@ -10,7 +10,7 @@ Creating a Recreation Area:
 Once inside the empty Conversation Area, press the spacebar. This will open up a modal window which prompts the user to enter a “Topic of Conversation”, and asks if the user would like to create a Recreation Area. To create a Recreation Area, enter a topic of conversation of your choice, and toggle the “Make Recreation Area?” switch. Then, press the “Create” button in the bottom right corner. 
 <img src="https://cdn.discordapp.com/attachments/956637095286411266/968293834175946842/unknown.png" width=50%>
 
-<img src="https://cdn.discordapp.com/attachments/956637095286411266/968293853020958740/unknown.png" width=30%> <img src="https://cdn.discordapp.com/attachments/956637095286411266/968293867990442085/unknown.png" width=30%>
+<img src="https://cdn.discordapp.com/attachments/956637095286411266/968293853020958740/unknown.png" width=30%> <img src="https://cdn.discordapp.com/attachments/956637095286411266/968296961176399922/unknown.png" width=30%>
 
 Players can either create a game or join a preexisting one in a Recreation Area.
 
