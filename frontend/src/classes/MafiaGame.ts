@@ -96,7 +96,10 @@ export default class MafiaGame {
    * @returns True if game can start, false if otherwise.
    */
   public canStart(): boolean {
-    return this._phase === Phase.lobby && this.MIN_PLAYERS <= this._players.length;
+    return (
+      this._phase === Phase.lobby ||
+      (this._phase === Phase.win && this.MIN_PLAYERS <= this._players.length)
+    );
   }
 
   /**
@@ -386,6 +389,7 @@ export default class MafiaGame {
    * Starts the game by setting the phase to discussion during the day time.
    */
   public gameStart(playerRoles: ServerGamePlayer[]): void {
+    this._gamePlayers = [];
     this._phase = Phase.day_discussion;
     playerRoles.forEach(p => {
       this.addGamePlayer(p);

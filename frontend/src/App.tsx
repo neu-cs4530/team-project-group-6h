@@ -306,6 +306,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setRecreationAreas(localRecreationAreas);
       });
       socket.on('mafiaGameStarted', (_recAreaLabel: string, _playerRoles: ServerGamePlayer[]) => {
+        console.log('mafia game started, App.tsx');
         const recArea = localRecreationAreas.find(rec => rec.label === _recAreaLabel);
 
         if (recArea) {

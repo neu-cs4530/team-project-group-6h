@@ -26,6 +26,7 @@ import {
   GameUIVideoOverlay,
 } from './GameUIComponents';
 import GameUIRoleDescription from './GameUIRoleDescription';
+import GameUIWinOverlay from './GameUIWinOverlay';
 import NextPhaseButton from './NextPhaseButton';
 
 type GameUIProps = {
@@ -88,6 +89,37 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
     }
   }, [apiClient, currentTownID, myPlayerID, recArea, sessionToken, toast]);
 
+  const startGame = useCallback(async () => {
+    if (recArea) {
+      try {
+        await apiClient.startGame({
+          coveyTownID: currentTownID,
+          sessionToken,
+          recreationAreaLabel: recArea.label,
+          playerStartID: myPlayerID,
+        });
+        toast({
+          title: 'Mafia Game Started!',
+          status: 'success',
+        });
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          toast({
+            title: 'Unable to start Mafia Game',
+            description: err.toString(),
+            status: 'error',
+          });
+        }
+      }
+    } else {
+      toast({
+        title: 'Unable to start Mafia Game, rec area is undefined',
+        description: '',
+        status: 'error',
+      });
+    }
+  }, [apiClient, sessionToken, currentTownID, toast, recArea, myPlayerID]);
+
   const resetVoteTallies = function (game: MafiaGame) {
     const voteTallies: PlayerVoteTally[] = [];
     for (let i = 0; i < game.alivePlayers.length; i += 1) {
@@ -127,6 +159,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
         }
       },
       onMafiaGameStarted: (game: MafiaGame) => {
+        console.log('in on mafia game started');
         setGamePhase(game.phase);
         const myGamePlayer = game.gamePlayers.find(p => p.id === myPlayerID);
         setPlayerRole(game.playerRole(myPlayerID));
@@ -237,59 +270,72 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
       lobbyButton = <></>;
     }
 
-    const isDay = gamePhase === 'day_discussion' || gamePhase === 'day_voting';
-    return (
-      <Container
-        align='left'
-        spacing={2}
-        border='2px'
-        padding='15'
-        borderColor='gray.500'
-        minWidth='100%'
-        minHeight='100%'
-        borderRadius='50px'
-        backgroundColor={isDay ? '#ededed' : '#7d7d7d'}
-        className={isDay ? 'ui-container-day' : 'ui-container-night'}>
-        <VStack>
-          <HStack>
-            <div margin-left='100px'>
-              <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase} />
-            </div>
-            <Container width='300px' />
-            {lobbyButton}
-            <GameUITimer gameName={recArea.label} gamePhase={gameInstance.phase} />
-          </HStack>
-          <HStack width='full' alignItems='stretch' align='flex-start'>
-            <VStack align='left'>
-              <GameUIRoleDescription
-                playerRole={playerRole}
-                playerRoleInfo={playerRoleInfo || 'Error: no role info'}
-                playerTeam={playerTeam}
-              />
-              <GameUIRoleList gamePlayers={[...gameInstance.alivePlayers]} />
-            </VStack>
-            <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase} />
-            <VStack>
-              <GameUIAlivePlayerList
-                players={[...gameInstance.alivePlayers].sort((p1, p2) =>
-                  p1.userName.localeCompare(p2.userName, undefined, {
-                    numeric: true,
-                    sensitivity: 'base',
-                  }),
-                )}
-                playerTeam={gameInstance.playerTeam(myPlayerID)}
-                playerRole={playerRole}
-                gamePhase={gamePhase}
-                hasVoted={hasVoted}
-                voteTallies={playerVoteTallies}
-                voteFunc={voteFunc}
-              />
-              <GameUIDeadPlayerList players={gameInstance.deadPlayers} />
-            </VStack>
-          </HStack>
-        </VStack>
-      </Container>
-    );
+    if (gamePhase !== 'win') {
+      const isDay = gamePhase === 'day_discussion' || gamePhase === 'day_voting';
+      return (
+        <Container
+          align='left'
+          spacing={2}
+          border='2px'
+          padding='15'
+          borderColor='gray.500'
+          minWidth='100%'
+          minHeight='100%'
+          borderRadius='50px'
+          backgroundColor={isDay ? '#ededed' : '#7d7d7d'}
+          className={isDay ? 'ui-container-day' : 'ui-container-night'}>
+          <VStack>
+            <HStack>
+              <div margin-left='100px'>
+                <GameUIHeader gameName={recArea.label} gamePhase={gameInstance.phase} />
+              </div>
+              <Container width='300px' />
+              {lobbyButton}
+              <GameUITimer gameName={recArea.label} gamePhase={gameInstance.phase} />
+            </HStack>
+            <HStack width='full' alignItems='stretch' align='flex-start'>
+              <VStack align='left'>
+                <GameUIRoleDescription
+                  playerRole={playerRole}
+                  playerRoleInfo={playerRoleInfo || 'Error: no role info'}
+                  playerTeam={playerTeam}
+                />
+                <GameUIRoleList gamePlayers={[...gameInstance.alivePlayers]} />
+              </VStack>
+              <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase} />
+              <VStack>
+                <GameUIAlivePlayerList
+                  players={[...gameInstance.alivePlayers].sort((p1, p2) =>
+                    p1.userName.localeCompare(p2.userName, undefined, {
+                      numeric: true,
+                      sensitivity: 'base',
+                    }),
+                  )}
+                  playerTeam={gameInstance.playerTeam(myPlayerID)}
+                  playerRole={playerRole}
+                  gamePhase={gamePhase}
+                  hasVoted={hasVoted}
+                  voteTallies={playerVoteTallies}
+                  voteFunc={voteFunc}
+                />
+                <GameUIDeadPlayerList players={gameInstance.deadPlayers} />
+              </VStack>
+            </HStack>
+          </VStack>
+        </Container>
+      );
+    }
   }
-  return <></>;
+  return recArea && gameInstance && gamePhase === 'win' ? (
+    <GameUIWinOverlay
+      myPlayerID={myPlayerID}
+      area={recArea}
+      game={gameInstance}
+      isPlayerHost={isPlayerHost}
+      disbandLobby={disbandLobby}
+      startGame={startGame}
+    />
+  ) : (
+    <></>
+  );
 }

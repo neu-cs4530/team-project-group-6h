@@ -82,6 +82,24 @@
   display: flex;
 }
 
+.win-left-panel {
+  width: 200px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.win-buttons {
+  margin-top: 25px;
+  width: 100%;
+  height: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
