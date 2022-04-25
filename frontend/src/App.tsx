@@ -172,8 +172,8 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         RecreationArea.fromServerRecreationArea(sa),
       );
       let localNearbyPlayers: Player[] = [];
-      let localAudioEnabled : boolean = isAudioEnabled;
-      let localVideoEnabled : boolean = isVideoEnabled;
+      let localAudioEnabled: boolean = isAudioEnabled;
+      let localVideoEnabled: boolean = isVideoEnabled;
       setPlayersInTown(localPlayers);
       setConversationAreas(localConversationAreas);
       setRecreationAreas(localRecreationAreas);
@@ -306,6 +306,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
         setRecreationAreas(localRecreationAreas);
       });
       socket.on('mafiaGameStarted', (_recAreaLabel: string, _playerRoles: ServerGamePlayer[]) => {
+        console.log('mafia game started, App.tsx');
         const recArea = localRecreationAreas.find(rec => rec.label === _recAreaLabel);
 
         if (recArea) {
@@ -333,7 +334,12 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             recArea?.notifyGameUpdated();
             mafiaGame.resetFields();
 
-            if (updatedGamePlayers.filter(p=>!p.isAlive).map(p=>p.id).includes(gamePlayerID)) {
+            if (
+              updatedGamePlayers
+                .filter(p => !p.isAlive)
+                .map(p => p.id)
+                .includes(gamePlayerID)
+            ) {
               setIsDead(true);
               if (localAudioEnabled) {
                 toggleAudioEnabled();
@@ -349,6 +355,20 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           }
         },
       );
+      socket.on('playerVoted', (_mafiaGameID: string, _playerID: string, _targetID: string) => {
+        const mafiaGame = localRecreationAreas.find(area => area.mafiaGame?.id === _mafiaGameID)
+          ?.mafiaGame;
+        if (mafiaGame) {
+          const player = mafiaGame.gamePlayers.find(p => p.id === _playerID);
+          const target = mafiaGame.gamePlayers.find(p => p.id === _targetID);
+          if (player && target) {
+            player.votedPlayer = _targetID;
+            target.vote();
+            const recArea = localRecreationAreas.find(rec => rec.mafiaGame?.id === _mafiaGameID);
+            recArea?.notifyPlayerVoted(_playerID, _targetID);
+          }
+        }
+      });
 
       socket.on('mafiaGameEnded', () => {
         // TODO
@@ -402,7 +422,13 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
 
       return true;
     },
-    [playerMovementCallbacks, isAudioEnabled, isVideoEnabled, toggleAudioEnabled, toggleVideoEnabled],
+    [
+      playerMovementCallbacks,
+      isAudioEnabled,
+      isVideoEnabled,
+      toggleAudioEnabled,
+      toggleVideoEnabled,
+    ],
   );
   const videoInstance = Video.instance();
 
@@ -440,9 +466,7 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
                 <ConversationAreasContext.Provider value={conversationAreas}>
                   <RecreationAreasContext.Provider value={recreationAreas}>
                     <CurrentRecreationAreaContext.Provider value={currentRecArea}>
-                      <IsDeadContext.Provider value={isDead}>
-                      {page}
-                      </IsDeadContext.Provider>
+                      <IsDeadContext.Provider value={isDead}>{page}</IsDeadContext.Provider>
                     </CurrentRecreationAreaContext.Provider>
                   </RecreationAreasContext.Provider>
                 </ConversationAreasContext.Provider>

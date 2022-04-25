@@ -415,7 +415,7 @@ export default class CoveyTownController {
     const recArea = this._recreationAreas.find(rec => rec.label === recAreaLabel);
     const gameID = recArea?._mafiaGameID;
     const mafiaGame = this._mafiaGames.find(game => game.id === gameID);
-    if (!gameID || !mafiaGame || mafiaGame.phase !== 'lobby') {
+    if (!gameID || !mafiaGame || !(mafiaGame.phase === 'lobby' || mafiaGame.phase === 'win')) {
       return false;
     }
 
@@ -490,6 +490,7 @@ export default class CoveyTownController {
       return false;
     }
     mafiaGame.votePlayer(voterID, votedID);
+    this._listeners.forEach(listener => listener.onPlayerVoted(mafiaGameID, voterID, votedID));
     return true;
   }
 
