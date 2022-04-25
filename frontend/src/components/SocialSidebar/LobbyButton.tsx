@@ -19,19 +19,16 @@ const LobbyButtons = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Elem
     <>
         <Heading as='h2' fontSize='l'>Mafia Game Menu</Heading>
         {mafiaGame ? 
-        <Tooltip label="Click this button to join a game of Mafia!">
           <JoinGameButton
             hostID={mafiaGame._host.id}
             myPlayerID={playerID}
             area={area} />
-        </Tooltip>
             
         :
-        <Tooltip label="Click this button to start a game of Mafia!">
           <CreateGameButton
             area={area}
             myPlayerID={playerID} />
-        </Tooltip>
+        
         }
             
         
