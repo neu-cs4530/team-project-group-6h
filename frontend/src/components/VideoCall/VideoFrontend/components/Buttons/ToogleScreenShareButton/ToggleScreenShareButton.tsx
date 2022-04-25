@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import Button from '@material-ui/core/Button';
@@ -35,8 +35,7 @@ export default function ToggleScreenShareButton(props: { disabled?: boolean }) {
   const isScreenShareSupported = navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia;
   const isDisabled = props.disabled || disableScreenShareButton || !isScreenShareSupported;
 
-  const currentRecArea = useCurrentRecreationArea();
-  const isInGame = currentRecArea?.mafiaGame;
+  const { room } = useVideoContext();
 
   let tooltipMessage = '';
 
@@ -59,7 +58,7 @@ export default function ToggleScreenShareButton(props: { disabled?: boolean }) {
       <span>
         {/* The span element is needed because a disabled button will not emit hover events and we want to display
           a tooltip when screen sharing is disabled */}
-        {isInGame && <Button
+        <Button
           className={classes.button}
           onClick={toggleScreenShare}
           disabled={isDisabled}
@@ -67,7 +66,7 @@ export default function ToggleScreenShareButton(props: { disabled?: boolean }) {
           data-cy-share-screen
         >
           {SCREEN_SHARE_TEXT}
-        </Button>}
+        </Button>
         
       </span>
     </Tooltip>
