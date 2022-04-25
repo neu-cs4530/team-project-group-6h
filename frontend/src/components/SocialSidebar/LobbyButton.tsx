@@ -1,39 +1,31 @@
-import { Heading, Tooltip } from '@chakra-ui/react'
-import React, { useEffect } from 'react'
-import MafiaGame from '../../classes/MafiaGame'
-import RecreationArea from '../../classes/RecreationArea'
-import CreateGameButton from './CreateGameButton'
-import JoinGameButton from './JoinGameButton'
+import { Heading } from '@chakra-ui/react';
+import React from 'react';
+import MafiaGame from '../../classes/MafiaGame';
+import RecreationArea from '../../classes/RecreationArea';
+import CreateGameButton from './CreateGameButton';
+import JoinGameButton from './JoinGameButton';
 
 type LobbyButtonProps = {
-    area: RecreationArea, 
-    mafiaGame: MafiaGame | undefined,
-    playerID: string,
-}
+  area: RecreationArea;
+  mafiaGame: MafiaGame | undefined;
+  playerID: string;
+};
 
-const LobbyButtons = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Element => { 
-
-    const a = 1;
+const LobbyButtons = ({ area, mafiaGame, playerID }: LobbyButtonProps): JSX.Element => {
+  const a = 1;
 
   return (
     <>
-        <Heading as='h2' fontSize='l'>Mafia Game Menu</Heading>
-        {mafiaGame ? 
-          <JoinGameButton
-            hostID={mafiaGame._host.id}
-            myPlayerID={playerID}
-            area={area} />
-            
-        :
-          <CreateGameButton
-            area={area}
-            myPlayerID={playerID} />
-        
-        }
-            
-        
+      <Heading as='h2' fontSize='l'>
+        Mafia Game Menu
+      </Heading>
+      {mafiaGame ? (
+        <JoinGameButton hostID={mafiaGame._host.id} myPlayerID={playerID} area={area} />
+      ) : (
+        <CreateGameButton area={area} myPlayerID={playerID} />
+      )}
     </>
   );
-}
+};
 
-export default LobbyButtons
+export default LobbyButtons;
