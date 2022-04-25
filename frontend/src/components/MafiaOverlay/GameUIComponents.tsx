@@ -320,6 +320,13 @@ export function GameUIAlivePlayerList({
                   return <li key={p.id}>{p.userName}</li>;
                 }
                 if (playerRole !== Role.Unassigned) {
+                  if (
+                    (p.id === myPlayerID &&
+                      (playerRole === Role.Detective || playerRole === Role.Hypnotist)) ||
+                    (playerRole === Role.Godfather && p.team === Team.Mafia)
+                  ) {
+                    return <li key={p.id}>{p.userName}</li>;
+                  }
                   return (
                     <GameUITargetPlayerListElement key={p.id} player={p} voteFunc={voteFunc} />
                   );
