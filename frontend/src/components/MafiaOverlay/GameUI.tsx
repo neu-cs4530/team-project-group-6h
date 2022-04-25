@@ -376,7 +376,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
                   playerRole={playerRole}
                   gamePhase={gamePhase}
                   hasVoted={hasVoted}
-                  voteTallies={playerVoteTallies}
                   voteFunc={voteFunc}
                 />
                 <GameUIDeadPlayerList players={gameInstance.deadPlayers} />
@@ -389,8 +388,6 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
   }
   return recArea && gameInstance && gamePhase === 'win' ? (
     <GameUIWinOverlay
-      myPlayerID={myPlayerID}
-      area={recArea}
       game={gameInstance}
       isPlayerHost={isPlayerHost}
       disbandLobby={disbandLobby}

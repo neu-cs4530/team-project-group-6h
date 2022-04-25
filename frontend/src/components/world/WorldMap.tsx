@@ -14,6 +14,7 @@ import { Callback } from '../VideoCall/VideoFrontend/types';
 import GameUI from '../MafiaOverlay/GameUI';
 import useCurrentRecreationArea from '../../hooks/useCurrentRecreationArea';
 import MafiaGame from '../../classes/MafiaGame';
+import { RecreationAreaListener } from '../../classes/RecreationArea';
 
 // Original inspiration and code from:
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
