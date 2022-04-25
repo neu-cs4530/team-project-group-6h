@@ -370,6 +370,7 @@ export default function GameUI({ recArea }: GameUIProps): JSX.Element {
               <GameUIVideoOverlay game={gameInstance} gamePhase={gamePhase} />
               <VStack>
                 <GameUIAlivePlayerList
+                  myPlayerID={myPlayerID}
                   players={[...gameInstance.alivePlayers].sort((p1, p2) =>
                     p1.userName.localeCompare(p2.userName, undefined, {
                       numeric: true,
