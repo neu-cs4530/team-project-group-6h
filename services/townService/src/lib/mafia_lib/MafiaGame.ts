@@ -226,7 +226,8 @@ export default class MafiaGame {
       }
 
       // Hypnotist Role-block
-      if (hypnotistIdx >= 0 && this._gamePlayers[hypnotistIdx].target) {
+      const hypnotistTarget = this._gamePlayers[hypnotistIdx].target;
+      if (hypnotistIdx >= 0 && hypnotistTarget) {
         const roleblocked = 'YOU were ROLEBLOCKED by a hypnotist. ';
         const target = this._gamePlayers.find(
           player => player.id === this._gamePlayers[hypnotistIdx].target,
@@ -253,7 +254,11 @@ export default class MafiaGame {
         }
       }
 
-      let targetPlayer = this.getPlayerWithMostVotes();
+      const aliveMafiaPlayers = this.mafiaPlayers.filter(p => p.isAlive);
+      let targetPlayer =
+        aliveMafiaPlayers.length === 1 && hypnotistTarget === aliveMafiaPlayers[0].id
+          ? undefined
+          : this.getPlayerWithMostVotes();
       // Godfather override of mafia vote
       if (godfatherIdx >= 0 && this._gamePlayers[godfatherIdx].target) {
         targetPlayer = this._gamePlayers.find(
