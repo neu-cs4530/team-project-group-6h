@@ -381,11 +381,13 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             } 
             */
            // else
-            if (!updatedGamePlayers
-              .filter(p => !p.isAlive)
-              .map(p => p.id)
-              .includes(gamePlayerID)) {
-              setIsDead(false);
+           if (updatedGamePlayers
+            .filter(p => !p.isAlive)
+            .map(p => p.id)
+            .includes(gamePlayerID)) {
+              setIsDead(true);
+            } else {
+                setIsDead(false);
             }
           }
         },
