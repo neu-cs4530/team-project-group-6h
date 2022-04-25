@@ -353,7 +353,18 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
             recArea?.notifyGameUpdated();
             mafiaGame.resetFields();
 
-            if (
+            if (mafiaGame.phase === 'win') {
+              console.log(`game ended. ${localAudioEnabled} ${isAudioEnabled} ${localVideoEnabled} ${isVideoEnabled}`);
+              if (!localAudioEnabled) {
+                toggleAudioEnabled();
+                localAudioEnabled = true;
+              }
+              if (!localVideoEnabled) {
+                toggleVideoEnabled();
+                localVideoEnabled = true;
+              }
+            }
+            /* else if (
               updatedGamePlayers
                 .filter(p => !p.isAlive)
                 .map(p => p.id)
@@ -368,7 +379,13 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
                 toggleVideoEnabled();
                 localVideoEnabled = false;
               }
-            } else {
+            } 
+            */
+           // else
+            if (!updatedGamePlayers
+              .filter(p => !p.isAlive)
+              .map(p => p.id)
+              .includes(gamePlayerID)) {
               setIsDead(false);
             }
           }
@@ -388,11 +405,6 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
           }
         }
       });
-
-      socket.on('mafiaGameEnded', () => {
-        // TODO
-      });
-
       socket.on('conversationDestroyed', (_conversationArea: ServerConversationArea) => {
         const existingArea = localConversationAreas.find(a => a.label === _conversationArea.label);
         if (existingArea) {
