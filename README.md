@@ -3,6 +3,7 @@
 Mafia.Town has added Recreation Areas to Covey.Town, which allows players to start a game of Mafia!
 
 **Creating a Recreation Area:**
+
 Creating a Recreation Area is similar to creating a conversation area. Because a Recreation Area is an extension of a Conversation Area, potential Conversation and Recreation areas occupy the same areas on the map. To create a Recreation Area, simply enter an empty Conversation Area, which is denoted by “(No Topic)” under the area.
 
 <img src="https://user-images.githubusercontent.com/40529597/165191334-25197594-db16-4437-92f3-671b8c6aa910.png" width=30%> <img src ="https://cdn.discordapp.com/attachments/956637095286411266/968293811648344104/unknown.png" width=50%>
@@ -12,6 +13,7 @@ Once inside the empty Conversation Area, press the spacebar. This will open up a
 <img src="https://cdn.discordapp.com/attachments/956637095286411266/968293834175946842/unknown.png" width=50%>
 
 **Creating a Mafia Game:**
+
 <img src="https://cdn.discordapp.com/attachments/956637095286411266/968297314269687828/unknown.png" width=50%>
 
 Players can either create a game or join a preexisting one in a Recreation Area.
