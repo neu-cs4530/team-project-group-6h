@@ -21,7 +21,10 @@ Once you're in a Mafia game lobby, you'll need four players to start a game! Aft
 
 KNOWN BUGS:
 If a player joins a town after a mafia lobby has been created, they will not be able to see/join it when walking into the recreation area’s bounds
-If a lobby is disbanded, players will sometimes not be able to start another lobby in the same recreation area until all players have left the boundaries
+To avoid, have all players join the town before the game is created.
+
+If a lobby is disbanded, players will sometimes not be able to start another lobby in the same recreation area until all players have left the boundaries.
+To avoid, have all players leave the recreation area before attempting to create a new one.
 
 # Covey.Town
 
