@@ -565,7 +565,7 @@ export default class CoveyTownController {
    * @param player
    * @param mafiaGameID
    */
-  mafiaGamePlayerDisconnect(player: Player, mafiaGameID: string) {
+  mafiaGamePlayerDisconnect(player: Player, mafiaGameID: string): void {
     const mafiaGame = this.mafiaGames.find(game => game.id === mafiaGameID);
     mafiaGame?.eliminatePlayer(player.id);
     mafiaGame?.removePlayer(player);
