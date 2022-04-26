@@ -287,18 +287,18 @@ export default class MafiaGame {
         } else {
           this._gamePlayers.forEach(player => {
             if (!player.result) {
-              player.result = `${targetPlayer?.userName} was TARGETTED by the mafia, but was saved! `;
+              player.result = `${targetPlayer?.userName} was TARGETED by the mafia, but was saved! `;
             } else {
-              player.result += `${targetPlayer?.userName} was TARGETTED by the mafia, but was saved! `;
+              player.result += `${targetPlayer?.userName} was TARGETED by the mafia, but was saved! `;
             }
           });
         }
       } else {
         this._gamePlayers.forEach(player => {
           if (!player.result) {
-            player.result = 'No one was targetted overnight. ';
+            player.result = 'No one was targeted overnight. ';
           } else {
-            player.result += 'No one was targetted overnight. ';
+            player.result += 'No one was targeted overnight. ';
           }
         });
       }
